@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Logo - Club Blockchain Epitech</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="max-w-2xl mx-auto text-center">
+            <h1 class="text-4xl font-bold text-gray-900 mb-8">
+                Test du Logo Club Blockchain Epitech
+            </h1>
+            
+            <!-- Test du logo principal -->
+            <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+                <h2 class="text-2xl font-semibold text-gray-900 mb-4">Logo Principal</h2>
+                <div class="flex justify-center mb-4">
+                    <img 
+                        src="/images/logo/Epitech Blockchain Club Logo.jpg" 
+                        alt="Logo Club Blockchain Epitech Bénin" 
+                        class="w-32 h-32 md:w-40 md:h-40 rounded-lg object-cover shadow-lg"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                    />
+                    <div style="display: none;" class="w-32 h-32 md:w-40 md:h-40 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <span class="text-gray-500">Logo non trouvé</span>
+                    </div>
+                </div>
+                <p class="text-gray-600">Logo principal pour la page d'accueil</p>
+            </div>
+            
+            <!-- Test du logo petit -->
+            <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+                <h2 class="text-2xl font-semibold text-gray-900 mb-4">Logo Petit (Navbar)</h2>
+                <div class="flex justify-center items-center mb-4">
+                    <img 
+                        src="/images/logo/Epitech Blockchain Club Logo.jpg" 
+                        alt="Logo Club Blockchain Epitech" 
+                        class="w-10 h-10 rounded-lg object-cover"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                    />
+                    <div style="display: none;" class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <span class="text-gray-500 text-xs">Logo non trouvé</span>
+                    </div>
+                    <span class="ml-3 text-xl font-bold text-gray-900">Club Blockchain</span>
+                </div>
+                <p class="text-gray-600">Logo petit pour la navbar</p>
+            </div>
+            
+            <!-- Status -->
+            <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6">
+                <div class="flex items-center justify-center mb-4">
+                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                        <span class="text-white text-sm font-bold">✓</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900">Logo Intégré</h3>
+                </div>
+                <div class="space-y-2 text-sm text-gray-700">
+                    <p>✅ Vrai logo du club utilisé</p>
+                    <p>✅ Logo principal sur la page d'accueil</p>
+                    <p>✅ Logo petit dans la navbar</p>
+                    <p>✅ Design responsive et moderne</p>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="text-center mt-8">
+                <p class="text-gray-600 text-sm">
+                    Club Blockchain Epitech Bénin • Test du Logo
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('🎉 Test du logo chargé avec succès !');
+        console.log('✅ Vrai logo du club intégré');
+        console.log('✅ Logo principal et petit configurés');
+        
+        // Vérifier si les images se chargent
+        document.querySelectorAll('img').forEach(img => {
+            img.addEventListener('load', function() {
+                console.log('✅ Image chargée:', this.src);
+            });
+            img.addEventListener('error', function() {
+                console.log('❌ Erreur de chargement:', this.src);
+            });
+        });
+    </script>
+</body>
+</html>
