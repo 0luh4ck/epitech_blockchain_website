@@ -59,7 +59,11 @@ router.post('/register', validateRegister, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Erreur lors de l\'enregistrement:', error);
+    console.error('❌ Erreur dans POST /api/auth/register:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack
+    });
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la création du compte'
@@ -135,7 +139,11 @@ router.post('/login', validateLogin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Erreur lors de la connexion:', error);
+    console.error('❌ Erreur dans POST /api/auth/login:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack
+    });
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la connexion'

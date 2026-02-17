@@ -27,7 +27,7 @@ const Login = () => {
 
   const onSubmit = async (data) => {
     try {
-      await login(data.promotion, data.password);
+      await login(data.email, data.password);
       const from = location.state?.from?.pathname || ROUTES.DASHBOARD;
       navigate(from, { replace: true });
     } catch (error) {
@@ -59,33 +59,33 @@ const Login = () => {
             Accès réservé aux membres du bureau exécutif
           </p>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4">
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Promotion (ex: 2025)
+                Adresse Email
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  {...register('promotion', {
-                    required: 'Votre promotion est requise',
+                  {...register('email', {
+                    required: 'Votre adresse email est requise',
                     pattern: {
-                      value: /^[0-9]{4}$/,
-                      message: 'Format invalide (ex: 2025)'
+                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                      message: 'Format d\'email invalide'
                     }
                   })}
-                  type="text"
+                  type="email"
                   className="appearance-none rounded-lg relative block w-full pl-10 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm transition-all"
-                  placeholder="Votre promotion (ex: 2025)"
+                  placeholder="votre.nom@epitech.eu"
                 />
               </div>
-              {errors.promotion && (
-                <p className="mt-1 text-sm text-red-600">{errors.promotion.message}</p>
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
               )}
             </div>
 
