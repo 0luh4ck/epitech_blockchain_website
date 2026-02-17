@@ -79,12 +79,14 @@ router.post('/login', validateLogin, async (req, res) => {
     const { email, password } = req.body;
 
     // Trouver l'utilisateur
+    console.log('🔑 Tentative de connexion pour:', email);
     const users = await query(
       'SELECT id, email, password, first_name, last_name, role, is_active, is_verified FROM users WHERE email = ?',
       [email]
     );
 
     if (users.length === 0) {
+      console.log('❌ Utilisateur non trouvé:', email);
       return res.status(401).json({
         success: false,
         message: 'Email ou mot de passe incorrect'
@@ -92,9 +94,11 @@ router.post('/login', validateLogin, async (req, res) => {
     }
 
     const user = users[0];
+    console.log('👤 Utilisateur trouvé:', { email: user.email, role: user.role, isActive: user.is_active });
 
     // Vérifier si le compte est actif
     if (!user.is_active) {
+      console.log('❌ Compte inactif:', email);
       return res.status(401).json({
         success: false,
         message: 'Votre compte a été désactivé. Contactez un administrateur.'
@@ -103,12 +107,15 @@ router.post('/login', validateLogin, async (req, res) => {
 
     // Vérifier le mot de passe
     const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log('🔐 Mot de passe valide:', isPasswordValid);
     if (!isPasswordValid) {
+      console.log('❌ Mot de passe incorrect pour:', email);
       return res.status(401).json({
         success: false,
         message: 'Email ou mot de passe incorrect'
       });
     }
+    Joe
 
     // Mettre à jour la dernière connexion
     await query(
