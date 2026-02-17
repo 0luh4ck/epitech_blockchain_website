@@ -52,7 +52,13 @@ async function runMigration() {
         console.log(`✅ Requête ${i + 1}/${queries.length} exécutée avec succès`);
       } catch (error) {
         // Ignorer les erreurs de création si déjà existant
-        if (error.code === 'ER_TABLE_EXISTS_ERROR' || error.message.includes('already exists') || error.code === 'ER_DUP_ENTRY') {
+        if (
+          error.code === 'ER_TABLE_EXISTS_ERROR' ||
+          error.code === 'ER_DUP_KEYNAME' ||
+          error.errno === 1061 ||
+          error.message.includes('already exists') ||
+          error.code === 'ER_DUP_ENTRY'
+        ) {
           console.log(`⚠️  Requête ${i + 1}/${queries.length} ignorée (déjà existant)`);
         } else {
           console.error(`❌ Erreur lors de l'exécution de la requête ${i + 1}:`, error.message);
