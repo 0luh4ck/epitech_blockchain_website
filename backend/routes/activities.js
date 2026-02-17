@@ -46,17 +46,22 @@ router.get('/', optionalAuth, async (req, res) => {
     const total = countResult[0].total;
 
     // Récupérer les activités
-    const activities = await query(
-      `SELECT a.*, u.first_name as creator_first_name, u.last_name as creator_last_name,
+    const activitiesSql = `SELECT a.*, u.first_name as creator_first_name, u.last_name as creator_last_name,
               CASE WHEN ar.user_id IS NOT NULL THEN true ELSE false END as is_registered
        FROM activities a
        LEFT JOIN users u ON a.created_by = u.id
        LEFT JOIN activity_registrations ar ON a.id = ar.activity_id AND ar.user_id = ?
        ${whereClause}
        ORDER BY a.start_date ASC
-       LIMIT ? OFFSET ?`,
-      [userId || null, ...params, parseInt(limit), offset]
-    );
+       LIMIT ? OFFSET ?`;
+    const activitiesParams = [userId || null, ...params, parseInt(limit), offset];
+
+    console.log('🔍 Exécution GET /api/activities:', {
+      sql: activitiesSql,
+      params: activitiesParams
+    });
+
+    const activities = await query(activitiesSql, activitiesParams);
 
     res.json({
       success: true,
