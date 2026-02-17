@@ -1,6 +1,7 @@
 {
   "name": "epitech-blockchain-website",
   "version": "1.0.0",
+  "type": "module",
   "description": "Site web du Club Blockchain d'Epitech Bénin",
   "scripts": {
     "install-all": "bash scripts/install.sh",
