@@ -115,7 +115,6 @@ router.post('/login', validateLogin, async (req, res) => {
         message: 'Email ou mot de passe incorrect'
       });
     }
-    Joe
 
     // Mettre à jour la dernière connexion
     await query(
