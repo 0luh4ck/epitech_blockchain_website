@@ -17,6 +17,7 @@ import attendanceRoutes from './routes/attendance.js';
 import membershipRoutes from './routes/membership.js';
 import membershipRequestRoutes from './routes/membership-requests.js';
 import partnerRoutes from './routes/partners.js';
+import runMigration from './scripts/migrate.js';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler.js';
@@ -133,11 +134,23 @@ app.use(notFound);
 app.use(errorHandler);
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Serveur démarré sur le port ${PORT}`);
-  console.log(`📱 Environnement: ${process.env.NODE_ENV}`);
-  console.log(`🌐 API disponible sur: http://localhost:${PORT}/api`);
-  console.log(`❤️  Club Blockchain Epitech Bénin`);
-});
+const startServer = async () => {
+  try {
+    // Exécuter les migrations avant de démarrer le serveur
+    await runMigration();
+
+    app.listen(PORT, () => {
+      console.log(`🚀 Serveur démarré sur le port ${PORT}`);
+      console.log(`📱 Environnement: ${process.env.NODE_ENV}`);
+      console.log(`🌐 API disponible sur: http://localhost:${PORT}/api`);
+      console.log(`❤️  Club Blockchain Epitech Bénin`);
+    });
+  } catch (error) {
+    console.error('❌ Échec du démarrage du serveur - Erreur de migration:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
 
 export default app;

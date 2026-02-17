@@ -67,11 +67,8 @@ async function runMigration() {
 
   } catch (error) {
     console.error('❌ Erreur lors de la migration:', error);
-    process.exit(1);
+    throw error; // Laisser le serveur gérer l'erreur au démarrage
   }
 }
-
-// Exécuter la migration si ce script est appelé directement
-runMigration();
 
 export default runMigration;
