@@ -93,7 +93,12 @@ router.get('/', optionalAuth, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Erreur lors de la récupération des activités:', error);
+    console.error('❌ Erreur SQL dans GET /api/activities:', {
+      message: error.message,
+      code: error.code,
+      sql: error.sql,
+      stack: error.stack
+    });
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la récupération des activités'
@@ -190,7 +195,12 @@ router.get('/:id', optionalAuth, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Erreur lors de la récupération de l\'activité:', error);
+    console.error('❌ Erreur SQL dans GET /api/activities/:id:', {
+      message: error.message,
+      code: error.code,
+      sql: error.sql,
+      stack: error.stack
+    });
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la récupération de l\'activité'
@@ -253,7 +263,12 @@ router.post('/', authenticateToken, requireExecutive, validateActivity, async (r
       }
     });
   } catch (error) {
-    console.error('Erreur lors de la création de l\'activité:', error);
+    console.error('❌ Erreur SQL dans POST /api/activities:', {
+      message: error.message,
+      code: error.code,
+      sql: error.sql,
+      stack: error.stack
+    });
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la création de l\'activité'

@@ -29,7 +29,12 @@ router.get('/', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Erreur lors de la récupération des partenaires:', error);
+    console.error('❌ Erreur SQL dans GET /api/partners:', {
+      message: error.message,
+      code: error.code,
+      sql: error.sql,
+      stack: error.stack
+    });
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la récupération des partenaires'
