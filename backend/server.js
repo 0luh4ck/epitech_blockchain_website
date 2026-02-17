@@ -32,6 +32,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy for rate limiting (needed on Render/Vercel)
+app.set('trust proxy', 1);
+
 app.get('/', (req, res) => {
   res.status(200).send('Backend Epitech Blockchain is Live! 🚀');
 });
