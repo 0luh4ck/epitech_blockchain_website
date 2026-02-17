@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 async function runMigration() {
   try {
     console.log('🚀 Démarrage de la migration de la base de données...');
-    
+
     // Tester la connexion
     const isConnected = await testConnection();
     if (!isConnected) {
@@ -48,7 +48,7 @@ async function runMigration() {
 
     console.log('🎉 Migration terminée avec succès !');
     console.log('📊 Base de données prête pour le Club Blockchain Epitech');
-    
+
   } catch (error) {
     console.error('❌ Erreur lors de la migration:', error);
     process.exit(1);
@@ -56,8 +56,6 @@ async function runMigration() {
 }
 
 // Exécuter la migration si ce script est appelé directement
-if (import.meta.url === `file://${process.argv[1]}`) {
-  runMigration();
-}
+runMigration();
 
 export default runMigration;
