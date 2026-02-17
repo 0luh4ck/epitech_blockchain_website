@@ -217,8 +217,8 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 
 -- Utilisateurs administrateurs par défaut
 INSERT INTO users (email, password, first_name, last_name, role, position, is_active, is_verified) VALUES
-('samuel.soglohoun@epitech.eu', '$2b$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA4bC6dE', 'Samuel', 'SOGLOHOUN', 'admin', 'Coordinateur du Bureau Exécutif', true, true),
-('brouhane.boni-gomina@epitech.eu', '$2b$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA4bC6dE', 'Brouhane', 'BONI GOMINA', 'admin', 'Président', true, true);
+('samuel.soglohoun@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Samuel', 'SOGLOHOUN', 'admin', 'Coordinateur du Bureau Exécutif', true, true),
+('brouhane.boni-gomina@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Brouhane', 'BONI GOMINA', 'admin', 'Président', true, true);
 
 -- Partenaires
 INSERT INTO partners (name, description, website, contact_email, is_active) VALUES
@@ -228,17 +228,17 @@ INSERT INTO partners (name, description, website, contact_email, is_active) VALU
 
 -- Membres du Bureau Exécutif 2025-2026
 INSERT INTO users (email, password, first_name, last_name, role, position, is_active, is_verified) VALUES
-('estelle.gossou@epitech.eu', '$2b$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA4bC6dE', 'Estelle', 'GOSSOU', 'executive', 'Secrétaire', true, true),
-('divine.azanmassou@epitech.eu', '$2b$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA4bC6dE', 'Divine', 'AZANMASSO', 'executive', 'Trésorière', true, true),
-('christopher.guidibi@epitech.eu', '$2b$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA4bC6dE', 'Christopher', 'GUIDIBI', 'executive', 'Chargé du Pôle Evènements et Partenariats', true, true),
-('stella.gbaguidi@epitech.eu', '$2b$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA4bC6dE', 'Stella', 'GBAGUIDI', 'executive', 'Adjoint chargé des Evènements et Partenariats', true, true),
-('moktar.vodounnon@epitech.eu', '$2b$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA4bC6dE', 'Moktar', 'VODOUNNON', 'executive', 'Lead du Pôle Tech', true, true),
-('imane.philippe@epitech.eu', '$2b$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA4bC6dE', 'Imane', 'PHILIPPE', 'executive', 'Lead du Pôle Communication', true, true),
-('morayo.elegbede@epitech.eu', '$2b$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA4bC6dE', 'Morayo', 'ELEGBEDE', 'executive', 'Adjoint Chargé Pôle Communication', true, true),
-('christian.abiala@epitech.eu', '$2b$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA4bC6dE', 'Christian', 'ABIALA', 'executive', 'Chargé du Pôle Pédago', true, true),
-('eunice.gossou-bah@epitech.eu', '$2b$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA4bC6dE', 'Eunice', 'GOSSOU BAH', 'executive', 'Lead Pôle Ressources Humaines', true, true),
-('jimmy.bachabi@epitech.eu', '$2b$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA4bC6dE', 'Jimmy', 'BACHABI', 'executive', 'Adjoint Pôle Ressources Humaines', true, true),
-('farid.adoi@epitech.eu', '$2b$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA4bC6dE', 'Farid', 'ADOI', 'executive', 'Conseiller Pôle Tech et Pédago', true, true);
+('estelle.gossou@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Estelle', 'GOSSOU', 'executive', 'Secrétaire', true, true),
+('divine.azanmassou@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Divine', 'AZANMASSO', 'executive', 'Trésorière', true, true),
+('christopher.guidibi@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Christopher', 'GUIDIBI', 'executive', 'Chargé du Pôle Evènements et Partenariats', true, true),
+('stella.gbaguidi@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Stella', 'GBAGUIDI', 'executive', 'Adjoint chargé des Evènements et Partenariats', true, true),
+('moktar.vodounnon@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Moktar', 'VODOUNNON', 'executive', 'Lead du Pôle Tech', true, true),
+('imane.philippe@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Imane', 'PHILIPPE', 'executive', 'Lead du Pôle Communication', true, true),
+('morayo.elegbede@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Morayo', 'ELEGBEDE', 'executive', 'Adjoint Chargé Pôle Communication', true, true),
+('christian.abiala@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Christian', 'ABIALA', 'executive', 'Chargé du Pôle Pédago', true, true),
+('eunice.gossou-bah@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Eunice', 'GOSSOU BAH', 'executive', 'Lead Pôle Ressources Humaines', true, true),
+('jimmy.bachabi@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Jimmy', 'BACHABI', 'executive', 'Adjoint Pôle Ressources Humaines', true, true),
+('farid.adoi@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Farid', 'ADOI', 'executive', 'Conseiller Pôle Tech et Pédago', true, true);
 
 -- Annonce de bienvenue
 INSERT INTO announcements (title, content, type, is_public, is_pinned, created_by) VALUES
