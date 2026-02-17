@@ -218,7 +218,8 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 -- Utilisateurs administrateurs par défaut
 INSERT INTO users (email, password, first_name, last_name, role, position, is_active, is_verified) VALUES
 ('samuel.soglohoun@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Samuel', 'SOGLOHOUN', 'admin', 'Coordinateur du Bureau Exécutif', true, true),
-('brouhane.boni-gomina@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Brouhane', 'BONI GOMINA', 'admin', 'Président', true, true);
+('brouhane.boni-gomina@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Brouhane', 'BONI GOMINA', 'admin', 'Président', true, true)
+ON DUPLICATE KEY UPDATE password = VALUES(password);
 
 -- Partenaires
 INSERT INTO partners (name, description, website, contact_email, is_active) VALUES
@@ -238,7 +239,9 @@ INSERT INTO users (email, password, first_name, last_name, role, position, is_ac
 ('christian.abiala@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Christian', 'ABIALA', 'executive', 'Chargé du Pôle Pédago', true, true),
 ('eunice.gossou-bah@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Eunice', 'GOSSOU BAH', 'executive', 'Lead Pôle Ressources Humaines', true, true),
 ('jimmy.bachabi@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Jimmy', 'BACHABI', 'executive', 'Adjoint Pôle Ressources Humaines', true, true),
-('farid.adoi@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Farid', 'ADOI', 'executive', 'Conseiller Pôle Tech et Pédago', true, true);
+('farid.adoi@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Farid', 'ADOI', 'executive', 'Conseiller Pôle Tech et Pédago', true, true)
+ON DUPLICATE KEY UPDATE password = VALUES(password);
+ Joe
 
 -- Annonce de bienvenue
 INSERT INTO announcements (title, content, type, is_public, is_pinned, created_by) VALUES
