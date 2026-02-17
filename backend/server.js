@@ -31,6 +31,10 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+app.get('/', (req, res) => {
+  res.status(200).send('Backend Epitech Blockchain is Live! 🚀');
+});
+
 // Security middleware
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
