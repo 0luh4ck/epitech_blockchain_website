@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Site web du Club Blockchain d'Epitech Bénin",
   "scripts": {
-    "install": "bash scripts/install.sh",
+    "install-all": "bash scripts/install.sh",
     "dev": "bash scripts/start.sh",
     "build": "cd frontend && npm run build",
     "start": "cd backend && npm start",
