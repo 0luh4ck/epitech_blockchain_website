@@ -2,9 +2,8 @@
 -- Base de données: MySQL/PostgreSQL
 
 -- Création de la base de données (si nécessaire)
-CREATE DATABASE IF NOT EXISTS epitech_blockchain_club;
-
-USE epitech_blockchain_club;
+-- CREATE DATABASE IF NOT EXISTS epitech_blockchain_club;
+-- USE epitech_blockchain_club;
 
 -- Table des utilisateurs (membres et administrateurs)
 CREATE TABLE IF NOT EXISTS users (

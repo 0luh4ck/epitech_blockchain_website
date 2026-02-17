@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { query, testConnection } from '../config/database.js';
+import { query, testConnection, default as pool } from '../config/database.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,26 +21,42 @@ async function runMigration() {
     const sqlFile = path.join(__dirname, 'database-schema.sql');
     const sqlContent = fs.readFileSync(sqlFile, 'utf8');
 
-    // Diviser le contenu en requêtes individuelles
-    const queries = sqlContent
-      .split(';')
-      .map(query => query.trim())
-      .filter(query => query.length > 0 && !query.startsWith('--'));
+    // Fonction pour découper proprement le SQL en requêtes
+    const splitQueries = (content) => {
+      const result = [];
+      let current = '';
+      const lines = content.split('\n');
 
+      for (let line of lines) {
+        line = line.trim();
+        if (!line || line.startsWith('--')) continue; // Ignorer les lignes vides et commentaires
+
+        current += ' ' + line;
+
+        if (line.endsWith(';')) {
+          result.push(current.trim());
+          current = '';
+        }
+      }
+      return result;
+    };
+
+    const queries = splitQueries(sqlContent);
     console.log(`📝 Exécution de ${queries.length} requêtes...`);
 
     // Exécuter chaque requête
     for (let i = 0; i < queries.length; i++) {
       const queryText = queries[i];
       try {
-        await query(queryText);
+        await pool.query(queryText);
         console.log(`✅ Requête ${i + 1}/${queries.length} exécutée avec succès`);
       } catch (error) {
-        // Ignorer les erreurs de création de table si elle existe déjà
-        if (error.code === 'ER_TABLE_EXISTS_ERROR' || error.message.includes('already exists')) {
-          console.log(`⚠️  Requête ${i + 1}/${queries.length} ignorée (table existe déjà)`);
+        // Ignorer les erreurs de création si déjà existant
+        if (error.code === 'ER_TABLE_EXISTS_ERROR' || error.message.includes('already exists') || error.code === 'ER_DUP_ENTRY') {
+          console.log(`⚠️  Requête ${i + 1}/${queries.length} ignorée (déjà existant)`);
         } else {
           console.error(`❌ Erreur lors de l'exécution de la requête ${i + 1}:`, error.message);
+          console.error(`Query context: ${queryText.substring(0, 50)}...`);
           throw error;
         }
       }
