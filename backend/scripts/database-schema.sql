@@ -222,8 +222,8 @@ INSERT INTO users (email, password, first_name, last_name, role, position, is_ac
 
 -- Partenaires
 INSERT INTO partners (name, description, website, contact_email, is_active) VALUES
-('Epitech Bénin', 'École d\'informatique et d\'innovation technologique', 'https://epitech.bj/', 'contact@epitech.bj', true),
-('Future Studio', 'Studio d\'innovation et de développement technologique', 'https://www.futurestudio.bj/', 'info@futurestudio.bj', true),
+('Epitech Bénin', 'École d''informatique et d''innovation technologique', 'https://epitech.bj/', 'contact@epitech.bj', true),
+('Future Studio', 'Studio d''innovation et de développement technologique', 'https://www.futurestudio.bj/', 'info@futurestudio.bj', true),
 ('Africa Blockchain Institute', 'Institut de formation et de recherche en blockchain', 'https://africablockchain.institute/', 'contact@africablockchain.institute', true);
 
 -- Membres du Bureau Exécutif 2025-2026
@@ -242,7 +242,7 @@ INSERT INTO users (email, password, first_name, last_name, role, position, is_ac
 
 -- Annonce de bienvenue
 INSERT INTO announcements (title, content, type, is_public, is_pinned, created_by) VALUES
-('Bienvenue au Club Blockchain d\'Epitech Bénin !', 'Nous sommes ravis de vous accueillir sur notre nouvelle plateforme. Le Club Blockchain d\'Epitech Bénin est né de la collaboration entre Epitech Bénin, Future Studio et l\'Africa Blockchain Institute. Rejoignez-nous pour explorer l\'univers passionnant de la blockchain !', 'important', true, true, 1);
+('Bienvenue au Club Blockchain d''Epitech Bénin !', 'Nous sommes ravis de vous accueillir sur notre nouvelle plateforme. Le Club Blockchain d''Epitech Bénin est né de la collaboration entre Epitech Bénin, Future Studio et l''Africa Blockchain Institute. Rejoignez-nous pour explorer l''univers passionnant de la blockchain !', 'important', true, true, 1);
 
 -- Index pour optimiser les performances
 CREATE INDEX idx_users_email ON users(email);
