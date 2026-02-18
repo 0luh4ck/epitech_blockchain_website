@@ -36,13 +36,24 @@ export const testConnection = async () => {
   }
 };
 
-// Fonction pour exécuter des requêtes
+// Fonction pour exécuter des requêtes (utilise pool.query pour une meilleure compatibilité)
 export const query = async (sql, params = []) => {
+  try {
+    const [rows] = await pool.query(sql, params);
+    return rows;
+  } catch (error) {
+    console.error('Erreur SQL:', error.message);
+    throw error;
+  }
+};
+
+// Fonction pour exécuter des requêtes préparées si nécessaire
+export const execute = async (sql, params = []) => {
   try {
     const [rows] = await pool.execute(sql, params);
     return rows;
   } catch (error) {
-    console.error('Erreur SQL:', error.message);
+    console.error('Erreur SQL (execute):', error.message);
     throw error;
   }
 };
