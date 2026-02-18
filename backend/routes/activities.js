@@ -11,7 +11,8 @@ const router = express.Router();
 router.get('/', optionalAuth, async (req, res) => {
   try {
     const { page = 1, limit = 10, type, status = 'published', search } = req.query;
-    const offset = (page - 1) * limit;
+    const limitNum = parseInt(limit);
+    const offsetNum = (parseInt(page) - 1) * limitNum;
     const userId = req.user?.id;
 
     let whereClause = 'WHERE 1=1';
@@ -54,7 +55,7 @@ router.get('/', optionalAuth, async (req, res) => {
        ${whereClause}
        ORDER BY a.start_date ASC
        LIMIT ? OFFSET ?`;
-    const activitiesParams = [userId || null, ...params, parseInt(limit), offset];
+    const activitiesParams = [userId || null, ...params, limitNum, offsetNum];
 
     console.log('🔍 Exécution GET /api/activities:', {
       sql: activitiesSql,
