@@ -230,7 +230,7 @@ INSERT INTO partners (name, description, website, contact_email, is_active) VALU
 -- Membres du Bureau Exécutif 2025-2026
 INSERT INTO users (email, password, first_name, last_name, role, position, is_active, is_verified) VALUES
 ('estelle.gossou@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Estelle', 'GOSSOU', 'executive', 'Secrétaire', true, true),
-('divine.azanmassou@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Divine', 'AZANMASSO', 'executive', 'Trésorière', true, true),
+('divine.azanmasso@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Divine', 'AZANMASSO', 'executive', 'Trésorière', true, true),
 ('christopher.guidibi@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Christopher', 'GUIDIBI', 'executive', 'Chargé du Pôle Evènements et Partenariats', true, true),
 ('stella.gbaguidi@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Stella', 'GBAGUIDI', 'executive', 'Adjoint chargé des Evènements et Partenariats', true, true),
 ('moktar.vodounnon@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Moktar', 'VODOUNNON', 'executive', 'Lead du Pôle Tech', true, true),
