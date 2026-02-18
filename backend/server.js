@@ -102,17 +102,22 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// API Routes
+// API// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/activities', activityRoutes);
+app.use('/api/partners', partnerRoutes);
+app.use('/api/membership-requests', membershipRequestRoutes);
+app.use('/api/membership', membershipRoutes);
 app.use('/api/exams', examRoutes);
 app.use('/api/attendance', attendanceRoutes);
-app.use('/api/membership', membershipRoutes);
-app.use('/api/membership-requests', membershipRequestRoutes);
-app.use('/api/partners', partnerRoutes);
 
-// API Info endpoint
+// Route de test pour la propagation du déploiement
+app.get('/api/test-deploy', (req, res) => {
+  res.json({ success: true, timestamp: new Date().toISOString(), version: 'deploy-check-1' });
+});
+
+// Santé de l'API & Base de données
 app.get('/api', (req, res) => {
   res.json({
     name: 'Club Blockchain Epitech API',
