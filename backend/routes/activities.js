@@ -19,9 +19,9 @@ router.get('/', optionalAuth, async (req, res) => {
 
     // Filtrer par statut (public seulement si pas connecté)
     if (!userId) {
-      whereClause += ' AND is_public = true AND status = "published"';
+      whereClause += ' AND a.is_public = true AND a.status = "published"';
     } else {
-      whereClause += ' AND status = ?';
+      whereClause += ' AND a.status = ?';
       params.push(status);
     }
 
@@ -33,7 +33,7 @@ router.get('/', optionalAuth, async (req, res) => {
 
     // Recherche
     if (search) {
-      whereClause += ' AND (title LIKE ? OR description LIKE ?)';
+      whereClause += ' AND (a.title LIKE ? OR a.description LIKE ?)';
       const searchTerm = `%${search}%`;
       params.push(searchTerm, searchTerm);
     }
