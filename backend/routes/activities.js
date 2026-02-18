@@ -106,7 +106,11 @@ router.get('/', optionalAuth, async (req, res) => {
     });
     res.status(500).json({
       success: false,
-      message: 'Erreur lors de la récupération des activités'
+      message: 'Erreur lors de la récupération des activités',
+      error: error.message,
+      code: error.code,
+      sql: error.sql,
+      stack: error.stack
     });
   }
 });

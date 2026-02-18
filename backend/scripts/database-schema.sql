@@ -241,7 +241,6 @@ INSERT INTO users (email, password, first_name, last_name, role, position, is_ac
 ('jimmy.bachabi@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Jimmy', 'BACHABI', 'executive', 'Adjoint Pôle Ressources Humaines', true, true),
 ('farid.adoi@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Farid', 'ADOI', 'executive', 'Conseiller Pôle Tech et Pédago', true, true)
 ON DUPLICATE KEY UPDATE password = VALUES(password);
- Joe
 
 -- Annonce de bienvenue
 INSERT INTO announcements (title, content, type, is_public, is_pinned, created_by) VALUES
