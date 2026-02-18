@@ -40,7 +40,7 @@ router.get('/', optionalAuth, async (req, res) => {
 
     // Compter le total
     const countResult = await query(
-      `SELECT COUNT(*) as total FROM activities ${whereClause}`,
+      `SELECT COUNT(*) as total FROM activities a ${whereClause}`,
       params
     );
     const total = countResult[0].total;

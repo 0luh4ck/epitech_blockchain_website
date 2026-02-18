@@ -112,11 +112,6 @@ app.use('/api/membership', membershipRoutes);
 app.use('/api/exams', examRoutes);
 app.use('/api/attendance', attendanceRoutes);
 
-// Route de test pour la propagation du déploiement
-app.get('/api/test-deploy', (req, res) => {
-  res.json({ success: true, timestamp: new Date().toISOString(), version: 'deploy-check-1' });
-});
-
 // Santé de l'API & Base de données
 app.get('/api', (req, res) => {
   res.json({
