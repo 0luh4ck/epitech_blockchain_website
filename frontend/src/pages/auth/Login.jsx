@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, Zap } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../utils/constants';
 
@@ -14,10 +15,9 @@ const Login = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting },
   } = useForm();
 
-  // Rediriger si déjà connecté
   useEffect(() => {
     if (isAuthenticated) {
       const from = location.state?.from?.pathname || ROUTES.DASHBOARD;
@@ -30,148 +30,229 @@ const Login = () => {
       await login(data.email, data.password);
       const from = location.state?.from?.pathname || ROUTES.DASHBOARD;
       navigate(from, { replace: true });
-    } catch (error) {
-      // L'erreur est déjà gérée dans le contexte d'authentification
-    }
+    } catch (_) { }
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-[#050505]">
+        <div className="relative">
+          <div className="animate-spin rounded-full h-14 w-14 border-2 border-transparent border-t-primary-500 border-r-secondary-500" />
+          <div className="absolute inset-0 rounded-full animate-ping opacity-20 border-2 border-primary-500" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
-        <div>
-          <div className="mx-auto h-16 w-16 bg-gradient-to-r from-green-600 to-green-700 rounded-xl flex items-center justify-center shadow-md">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-          </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Espace Membre
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Accès réservé aux membres du bureau exécutif
-          </p>
-        </div>
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#050505] py-12 px-4">
+      {/* Background glow blobs */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full opacity-15 blur-3xl"
+          style={{ background: 'radial-gradient(circle, #00d2ff, transparent)' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full opacity-10 blur-3xl"
+          style={{ background: 'radial-gradient(circle, #7000ff, transparent)' }} />
+      </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-4">
+      {/* Animated grid lines */}
+      <div className="absolute inset-0 pointer-events-none opacity-5"
+        style={{
+          backgroundImage: 'linear-gradient(rgba(0,210,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(0,210,255,0.5) 1px, transparent 1px)',
+          backgroundSize: '60px 60px',
+        }}
+      />
+
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="relative w-full max-w-md"
+      >
+        {/* Card */}
+        <div
+          className="rounded-3xl p-8 md:p-10"
+          style={{
+            background: 'rgba(255,255,255,0.04)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            border: '1px solid rgba(0,210,255,0.15)',
+            boxShadow: '0 0 60px rgba(0,210,255,0.08), 0 40px 80px rgba(0,0,0,0.4)',
+          }}
+        >
+          {/* Header */}
+          <div className="text-center mb-8">
+            {/* Logo */}
+            <div className="flex justify-center mb-5">
+              <div className="relative">
+                <img
+                  src="/images/logo/Epitech Blockchain Club Logo.jpg"
+                  alt="Club Blockchain Epitech"
+                  className="w-16 h-16 rounded-xl object-cover"
+                  style={{ border: '2px solid rgba(0,210,255,0.4)', boxShadow: '0 0 20px rgba(0,210,255,0.3)' }}
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+                <div
+                  className="hidden w-16 h-16 rounded-xl items-center justify-center text-white"
+                  style={{ background: 'linear-gradient(135deg, #00d2ff, #7000ff)' }}
+                >
+                  <Zap className="w-8 h-8" />
+                </div>
+              </div>
+            </div>
+
+            <h1 className="text-2xl font-heading font-black text-white mb-2">
+              Espace Membre
+            </h1>
+            <p className="text-sm text-gray-500">
+              Accès réservé aux membres du bureau exécutif
+            </p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-400 mb-2">
                 Adresse Email
               </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Mail className="h-4 w-4 text-gray-600" />
                 </div>
                 <input
                   {...register('email', {
                     required: 'Votre adresse email est requise',
                     pattern: {
                       value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: 'Format d\'email invalide'
-                    }
+                      message: 'Format d\'email invalide',
+                    },
                   })}
                   type="email"
-                  className="appearance-none rounded-lg relative block w-full pl-10 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm transition-all"
                   placeholder="votre.nom@epitech.eu"
+                  className="w-full pl-11 pr-4 py-3 rounded-xl text-sm text-white placeholder-gray-600 outline-none transition-all duration-200"
+                  style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    border: errors.email ? '1px solid rgba(248,113,113,0.5)' : '1px solid rgba(0,210,255,0.15)',
+                  }}
+                  onFocus={e => {
+                    e.target.style.border = '1px solid rgba(0,210,255,0.5)';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(0,210,255,0.1)';
+                  }}
+                  onBlur={e => {
+                    e.target.style.border = errors.email ? '1px solid rgba(248,113,113,0.5)' : '1px solid rgba(0,210,255,0.15)';
+                    e.target.style.boxShadow = 'none';
+                  }}
                 />
               </div>
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                <p className="mt-1.5 text-xs text-red-400">{errors.email.message}</p>
               )}
             </div>
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-400 mb-2">
                 Mot de passe
               </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Lock className="h-4 w-4 text-gray-600" />
                 </div>
                 <input
                   {...register('password', {
                     required: 'Le mot de passe est requis',
-                    minLength: {
-                      value: 6,
-                      message: 'Le mot de passe doit contenir au moins 6 caractères'
-                    }
+                    minLength: { value: 6, message: 'Au moins 6 caractères' },
                   })}
                   type={showPassword ? 'text' : 'password'}
-                  className="appearance-none rounded-md relative block w-full pl-10 pr-10 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
                   placeholder="Votre mot de passe"
+                  className="w-full pl-11 pr-12 py-3 rounded-xl text-sm text-white placeholder-gray-600 outline-none transition-all duration-200"
+                  style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    border: errors.password ? '1px solid rgba(248,113,113,0.5)' : '1px solid rgba(0,210,255,0.15)',
+                  }}
+                  onFocus={e => {
+                    e.target.style.border = '1px solid rgba(0,210,255,0.5)';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(0,210,255,0.1)';
+                  }}
+                  onBlur={e => {
+                    e.target.style.border = errors.password ? '1px solid rgba(248,113,113,0.5)' : '1px solid rgba(0,210,255,0.15)';
+                    e.target.style.boxShadow = 'none';
+                  }}
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-600 hover:text-gray-400 transition-colors"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
-                  )}
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                <p className="mt-1.5 text-xs text-red-400">{errors.password.message}</p>
               )}
             </div>
-          </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="h-4 w-4 text-green-600">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                  <path fillRule="evenodd" d="M12 1.5a10.5 10.5 0 100 21 10.5 10.5 0 000-21zM3 12a9 9 0 1118 0 9 9 0 01-18 0zm10.5-3a.75.75 0 00-1.06-1.06l-3.47 3.47-1.47-1.47a.75.75 0 10-1.06 1.06l2 2a.75.75 0 001.06 0l4-4z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <span className="ml-2 block text-sm text-gray-900">
-                Accès sécurisé
-              </span>
-            </div>
-
-            <div className="text-sm">
-              <a href="mailto:contact@blockchain-epitech.com" className="font-medium text-green-600 hover:text-green-500 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                </svg>
+            {/* Forgot password link */}
+            <div className="flex justify-end">
+              <a
+                href="mailto:contact@blockchain-epitech.com"
+                className="text-xs text-primary-500 hover:text-primary-400 transition-colors"
+              >
                 Contacter l'administrateur
               </a>
             </div>
-          </div>
 
-          <div>
+            {/* Submit */}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform transition-all duration-200 hover:-translate-y-0.5"
+              className="w-full py-3.5 rounded-xl text-sm font-semibold font-heading text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                background: 'linear-gradient(135deg, #00d2ff, #7000ff)',
+              }}
+              onMouseEnter={e => {
+                if (!isSubmitting) {
+                  e.currentTarget.style.boxShadow = '0 0 25px rgba(0,210,255,0.5), 0 0 50px rgba(112,0,255,0.25)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
             >
               {isSubmitting ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <div className="flex items-center justify-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white" />
+                  Connexion...
+                </div>
               ) : (
                 'Se connecter'
               )}
             </button>
-          </div>
+          </form>
 
-          <div className="text-center pt-4 border-t border-gray-200 mt-6">
-            <p className="text-sm text-gray-500">
-              © {new Date().getFullYear()} Club Blockchain Epitech - Tous droits réservés
+          {/* Footer */}
+          <div className="mt-8 pt-6 border-t border-white/5 text-center">
+            <p className="text-xs text-gray-600">
+              © {new Date().getFullYear()} Club Blockchain Epitech — Tous droits réservés
             </p>
           </div>
-        </form>
-      </div>
+        </div>
+
+        {/* Back to home */}
+        <div className="text-center mt-6">
+          <Link
+            to={ROUTES.HOME}
+            className="text-sm text-gray-600 hover:text-primary-400 transition-colors"
+          >
+            ← Retour à l'accueil
+          </Link>
+        </div>
+      </motion.div>
     </div>
   );
 };

@@ -1,12 +1,11 @@
 import React from 'react';
 import { Toaster } from 'react-hot-toast';
-import Header from './Header';
 import BlockchainNav from '../BlockchainNav';
 import Footer from './Footer';
 
 const Layout = ({ children }) => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-300">
       <BlockchainNav />
       <main className="flex-grow">
         {children}
@@ -17,21 +16,25 @@ const Layout = ({ children }) => {
         toastOptions={{
           duration: 4000,
           style: {
-            background: '#363636',
-            color: '#fff',
+            background: 'rgba(17, 17, 24, 0.95)',
+            backdropFilter: 'blur(16px)',
+            border: '1px solid rgba(0, 210, 255, 0.2)',
+            color: '#f0f0ff',
+            borderRadius: '12px',
+            boxShadow: '0 0 20px rgba(0, 210, 255, 0.1)',
           },
           success: {
             duration: 3000,
             iconTheme: {
-              primary: '#10B981',
-              secondary: '#fff',
+              primary: '#00d2ff',
+              secondary: '#050505',
             },
           },
           error: {
             duration: 5000,
             iconTheme: {
-              primary: '#EF4444',
-              secondary: '#fff',
+              primary: '#f87171',
+              secondary: '#050505',
             },
           },
         }}

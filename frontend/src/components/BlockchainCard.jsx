@@ -1,39 +1,20 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
-const BlockchainCard = ({ 
-  children, 
+const BlockchainCard = ({
+  children,
   title,
   description,
   icon: Icon,
   className = '',
-  glowColor = '#10B981',
-  ...props 
+  glowColor = '#00d2ff',
+  variant = 'default',
+  ...props
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [particles, setParticles] = useState([]);
-  const cardRef = useRef(null);
-
-  useEffect(() => {
-    if (isHovered) {
-      // Créer des particules flottantes
-      const newParticles = Array.from({ length: 8 }, (_, i) => ({
-        id: i,
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        size: Math.random() * 4 + 2,
-        opacity: Math.random() * 0.5 + 0.3,
-        speed: Math.random() * 0.02 + 0.01
-      }));
-      setParticles(newParticles);
-    } else {
-      setParticles([]);
-    }
-  }, [isHovered]);
 
   return (
     <motion.div
-      ref={cardRef}
       className={`relative group ${className}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -42,109 +23,74 @@ const BlockchainCard = ({
       onHoverEnd={() => setIsHovered(false)}
       {...props}
     >
-      {/* Effet de lueur de fond */}
-      <div 
-        className={`absolute inset-0 rounded-xl transition-all duration-500 ${
-          isHovered ? 'opacity-100 scale-110' : 'opacity-0 scale-100'
-        }`}
+      {/* Glow background */}
+      <div
+        className="absolute inset-0 rounded-2xl transition-all duration-500 pointer-events-none"
         style={{
-          background: `radial-gradient(circle at center, ${glowColor}20, transparent 70%)`,
-          filter: 'blur(30px)',
-          zIndex: -1
+          background: `radial-gradient(circle at center, ${glowColor}18, transparent 70%)`,
+          filter: 'blur(24px)',
+          opacity: isHovered ? 1 : 0,
+          transform: isHovered ? 'scale(1.1)' : 'scale(1)',
+          zIndex: -1,
         }}
       />
-      
-      {/* Bordure animée */}
-      <div 
-        className={`absolute inset-0 rounded-xl transition-all duration-500 ${
-          isHovered ? 'opacity-100' : 'opacity-0'
-        }`}
+
+      {/* Card body */}
+      <div
+        className={`relative h-full rounded-2xl p-6 transition-all duration-300 ${isHovered ? 'transform -translate-y-1' : ''
+          }`}
         style={{
-          background: `linear-gradient(45deg, ${glowColor}, transparent, ${glowColor})`,
-          padding: '2px',
-          zIndex: 0
+          background: isHovered
+            ? 'rgba(255,255,255,0.06)'
+            : 'rgba(255,255,255,0.03)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: isHovered
+            ? `1px solid ${glowColor}50`
+            : '1px solid rgba(0, 210, 255, 0.1)',
+          boxShadow: isHovered
+            ? `0 8px 32px rgba(0,0,0,0.2), 0 0 20px ${glowColor}20`
+            : '0 4px 16px rgba(0,0,0,0.1)',
         }}
       >
-        <div className="w-full h-full bg-white rounded-xl" />
-      </div>
-      
-      {/* Contenu de la carte */}
-      <div className="relative z-10 bg-white rounded-xl p-6 shadow-lg border border-gray-100 h-full">
-        {/* Particules flottantes */}
-        {particles.map(particle => (
-          <motion.div
-            key={particle.id}
-            className="absolute rounded-full"
-            style={{
-              left: `${particle.x}%`,
-              top: `${particle.y}%`,
-              width: particle.size,
-              height: particle.size,
-              backgroundColor: glowColor,
-              opacity: particle.opacity
-            }}
-            animate={{
-              y: [0, -20, 0],
-              opacity: [particle.opacity, 0, particle.opacity]
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              delay: particle.id * 0.2
-            }}
-          />
-        ))}
-        
-        {/* Icône */}
+        {/* Icon */}
         {Icon && (
-          <motion.div 
-            className="mb-4"
-            animate={{ 
-              rotate: isHovered ? 360 : 0,
-              scale: isHovered ? 1.1 : 1
+          <motion.div
+            className="mb-4 inline-flex items-center justify-center w-12 h-12 rounded-xl"
+            style={{
+              background: `linear-gradient(135deg, ${glowColor}20, ${glowColor}05)`,
+              border: `1px solid ${glowColor}30`,
             }}
-            transition={{ duration: 0.5 }}
+            animate={{ scale: isHovered ? 1.1 : 1 }}
+            transition={{ duration: 0.3 }}
           >
-            <Icon className="h-8 w-8 text-green-600" />
+            <Icon
+              className="w-6 h-6 transition-colors duration-300"
+              style={{ color: glowColor }}
+            />
           </motion.div>
         )}
-        
-        {/* Titre */}
+
+        {/* Title */}
         {title && (
-          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors duration-300">
+          <h3
+            className="text-lg font-heading font-bold mb-2 text-gray-900 dark:text-white transition-colors duration-300"
+            style={isHovered ? { color: glowColor } : {}}
+          >
             {title}
           </h3>
         )}
-        
+
         {/* Description */}
         {description && (
-          <p className="text-gray-600 mb-4 group-hover:text-gray-700 transition-colors duration-300">
+          <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
             {description}
           </p>
         )}
-        
-        {/* Contenu personnalisé */}
+
+        {/* Custom children */}
         {children}
       </div>
-      
-      {/* Effet de brillance au survol */}
-      <div 
-        className={`absolute inset-0 rounded-xl transition-opacity duration-500 ${
-          isHovered ? 'opacity-100' : 'opacity-0'
-        }`}
-        style={{
-          background: `linear-gradient(45deg, transparent 30%, ${glowColor}20 50%, transparent 70%)`,
-          transform: 'translateX(-100%)',
-          animation: isHovered ? 'shimmer 1.5s ease-in-out' : 'none'
-        }}
-      />
-      
-      <style jsx>{`
-        @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-      `}</style>
     </motion.div>
   );
 };
