@@ -46,8 +46,8 @@ const BlockchainNav = () => {
     <>
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
-            ? 'bg-white/10 dark:bg-black/30 backdrop-blur-xl border-b border-white/10 shadow-lg shadow-black/10'
-            : 'bg-transparent'
+          ? 'bg-white/10 dark:bg-black/30 backdrop-blur-xl border-b border-white/10 shadow-lg shadow-black/10'
+          : 'bg-transparent'
           }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -57,7 +57,7 @@ const BlockchainNav = () => {
             <Link to={ROUTES.HOME} className="flex items-center gap-3 group flex-shrink-0">
               <div className="relative w-9 h-9">
                 <img
-                  src="/images/logo/Epitech Blockchain Club Logo.jpg"
+                  src="/logo.png"
                   alt="Club Blockchain Epitech"
                   className="w-9 h-9 rounded-lg object-cover ring-1 ring-primary-500/40 group-hover:ring-primary-500 transition-all duration-300"
                   onError={(e) => {
@@ -85,8 +85,8 @@ const BlockchainNav = () => {
                   key={item.name}
                   to={item.href}
                   className={`relative px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${isActiveRoute(item.href)
-                      ? 'text-primary-500 dark:text-primary-400'
-                      : 'text-gray-700 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-400 hover:bg-primary-500/5'
+                    ? 'text-primary-500 dark:text-primary-400'
+                    : 'text-gray-700 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-400 hover:bg-primary-500/5'
                     }`}
                 >
                   {item.name}
@@ -213,8 +213,8 @@ const BlockchainNav = () => {
                 key={item.name}
                 to={item.href}
                 className={`flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all ${isActiveRoute(item.href)
-                    ? 'bg-primary-500/10 text-primary-500'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-primary-500/5 hover:text-primary-500'
+                  ? 'bg-primary-500/10 text-primary-500'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-primary-500/5 hover:text-primary-500'
                   }`}
                 onClick={() => setIsMenuOpen(false)}
               >

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Users, Calendar, BookOpen, Award, Target, Globe, Zap, Shield, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ROUTES } from '../utils/constants';
+import { statsService } from '../services/stats';
 import BlockchainButton from '../components/BlockchainButton';
 import BlockchainCard from '../components/BlockchainCard';
 
@@ -132,9 +133,25 @@ const Home = () => {
     },
   ];
 
+  const [statsData, setStatsData] = React.useState(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await statsService.getDashboardStats();
+        if (response.success) {
+          setStatsData(response.data);
+        }
+      } catch (error) {
+        console.error('Erreur stats home:', error);
+      }
+    };
+    fetchStats();
+  }, []);
+
   const stats = [
-    { number: '30+', label: 'Membres Actifs' },
-    { number: '20+', label: 'Événements' },
+    { number: statsData ? `${statsData.activeMembers}` : '30+', label: 'Membres Actifs' },
+    { number: statsData ? `${statsData.upcomingActivities}` : '5+', label: 'Activités' },
     { number: '4', label: 'Partenaires' },
     { number: '100%', label: 'Satisfaction' },
   ];
@@ -199,7 +216,7 @@ const Home = () => {
           >
             <div className="relative">
               <img
-                src="/images/logo/Epitech Blockchain Club Logo.jpg"
+                src="/logo.png"
                 alt="Logo Club Blockchain Epitech Bénin"
                 className="w-28 h-28 md:w-36 md:h-36 rounded-2xl object-cover shadow-2xl"
                 style={{ border: '2px solid rgba(0,210,255,0.4)', boxShadow: '0 0 40px rgba(0,210,255,0.3), 0 0 80px rgba(112,0,255,0.15)' }}

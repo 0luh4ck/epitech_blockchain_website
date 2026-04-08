@@ -1,32 +1,53 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Calendar, Users, BookOpen, Award, BarChart3, Settings } from 'lucide-react';
+import { statsService } from '../services/stats';
+import { toast } from 'react-hot-toast';
 
 const Dashboard = () => {
   const { user, isAdmin, isExecutive } = useAuth();
 
+  const [statsData, setStatsData] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await statsService.getDashboardStats();
+        if (response.success) {
+          setStatsData(response.data);
+        }
+      } catch (error) {
+        console.error('Erreur stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
   const stats = [
     {
       title: 'Activités à Venir',
-      value: '5',
+      value: loading ? '...' : statsData?.upcomingActivities || '0',
       icon: Calendar,
       color: 'bg-blue-500'
     },
     {
       title: 'Membres Actifs',
-      value: '30+',
+      value: loading ? '...' : statsData?.activeMembers || '0',
       icon: Users,
       color: 'bg-green-500'
     },
     {
       title: 'Examens Disponibles',
-      value: '3',
+      value: loading ? '...' : statsData?.availableExams || '0',
       icon: BookOpen,
       color: 'bg-purple-500'
     },
     {
       title: 'Certifications',
-      value: '12',
+      value: loading ? '...' : statsData?.certifications || '0',
       icon: Award,
       color: 'bg-yellow-500'
     }

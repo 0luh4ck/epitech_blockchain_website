@@ -17,6 +17,7 @@ import attendanceRoutes from './routes/attendance.js';
 import membershipRoutes from './routes/membership.js';
 import membershipRequestRoutes from './routes/membership-requests.js';
 import partnerRoutes from './routes/partners.js';
+import statsRoutes from './routes/stats.js';
 import runMigration from './scripts/migrate.js';
 
 // Import middleware
@@ -111,6 +112,7 @@ app.use('/api/membership-requests', membershipRequestRoutes);
 app.use('/api/membership', membershipRoutes);
 app.use('/api/exams', examRoutes);
 app.use('/api/attendance', attendanceRoutes);
+app.use('/api/stats', statsRoutes);
 
 // Santé de l'API & Base de données
 app.get('/api', (req, res) => {

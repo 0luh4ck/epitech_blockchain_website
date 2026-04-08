@@ -29,7 +29,13 @@ export const validateRegister = [
   body('email')
     .isEmail()
     .normalizeEmail()
-    .withMessage('Email invalide'),
+    .withMessage('Email invalide')
+    .custom((value) => {
+      if (!value.endsWith('@epitech.eu')) {
+        throw new Error('Seules les adresses @epitech.eu sont autorisées');
+      }
+      return true;
+    }),
   body('password')
     .isLength({ min: 6 })
     .withMessage('Le mot de passe doit contenir au moins 6 caractères'),
@@ -142,7 +148,13 @@ export const validateMembershipApplication = [
   body('email')
     .isEmail()
     .normalizeEmail()
-    .withMessage('Email invalide'),
+    .withMessage('Email invalide')
+    .custom((value) => {
+      if (!value.endsWith('@epitech.eu')) {
+        throw new Error('Seules les adresses @epitech.eu sont autorisées');
+      }
+      return true;
+    }),
   body('phone')
     .optional()
     .isMobilePhone()

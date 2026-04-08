@@ -85,7 +85,7 @@ const Login = () => {
             <div className="flex justify-center mb-5">
               <div className="relative">
                 <img
-                  src="/images/logo/Epitech Blockchain Club Logo.jpg"
+                  src="/logo.png"
                   alt="Club Blockchain Epitech"
                   className="w-16 h-16 rounded-xl object-cover"
                   style={{ border: '2px solid rgba(0,210,255,0.4)', boxShadow: '0 0 20px rgba(0,210,255,0.3)' }}

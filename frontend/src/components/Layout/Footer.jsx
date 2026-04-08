@@ -47,7 +47,7 @@ const Footer = () => {
             <Link to={ROUTES.HOME} className="flex items-center gap-3 mb-5 group">
               <div className="relative w-10 h-10 flex-shrink-0">
                 <img
-                  src="/images/logo/Epitech Blockchain Club Logo.jpg"
+                  src="/logo.png"
                   alt="Club Blockchain Epitech"
                   className="w-10 h-10 rounded-lg object-cover"
                   style={{ border: '1px solid rgba(0,210,255,0.3)' }}
@@ -164,46 +164,46 @@ const Footer = () => {
                 <MapPin className="w-4 h-4 text-primary-500 flex-shrink-0 mt-0.5" />
                 <span>{APP_CONFIG.contact?.address}</span>
               </div>
+
+              <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-3">
+                Partenaires
+              </h4>
+              <ul className="space-y-2">
+                {footerLinks.partenaires.map((partner) => (
+                  <li key={partner.name}>
+                    <a
+                      href={partner.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-gray-600 hover:text-primary-400 transition-colors"
+                    >
+                      {partner.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
-
-            <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-3">
-              Partenaires
-            </h4>
-            <ul className="space-y-2">
-              {footerLinks.partenaires.map((partner) => (
-                <li key={partner.name}>
-                  <a
-                    href={partner.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-gray-600 hover:text-primary-400 transition-colors"
-                  >
-                    {partner.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
           </div>
-        </div>
 
-        {/* Bottom bar */}
-        <div className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-gray-600">
-            © {currentYear} {APP_CONFIG.name}. Tous droits réservés.
-          </p>
-          <div className="flex gap-6">
-            <Link to="/privacy" className="text-xs text-gray-600 hover:text-primary-400 transition-colors">
-              Confidentialité
-            </Link>
-            <Link to="/terms" className="text-xs text-gray-600 hover:text-primary-400 transition-colors">
-              Conditions
-            </Link>
+          {/* Bottom bar */}
+          <div className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-gray-600">
+              © {currentYear} {APP_CONFIG.name}. Tous droits réservés.
+            </p>
+            <div className="flex gap-6">
+              <Link to="/privacy" className="text-xs text-gray-600 hover:text-primary-400 transition-colors">
+                Confidentialité
+              </Link>
+              <Link to="/terms" className="text-xs text-gray-600 hover:text-primary-400 transition-colors">
+                Conditions
+              </Link>
+            </div>
           </div>
-        </div>
-        <div className="text-center mt-4">
-          <p className="text-xs text-gray-700">
-            Développé avec ❤️ par l'équipe du Club Blockchain d'Epitech Bénin
-          </p>
+          <div className="text-center mt-4">
+            <p className="text-xs text-gray-700">
+              Développé avec ❤️ par l'équipe du Club Blockchain d'Epitech Bénin
+            </p>
+          </div>
         </div>
       </div>
     </footer>

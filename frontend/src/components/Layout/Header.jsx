@@ -38,9 +38,9 @@ const Header = () => {
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link to={ROUTES.HOME} className="flex items-center">
-              <img 
-                src="/images/logo/Epitech Blockchain Club Logo.jpg" 
-                alt="Logo Club Blockchain Epitech" 
+              <img
+                src="/logo.png"
+                alt="Logo Club Blockchain Epitech"
                 className="w-10 h-10 rounded-lg object-cover"
               />
               <span className="ml-3 text-xl font-bold text-gray-900">
@@ -55,11 +55,10 @@ const Header = () => {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActiveRoute(item.href)
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActiveRoute(item.href)
                     ? 'text-green-600 bg-green-50'
                     : 'text-gray-700 hover:text-green-600 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 {item.name}
               </Link>
@@ -96,7 +95,7 @@ const Header = () => {
                         </p>
                       )}
                     </div>
-                    
+
                     <Link
                       to={ROUTES.DASHBOARD}
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -105,7 +104,7 @@ const Header = () => {
                       <Settings className="w-4 h-4 mr-2" />
                       Tableau de bord
                     </Link>
-                    
+
                     <Link
                       to={ROUTES.PROFILE}
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -114,7 +113,7 @@ const Header = () => {
                       <User className="w-4 h-4 mr-2" />
                       Mon profil
                     </Link>
-                    
+
                     {(isAdmin() || isExecutive()) && (
                       <Link
                         to={ROUTES.ADMIN}
@@ -125,7 +124,7 @@ const Header = () => {
                         Administration
                       </Link>
                     )}
-                    
+
                     <button
                       onClick={handleLogout}
                       className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
@@ -163,17 +162,16 @@ const Header = () => {
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                    isActiveRoute(item.href)
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${isActiveRoute(item.href)
                       ? 'text-green-600 bg-green-100'
                       : 'text-gray-700 hover:text-green-600 hover:bg-gray-100'
-                  }`}
+                    }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.name}
                 </Link>
               ))}
-              
+
               {!isAuthenticated && (
                 <div className="border-t border-gray-200 pt-2 mt-2">
                   <Link
