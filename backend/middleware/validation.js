@@ -109,7 +109,7 @@ export const validateExam = [
 export const validateMembershipRequest = [
   body('firstName')
     .trim()
-    .isLength({ min: 2, max: 50 })
+    .isLength({ min: 1, max: 50 })
     .withMessage('Le prénom doit contenir entre 2 et 50 caractères'),
   body('lastName')
     .trim()
