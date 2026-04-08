@@ -14,18 +14,18 @@ const BlockchainButton = ({
   const buttonRef = useRef(null);
 
   const variants = {
-    primary: 'text-white',
-    secondary: 'bg-gray-700 hover:bg-gray-600 text-white',
-    outline: 'border border-primary-500/50 text-primary-400 hover:bg-primary-500/10 hover:border-primary-500',
-    ghost: 'text-primary-400 hover:bg-primary-500/10',
-    danger: 'bg-red-600 hover:bg-red-700 text-white',
+    primary: 'text-white border-transparent',
+    secondary: 'bg-white border-slate-200 text-slate-700 hover:border-blue-300 hover:text-blue-600 shadow-sm',
+    outline: 'border border-blue-600/50 text-blue-600 hover:bg-blue-50',
+    ghost: 'text-blue-600 hover:bg-blue-50',
+    danger: 'bg-red-500 hover:bg-red-600 text-white',
   };
 
   const sizes = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-5 py-2.5 text-sm',
-    lg: 'px-7 py-3 text-base',
-    xl: 'px-9 py-4 text-lg',
+    sm: 'px-4 py-2 text-sm',
+    md: 'px-6 py-3 text-sm',
+    lg: 'px-8 py-4 text-base',
+    xl: 'px-10 py-5 text-lg',
   };
 
   const handleClick = (e) => {
@@ -47,33 +47,29 @@ const BlockchainButton = ({
       ref={buttonRef}
       type={type}
       className={`
-        relative overflow-hidden rounded-xl font-semibold font-heading
+        relative overflow-hidden rounded-2xl font-bold font-heading
         transition-all duration-300 transform
-        active:scale-95 focus:outline-none
+        active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500/20
         disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
+        border
         ${variants[variant]} ${sizes[size]} ${className}
       `}
       style={isPrimary ? {
-        background: 'linear-gradient(135deg, #00d2ff, #7000ff)',
-        boxShadow: 'none',
+        background: 'linear-gradient(135deg, #3b82f6, #10b981)',
+        boxShadow: '0 4px 14px 0 rgba(59, 130, 246, 0.39)',
       } : {}}
       onMouseEnter={isPrimary ? (e) => {
-        e.currentTarget.style.boxShadow = '0 0 25px rgba(0, 210, 255, 0.5), 0 0 50px rgba(112, 0, 255, 0.25)';
+        e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.45), 0 0 40px rgba(16, 185, 129, 0.2)';
         e.currentTarget.style.transform = 'translateY(-2px)';
       } : undefined}
       onMouseLeave={isPrimary ? (e) => {
-        e.currentTarget.style.boxShadow = 'none';
+        e.currentTarget.style.boxShadow = '0 4px 14px 0 rgba(59, 130, 246, 0.39)';
         e.currentTarget.style.transform = 'translateY(0)';
       } : undefined}
       onClick={handleClick}
       disabled={disabled}
       {...props}
     >
-      {/* Shimmer overlay for primary */}
-      {isPrimary && (
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full hover:translate-x-full transition-transform duration-700 skew-x-12" />
-      )}
-
       {/* Ripple effects */}
       {ripples.map(ripple => (
         <span

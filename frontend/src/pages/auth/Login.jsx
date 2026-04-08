@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Eye, EyeOff, Mail, Lock, Zap } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../utils/constants';
@@ -39,17 +39,16 @@ const Login = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#050505]">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="relative">
-          <div className="animate-spin rounded-full h-14 w-14 border-2 border-transparent border-t-primary-500 border-r-secondary-500" />
-          <div className="absolute inset-0 rounded-full animate-ping opacity-20 border-2 border-primary-500" />
+          <div className="animate-spin rounded-full h-14 w-14 border-2 border-transparent border-t-blue-600 border-r-green-500" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#050505] py-12 px-4">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-slate-50/50 py-12 px-4">
       <ParticleGrid />
 
       <motion.div
@@ -59,97 +58,89 @@ const Login = () => {
         className="relative w-full max-w-md"
       >
         <div
-          className="rounded-3xl p-8 md:p-10"
-          style={{
-            background: 'rgba(255,255,255,0.04)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            border: '1px solid rgba(0,210,255,0.15)',
-            boxShadow: '0 0 60px rgba(0,210,255,0.08), 0 40px 80px rgba(0,0,0,0.4)',
-          }}
+          className="rounded-[40px] p-8 md:p-12 bg-white border border-slate-100 shadow-2xl shadow-slate-200/50"
         >
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-5">
-              <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+          <div className="text-center mb-10">
+            <div className="flex justify-center mb-6">
+              <div className="relative group p-1 bg-gradient-to-tr from-blue-600 to-green-500 rounded-3xl shrink-0">
                 <img
                   src="/logo.png"
                   alt="Club Blockchain Epitech"
-                  className="relative w-20 h-20 rounded-2xl object-cover border border-white/10"
+                  className="relative w-20 h-20 rounded-[22px] object-cover border-2 border-white"
                 />
               </div>
             </div>
 
-            <h1 className="text-2xl font-heading font-black text-white mb-2">
-              Espace Membre
+            <h1 className="text-3xl font-black text-slate-900 mb-2 tracking-tight">
+              Espace <span className="text-blue-600">Membre</span>
             </h1>
-            <p className="text-sm text-gray-500 font-medium">
-              Accès réservé aux membres du club
+            <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">
+              Connexion sécurisée
             </p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2 pl-1">
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 pl-1">
                 Adresse Email
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Mail className="h-4 w-4 text-gray-600 group-focus-within:text-primary-400 transition-colors" />
+                  <Mail className="h-4 w-4 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
                 </div>
                 <input
                   {...register('email', {
-                    required: 'Requis',
+                    required: 'Email requis',
                     pattern: {
                       value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: 'Email invalide',
+                      message: 'Format invalide',
                     },
                   })}
                   type="email"
                   placeholder="votre.nom@epitech.eu"
-                  className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:border-primary-500/50 outline-none transition-all"
+                  className="w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 placeholder-slate-400 focus:bg-white focus:border-blue-400 focus:ring-4 focus:ring-blue-500/5 outline-none transition-all"
                 />
               </div>
               {errors.email && (
-                <p className="mt-1 text-xs text-red-400 pl-1">{errors.email.message}</p>
+                <p className="mt-2 text-xs font-bold text-red-500 pl-1">{errors.email.message}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2 pl-1">
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 pl-1">
                 Mot de passe
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="h-4 w-4 text-gray-600 group-focus-within:text-primary-400 transition-colors" />
+                  <Lock className="h-4 w-4 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
                 </div>
                 <input
                   {...register('password', {
                     required: 'Requis',
                   })}
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Votre mot de passe"
-                  className="w-full pl-11 pr-12 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:border-primary-500/50 outline-none transition-all"
+                  placeholder="••••••••"
+                  className="w-full pl-11 pr-12 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 placeholder-slate-400 focus:bg-white focus:border-blue-400 focus:ring-4 focus:ring-blue-500/5 outline-none transition-all"
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-600 hover:text-gray-400 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-300 hover:text-blue-500 transition-colors"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-xs text-red-400 pl-1">{errors.password.message}</p>
+                <p className="mt-2 text-xs font-bold text-red-500 pl-1">{errors.password.message}</p>
               )}
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-end pt-1">
               <a
                 href="mailto:contact@epitech-blockchain.bj"
-                className="text-xs text-primary-400 hover:underline font-medium"
+                className="text-xs text-blue-600 hover:text-blue-700 font-black tracking-tight"
               >
-                Mot de passe oublié ?
+                Accès perdu ?
               </a>
             </div>
 
@@ -157,32 +148,24 @@ const Login = () => {
               type="submit"
               primary
               disabled={isSubmitting}
-              className="w-full py-4 mt-2"
+              className="w-full py-4.5 mt-2 shadow-lg shadow-blue-500/20"
             >
-              {isSubmitting ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white" />
-                  Connexion...
-                </div>
-              ) : (
-                'Se connecter'
-              )}
+              {isSubmitting ? 'Connexion...' : 'Se connecter'}
             </BlockchainButton>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-white/5 text-center">
-            <p className="text-xs text-gray-600 font-medium">
-              © {new Date().getFullYear()} Club Blockchain Epitech — Tous droits réservés
-            </p>
+          <div className="mt-10 pt-8 border-t border-slate-50 text-center">
+            <p className="text-sm text-slate-500 font-medium">Pas encore membre ?</p>
+            <Link to={ROUTES.REGISTER} className="text-sm font-black text-blue-600 hover:underline mt-2 inline-block">Créer un compte</Link>
           </div>
         </div>
 
-        <div className="text-center mt-6">
+        <div className="text-center mt-8">
           <Link
             to={ROUTES.HOME}
-            className="text-sm text-gray-600 hover:text-primary-400 transition-colors font-medium"
+            className="text-sm text-slate-400 hover:text-blue-600 transition-colors font-bold uppercase tracking-widest"
           >
-            ← Retour à l'accueil
+            ← Retour
           </Link>
         </div>
       </motion.div>

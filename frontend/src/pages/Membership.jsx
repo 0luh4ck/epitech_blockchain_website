@@ -1,273 +1,211 @@
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { CheckCircle, Users, Calendar, Award, Globe, Heart, Shield, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { membershipService } from '../services/membership';
-import toast from 'react-hot-toast';
+import {
+  Send,
+  CheckCircle2,
+  Info,
+  User,
+  Mail,
+  MessageSquare,
+  ShieldCheck,
+  Zap,
+  Award
+} from 'lucide-react';
+import { useForm } from 'react-hook-form';
 import ParticleGrid from '../components/ParticleGrid';
-import BlockchainCard from '../components/BlockchainCard';
 import BlockchainButton from '../components/BlockchainButton';
+import { useAuth } from '../context/AuthContext';
 
 const Membership = () => {
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const { user } = useAuth();
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting }
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      firstName: user?.firstName || '',
+      lastName: user?.lastName || '',
+      email: user?.email || '',
+    }
+  });
+
+  const onSubmit = async (data) => {
+    // Simulating API call
+    console.log('Membership request:', data);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setSubmitted(true);
+  };
 
   const benefits = [
     {
-      icon: Users,
-      title: 'Communauté Active',
-      description: 'Rejoignez une communauté de plus de 30 étudiants passionnés par la blockchain'
-    },
-    {
-      icon: Calendar,
-      title: 'Événements Exclusifs',
-      description: 'Accès prioritaire à nos séminaires, conférences et ateliers'
+      icon: Zap,
+      title: 'Accès Prioritaire',
+      description: 'Soyez informé en premier des nouveaux workshops et hackathons.'
     },
     {
       icon: Award,
       title: 'Certifications',
-      description: 'Obtenez des certifications reconnues et validez vos compétences'
+      description: 'Validez vos compétences avec des certificats reconnus par l\'écosystème.'
     },
     {
-      icon: Globe,
-      title: 'Réseau Professionnel',
-      description: 'Connectez-vous avec des professionnels et des experts du secteur'
+      icon: ShieldCheck,
+      title: 'Gouvernance',
+      description: 'Participez aux décisions d\'orientation technique du club.'
     }
   ];
 
-  const onSubmit = async (data) => {
-    try {
-      await membershipService.submitApplication(data);
-      setIsSubmitted(true);
-      toast.success('Demande d\'adhésion soumise avec succès !');
-    } catch (err) {
-      console.error('Erreur adhésion:', err);
-      toast.error('Erreur lors de la soumission de votre demande');
-    }
-  };
-
-  if (isSubmitted) {
+  if (submitted) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center py-24 px-4">
+      <div className="min-h-screen bg-white flex items-center justify-center p-4">
         <ParticleGrid />
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="max-w-xl w-full"
+          className="max-w-md w-full text-center bg-white p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/50"
         >
-          <BlockchainCard className="text-center p-12">
-            <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-green-500/20">
-              <CheckCircle className="w-10 h-10 text-green-500" />
-            </div>
-            <h1 className="text-3xl font-black text-white mb-6">
-              Demande <span className="text-gradient-web3">Transmise</span>
-            </h1>
-            <p className="text-lg text-gray-400 mb-10 leading-relaxed font-medium">
-              Merci pour votre intérêt ! Votre demande d'adhésion a été transmise à notre équipe pour examen.
-            </p>
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-10 text-left space-y-4">
-              <h3 className="text-sm font-bold text-primary-400 uppercase tracking-wider mb-2">Prochaines étapes</h3>
-              <div className="flex gap-4">
-                <div className="w-6 h-6 rounded-full bg-primary-500/20 flex items-center justify-center flex-shrink-0 text-primary-400 text-xs font-bold">1</div>
-                <p className="text-gray-400 text-sm font-medium">Examen de votre dossier sous 48h</p>
-              </div>
-              <div className="flex gap-4">
-                <div className="w-6 h-6 rounded-full bg-primary-500/20 flex items-center justify-center flex-shrink-0 text-primary-400 text-xs font-bold">2</div>
-                <p className="text-gray-400 text-sm font-medium">Réception d'un email de confirmation</p>
-              </div>
-              <div className="flex gap-4">
-                <div className="w-6 h-6 rounded-full bg-primary-500/20 flex items-center justify-center flex-shrink-0 text-primary-400 text-xs font-bold">3</div>
-                <p className="text-gray-400 text-sm font-medium">Activation de vos accès membre</p>
-              </div>
-            </div>
-            <BlockchainButton onClick={() => setIsSubmitted(false)} primary size="lg" className="w-full">
-              Retour au formulaire
-            </BlockchainButton>
-          </BlockchainCard>
+          <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-8">
+            <CheckCircle2 className="w-10 h-10 text-green-500" />
+          </div>
+          <h2 className="text-3xl font-black text-slate-900 mb-4">Demande Envoyée !</h2>
+          <p className="text-slate-500 font-medium leading-relaxed mb-10">
+            Votre demande d'adhésion est en cours de révision par le bureau. Vous recevrez une notification par email sous 48h.
+          </p>
+          <BlockchainButton onClick={() => window.location.href = '/'} className="w-full">
+            Retour à l'accueil
+          </BlockchainButton>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
-      {/* Hero Section */}
-      <section className="relative py-24 overflow-hidden border-b border-white/5">
-        <ParticleGrid />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center"
-          >
-            <h1 className="text-4xl md:text-6xl font-black mb-6 tracking-tight">
-              Rejoindre le <span className="text-gradient-web3">Club Blockchain</span>
-            </h1>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto font-medium">
-              Devenez acteur de la révolution Web3 au Bénin en rejoignant notre communauté d'élite.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+    <div className="min-h-screen bg-white text-slate-900 pt-20">
+      <ParticleGrid />
 
-      <section className="py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-            {/* Left Column: Info */}
-            <div className="lg:col-span-5 flex flex-col justify-between">
-              <div>
-                <h2 className="text-3xl font-bold mb-10 inline-block border-b-2 border-primary-500 pb-2">Pourquoi nous ?</h2>
-                <div className="grid grid-cols-1 gap-8">
-                  {benefits.map((benefit, index) => {
-                    const Icon = benefit.icon;
-                    return (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, x: -20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.1 }}
-                        className="flex gap-6 group"
-                      >
-                        <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center shrink-0 border border-white/10 group-hover:border-primary-500/50 group-hover:bg-primary-500/10 transition-all duration-300">
-                          <Icon className="w-7 h-7 text-primary-400 transition-colors" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-bold text-white mb-2">{benefit.title}</h3>
-                          <p className="text-gray-400 font-medium leading-relaxed">{benefit.description}</p>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
+      <div className="max-w-7xl mx-auto px-4 py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+
+          {/* Left: Info Content */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 mb-8">
+              <span className="text-xs font-black uppercase tracking-widest text-blue-600">Rejoindre l'élite</span>
+            </div>
+            <h1 className="text-5xl md:text-7xl font-black mb-8 tracking-tighter leading-tight">
+              Devenez <br />
+              <span className="text-gradient-web3">Membre Actif</span>
+            </h1>
+            <p className="text-xl text-slate-500 font-medium mb-12 leading-relaxed">
+              L'adhésion au Club Blockchain d'Epitech Bénin vous ouvre les portes d'un réseau technologique exclusif et de ressources premium.
+            </p>
+
+            <div className="space-y-8">
+              {benefits.map((benefit, i) => {
+                const Icon = benefit.icon;
+                return (
+                  <div key={i} className="flex gap-6 group">
+                    <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shrink-0 shadow-sm group-hover:border-blue-200 transition-all">
+                      <Icon className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-black text-slate-900 mb-1">{benefit.title}</h4>
+                      <p className="text-slate-500 text-sm font-medium">{benefit.description}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          {/* Right: Form Card */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            <div className="bg-white rounded-[48px] p-8 md:p-12 border border-slate-100 shadow-2xl shadow-slate-200/60 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50/50 rounded-bl-[100px] -z-1" />
+
+              <div className="mb-10 flex items-center gap-4">
+                <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center">
+                  <Send className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black text-slate-900">Formulaire d'Adhésion</h3>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Session 2024-2025</p>
                 </div>
               </div>
 
-              <div className="mt-16">
-                <BlockchainCard className="bg-primary-500/5 border-primary-500/20">
-                  <h3 className="text-lg font-bold text-primary-400 mb-4 flex items-center">
-                    <Shield className="w-5 h-5 mr-2" />
-                    Critères d'Adhésion
-                  </h3>
-                  <ul className="space-y-3 text-gray-300 font-medium">
-                    <li className="flex gap-3">
-                      <Zap className="w-4 h-4 text-secondary-500 shrink-0 mt-1" />
-                      <span>Étudiant Epitech Bénin ou partenaire tech</span>
-                    </li>
-                    <li className="flex gap-3">
-                      <Zap className="w-4 h-4 text-secondary-500 shrink-0 mt-1" />
-                      <span>Curiosité pour la décentralisation</span>
-                    </li>
-                    <li className="flex gap-3">
-                      <Zap className="w-4 h-4 text-secondary-500 shrink-0 mt-1" />
-                      <span>Volonté de contribuer activement</span>
-                    </li>
-                  </ul>
-                </BlockchainCard>
-              </div>
-            </div>
-
-            {/* Right Column: Form */}
-            <div className="lg:col-span-7">
-              <BlockchainCard className="p-8 md:p-10">
-                <h2 className="text-2xl font-bold text-white mb-8 pr-1">Prendre son adhésion</h2>
-
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-400 mb-2 pl-1">Prénom</label>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 pl-1">Prénom</label>
+                    <div className="relative group">
+                      <User className="absolute left-4 top-4 h-4 w-4 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
                       <input
-                        {...register('firstName', { required: 'Ce champ est requis' })}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:border-primary-500/50 outline-none transition-all"
-                        placeholder="Votre prénom"
+                        {...register('firstName', { required: true })}
+                        className="w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-blue-400 transition-all font-bold text-slate-900"
                       />
-                      {errors.firstName && <p className="text-red-400 text-xs mt-1 pl-1">{errors.firstName.message}</p>}
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-400 mb-2 pl-1">Nom</label>
-                      <input
-                        {...register('lastName', { required: 'Ce champ est requis' })}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:border-primary-500/50 outline-none transition-all"
-                        placeholder="Votre nom"
-                      />
-                      {errors.lastName && <p className="text-red-400 text-xs mt-1 pl-1">{errors.lastName.message}</p>}
                     </div>
                   </div>
-
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2 pl-1">Email</label>
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 pl-1">Nom</label>
                     <input
-                      {...register('email', {
-                        required: 'L\'email est requis',
-                        pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Email invalide' }
-                      })}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:border-primary-500/50 outline-none transition-all"
-                      placeholder="votre@email.com"
+                      {...register('lastName', { required: true })}
+                      className="w-full px-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-blue-400 transition-all font-bold text-slate-900"
                     />
-                    {errors.email && <p className="text-red-400 text-xs mt-1 pl-1">{errors.email.message}</p>}
                   </div>
+                </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-400 mb-2 pl-1">Téléphone</label>
-                      <input
-                        {...register('phone')}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:border-primary-500/50 outline-none transition-all"
-                        placeholder="+229 XX XX XX XX"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-400 mb-2 pl-1">Promotion / ID</label>
-                      <input
-                        {...register('studentId')}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:border-primary-500/50 outline-none transition-all"
-                        placeholder="Promotion"
-                      />
-                    </div>
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 pl-1">Email Epitech</label>
+                  <div className="relative group">
+                    <Mail className="absolute left-4 top-4 h-4 w-4 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
+                    <input
+                      {...register('email', { required: true })}
+                      className="w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-blue-400 transition-all font-bold text-slate-900"
+                    />
                   </div>
+                </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2 pl-1">Motivation</label>
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 pl-1">Motivation (Facultatif)</label>
+                  <div className="relative group">
+                    <MessageSquare className="absolute left-4 top-4 h-4 w-4 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
                     <textarea
-                      {...register('motivation', {
-                        required: 'La motivation est requise',
-                        minLength: { value: 50, message: 'Expliquez un peu plus (50 car. min)' }
-                      })}
-                      rows={4}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:border-primary-500/50 outline-none transition-all resize-none"
-                      placeholder="Pourquoi souhaitez-vous nous rejoindre ?"
-                    />
-                    {errors.motivation && <p className="text-red-400 text-xs mt-1 pl-1">{errors.motivation.message}</p>}
+                      {...register('message')}
+                      rows="4"
+                      placeholder="Pourquoi souhaitez-vous rejoindre le club ?"
+                      className="w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-blue-400 transition-all font-medium text-slate-900 resize-none"
+                    ></textarea>
                   </div>
+                </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2 pl-1">Centres d'intérêt (optionnel)</label>
-                    <input
-                      {...register('interests')}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:border-primary-500/50 outline-none transition-all"
-                      placeholder="DeFi, NFT, Smart Contracts, etc."
-                    />
-                  </div>
+                <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-100 flex gap-4 items-start">
+                  <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                  <p className="text-xs text-blue-700 font-medium leading-relaxed">
+                    L'adhésion est gratuite mais nécessite une implication active dans les projets du club.
+                  </p>
+                </div>
 
-                  <BlockchainButton
-                    type="submit"
-                    primary
-                    disabled={isSubmitting}
-                    className="w-full py-4 mt-4"
-                  >
-                    <Heart className="w-5 h-5 mr-2" />
-                    {isSubmitting ? 'Soumission...' : 'Soumettre ma Demande'}
-                  </BlockchainButton>
-                </form>
-              </BlockchainCard>
+                <BlockchainButton
+                  type="submit"
+                  primary
+                  disabled={isSubmitting}
+                  className="w-full py-5 text-lg shadow-xl shadow-blue-500/20"
+                >
+                  {isSubmitting ? 'Envoi...' : 'Soumettre ma demande'}
+                </BlockchainButton>
+              </form>
             </div>
-          </div>
+          </motion.div>
+
         </div>
-      </section>
+      </div>
     </div>
   );
 };

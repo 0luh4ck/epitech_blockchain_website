@@ -1,295 +1,173 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useAuth } from '../context/AuthContext';
-import { User, Mail, Phone, MapPin, Save, Edit3, Lock, Eye, EyeOff, Shield, Award } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import React from 'react';
 import { motion } from 'framer-motion';
-import BlockchainCard from '../components/BlockchainCard';
+import { User, Mail, Shield, Calendar, Edit2, LogOut, Award, Zap, Bell } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import ParticleGrid from '../components/ParticleGrid';
 import BlockchainButton from '../components/BlockchainButton';
 
 const Profile = () => {
-  const { user, updateProfile } = useAuth();
-  const [isEditing, setIsEditing] = useState(false);
+  const { user, logout } = useAuth();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting }
-  } = useForm({
-    defaultValues: {
-      firstName: user?.firstName || '',
-      lastName: user?.lastName || '',
-      phone: user?.phone || '',
-      bio: user?.bio || ''
-    }
-  });
-
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-
-  const {
-    register: registerPassword,
-    handleSubmit: handleSubmitPassword,
-    reset: resetPassword,
-    formState: { errors: passwordErrors, isSubmitting: isSubmittingPassword }
-  } = useForm();
-
-  const onSubmit = async (data) => {
-    try {
-      await updateProfile(data);
-      setIsEditing(false);
-      toast.success('Profil mis à jour avec succès');
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour:', error);
-      toast.error('Erreur lors de la mise à jour du profil');
-    }
-  };
-
-  const onChangePassword = async (data) => {
-    try {
-      const { authService } = await import('../services/auth');
-      await authService.changePassword(data.currentPassword, data.newPassword);
-      toast.success('Mot de passe modifié avec succès');
-      resetPassword();
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Erreur lors du changement de mot de passe');
-    }
-  };
+  const stats = [
+    { label: 'Projets', value: '3', icon: Zap, color: 'text-blue-600' },
+    { label: 'Workshops', value: '12', icon: Calendar, color: 'text-green-500' },
+    { label: 'Badges', value: '5', icon: Award, color: 'text-orange-500' }
+  ];
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white pt-24 pb-12">
-      {/* Header */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row md:items-center justify-between gap-6"
-        >
-          <div>
-            <h1 className="text-3xl md:text-4xl font-black mb-2 tracking-tight">
-              Mon <span className="text-gradient-web3">Profil</span>
-            </h1>
-            <p className="text-gray-400 font-medium">
-              Gérez vos informations personnelles et votre sécurité.
-            </p>
-          </div>
-          <BlockchainButton
-            onClick={() => setIsEditing(!isEditing)}
-            className="w-full md:w-auto"
-          >
-            <Edit3 className="w-4 h-4 mr-2" />
-            {isEditing ? 'Annuler' : 'Modifier le Profil'}
-          </BlockchainButton>
-        </motion.div>
-      </div>
+    <div className="min-h-screen bg-white text-slate-900 pt-20">
+      <ParticleGrid />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Profile Sidebar */}
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+          {/* Left Column: User Card */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 }}
-            className="lg:col-span-4"
+            className="lg:col-span-1"
           >
-            <BlockchainCard className="text-center group sticky top-28">
-              <div className="relative inline-block mb-6">
-                <div className="w-28 h-28 bg-primary-500/10 rounded-2xl flex items-center justify-center border border-primary-500/20 group-hover:border-primary-500/50 transition-colors">
-                  <User className="w-14 h-14 text-primary-400 group-hover:text-primary-300 transition-colors" />
-                </div>
-                <div className="absolute -bottom-2 -right-2 bg-secondary-500 rounded-lg p-2 border-2 border-[#050505]">
-                  <Shield className="w-4 h-4 text-white" />
-                </div>
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-1">
-                {user?.firstName} {user?.lastName}
-              </h2>
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <span className="px-3 py-1 text-xs font-bold rounded-full bg-primary-500/10 text-primary-400 border border-primary-500/30">
-                  {user?.role?.toUpperCase()}
-                </span>
-                {user?.position && (
-                  <span className="px-3 py-1 text-xs font-bold rounded-full bg-secondary-500/10 text-secondary-400 border border-secondary-500/30">
-                    {user?.position}
-                  </span>
-                )}
-              </div>
-              <div className="pt-6 border-t border-white/5 space-y-4">
-                <div className="flex items-center justify-center gap-2 text-sm text-gray-400 font-medium">
-                  <Award className="w-4 h-4 text-secondary-500" />
-                  Membre depuis {new Date(user?.createdAt).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' })}
-                </div>
-              </div>
-            </BlockchainCard>
-          </motion.div>
-
-          {/* Main Content */}
-          <div className="lg:col-span-8 space-y-8">
-            {/* Info Form */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <BlockchainCard>
-                <h3 className="text-xl font-bold text-gradient-web3 mb-8 flex items-center">
-                  <User className="w-5 h-5 mr-3" />
-                  Informations Personnelles
-                </h3>
-
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-400 mb-2 pl-1">Prénom</label>
-                      <input
-                        {...register('firstName', { required: 'Requis' })}
-                        disabled={!isEditing}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:border-primary-500/50 outline-none transition-all disabled:opacity-50"
-                      />
-                      {errors.firstName && <p className="text-red-400 text-xs mt-1 pl-1">{errors.firstName.message}</p>}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-400 mb-2 pl-1">Nom</label>
-                      <input
-                        {...register('lastName', { required: 'Requis' })}
-                        disabled={!isEditing}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:border-primary-500/50 outline-none transition-all disabled:opacity-50"
-                      />
-                      {errors.lastName && <p className="text-red-400 text-xs mt-1 pl-1">{errors.lastName.message}</p>}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2 pl-1">Email (Non modifiable)</label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Mail className="h-4 w-4 text-gray-600" />
-                      </div>
-                      <input
-                        type="email"
-                        value={user?.email || ''}
-                        disabled
-                        className="w-full pl-11 pr-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl text-gray-500 cursor-not-allowed"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2 pl-1">Téléphone</label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Phone className="h-4 w-4 text-gray-600" />
-                      </div>
-                      <input
-                        {...register('phone')}
-                        disabled={!isEditing}
-                        className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:border-primary-500/50 outline-none transition-all disabled:opacity-50"
-                        placeholder="+229 XX XX XX XX"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2 pl-1">Bio</label>
-                    <textarea
-                      {...register('bio')}
-                      rows={4}
-                      disabled={!isEditing}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:border-primary-500/50 outline-none transition-all disabled:opacity-50 resize-none"
-                      placeholder="Parlez-nous de vous..."
+            <div className="bg-white border border-slate-100 rounded-[40px] p-8 shadow-2xl shadow-slate-200/50 sticky top-28">
+              <div className="relative mb-8 flex justify-center">
+                <div className="w-32 h-32 rounded-[32px] bg-gradient-to-tr from-blue-600 to-green-500 p-1">
+                  <div className="w-full h-full rounded-[30px] bg-white flex items-center justify-center border-4 border-white overflow-hidden shadow-inner">
+                    <img
+                      src="/logo.png"
+                      alt="Avatar"
+                      className="w-16 h-16 object-contain grayscale-[0.2]"
                     />
                   </div>
+                </div>
+                <button className="absolute bottom-0 right-1/4 p-2 bg-blue-600 text-white rounded-xl shadow-lg hover:scale-110 transition-transform">
+                  <Edit2 className="w-4 h-4" />
+                </button>
+              </div>
 
-                  {isEditing && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="flex justify-end pt-4"
-                    >
-                      <BlockchainButton
-                        type="submit"
-                        primary
-                        disabled={isSubmitting}
-                      >
-                        <Save className="w-4 h-4 mr-2" />
-                        {isSubmitting ? 'Sauvegarde...' : 'Sauvegarder les modifications'}
-                      </BlockchainButton>
-                    </motion.div>
-                  )}
-                </form>
-              </BlockchainCard>
-            </motion.div>
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-black text-slate-900 mb-1">{user?.firstName} {user?.lastName}</h2>
+                <p className="text-slate-500 font-medium">@{user?.firstName?.toLowerCase()}_btc</p>
+                <div className="mt-4 flex justify-center gap-2">
+                  <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-widest border border-blue-100">
+                    {user?.role || 'Membre'}
+                  </span>
+                  <span className="px-3 py-1 rounded-full bg-green-50 text-green-600 text-[10px] font-black uppercase tracking-widest border border-green-100">
+                    Actif
+                  </span>
+                </div>
+              </div>
 
-            {/* Password Section */}
+              <div className="space-y-3 pt-6 border-t border-slate-50">
+                <div className="flex items-center gap-4 p-3 rounded-2xl hover:bg-slate-50 transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                    <Mail className="w-5 h-5 text-slate-400" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Email</div>
+                    <div className="text-sm font-bold text-slate-700 truncate">{user?.email}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 p-3 rounded-2xl hover:bg-slate-50 transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-slate-400" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Membre ID</div>
+                    <div className="text-sm font-bold text-slate-700">#EPI-BC-2024-{user?.id || '001'}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-10 pt-6">
+                <BlockchainButton
+                  variant="secondary"
+                  className="w-full text-red-500 border-red-100 hover:bg-red-50 hover:border-red-200"
+                  onClick={logout}
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Déconnexion
+                </BlockchainButton>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Right Column: Content */}
+          <div className="lg:col-span-2 space-y-8">
+
+            {/* Stats Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {stats.map((stat, i) => {
+                const Icon = stat.icon;
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="bg-white border border-slate-100 p-6 rounded-[32px] shadow-sm hover:shadow-lg transition-all"
+                  >
+                    <div className={`w-12 h-12 rounded-2xl mb-4 flex items-center justify-center bg-slate-50`}>
+                      <Icon className={`w-6 h-6 ${stat.color}`} />
+                    </div>
+                    <div className="text-3xl font-black text-slate-900 mb-1">{stat.value}</div>
+                    <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">{stat.label}</div>
+                  </motion.div>
+                );
+              })}
+            </div>
+
+            {/* Recent Activity */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
+              className="bg-white border border-slate-100 rounded-[40px] p-10 shadow-sm"
             >
-              <BlockchainCard>
-                <h3 className="text-xl font-bold text-gradient-web3 mb-8 flex items-center">
-                  <Lock className="w-5 h-5 mr-3" />
-                  Sécurité du Compte
-                </h3>
+              <div className="flex items-center justify-between mb-10">
+                <h3 className="text-2xl font-black text-slate-900 tracking-tight">Activités Récentes</h3>
+                <button className="p-3 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors">
+                  <Bell className="w-5 h-5 text-slate-400" />
+                </button>
+              </div>
 
-                <form onSubmit={handleSubmitPassword(onChangePassword)} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-400 mb-2 pl-1">Mot de passe actuel</label>
-                      <div className="relative">
-                        <input
-                          {...registerPassword('currentPassword', { required: 'Requis' })}
-                          type={showCurrentPassword ? 'text' : 'password'}
-                          className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:border-secondary-500/50 outline-none transition-all"
-                          placeholder="••••••••"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                          className="absolute right-4 top-3.5 text-gray-600 hover:text-gray-400 transition-colors"
-                        >
-                          {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
-                      </div>
-                      {passwordErrors.currentPassword && <p className="text-red-400 text-xs mt-1 pl-1">{passwordErrors.currentPassword.message}</p>}
+              <div className="space-y-8">
+                {[1, 2, 3].map((_, i) => (
+                  <div key={i} className="flex gap-6 relative">
+                    {i !== 2 && <div className="absolute left-6 top-10 bottom-[-32px] w-px bg-slate-100" />}
+                    <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 z-10">
+                      <Zap className="w-5 h-5 text-blue-600" />
                     </div>
-
                     <div>
-                      <label className="block text-sm font-medium text-gray-400 mb-2 pl-1">Nouveau mot de passe</label>
-                      <div className="relative">
-                        <input
-                          {...registerPassword('newPassword', {
-                            required: 'Requis',
-                            minLength: { value: 6, message: '6 caractères min' }
-                          })}
-                          type={showNewPassword ? 'text' : 'password'}
-                          className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:border-secondary-500/50 outline-none transition-all"
-                          placeholder="••••••••"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowNewPassword(!showNewPassword)}
-                          className="absolute right-4 top-3.5 text-gray-600 hover:text-gray-400 transition-colors"
-                        >
-                          {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
-                      </div>
-                      {passwordErrors.newPassword && <p className="text-red-400 text-xs mt-1 pl-1">{passwordErrors.newPassword.message}</p>}
+                      <div className="text-sm font-black text-slate-900 mb-1 text-gradient-web3">Participation au Workshop DeFi</div>
+                      <p className="text-sm text-slate-500 font-medium leading-relaxed">Vous avez validé les acquis sur le protocole Aave et les flash loans.</p>
+                      <div className="text-[10px] font-bold text-slate-400 mt-2 uppercase">Il y a 2 jours • Epitech Lab</div>
                     </div>
                   </div>
-
-                  <div className="flex justify-end pt-4">
-                    <BlockchainButton
-                      type="submit"
-                      disabled={isSubmittingPassword}
-                    >
-                      Mettre à jour le mot de passe
-                    </BlockchainButton>
-                  </div>
-                </form>
-              </BlockchainCard>
+                ))}
+              </div>
             </motion.div>
+
+            {/* Achievements */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="bg-slate-900 text-white rounded-[40px] p-10 relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-blue-600/20 to-transparent" />
+              <div className="relative z-10">
+                <h3 className="text-2xl font-black mb-8">Certifications & Badges</h3>
+                <div className="flex flex-wrap gap-6">
+                  {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="group cursor-help">
+                      <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center group-hover:bg-blue-600 group-hover:scale-110 transition-all">
+                        <Award className="w-8 h-8 text-blue-400 group-hover:text-white" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+
           </div>
         </div>
       </div>

@@ -2,59 +2,60 @@
 @import "tailwindcss";
 
 /* ============================================================
-   CSS Custom Properties — Light & Dark Themes
+   CSS Custom Properties — Professional Light Theme (Default)
    ============================================================ */
 :root {
-  /* Brand colors */
-  --color-cyan:   #00d2ff;
-  --color-violet: #7000ff;
-  --color-neon:   #00ff99;
+  /* Brand colors - Optimized for Light Mode */
+  --color-blue: #3b82f6;
+  /* Primary Secondary */
+  --color-green: #10b981;
+  /* Secondary */
+  --color-accent: #2563eb;
 
-  /* Light mode surfaces */
-  --bg-primary:   #f0f2f5;
-  --bg-secondary: #ffffff;
-  --bg-card:      #ffffff;
-  --bg-muted:     #e8eaf0;
+  /* Light mode surfaces (Now the primary mode) */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-muted: #f1f5f9;
 
   /* Light mode text */
-  --text-primary:   #0a0a14;
-  --text-secondary: #4b5563;
-  --text-muted:     #9ca3af;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
 
   /* Light mode borders */
-  --border-color:   rgba(0, 210, 255, 0.15);
-  --border-subtle:  rgba(0, 0, 0, 0.08);
+  --border-color: rgba(59, 130, 246, 0.15);
+  --border-subtle: rgba(0, 0, 0, 0.05);
 
   /* Scrollbar */
-  --scrollbar-track: #e5e7eb;
-  --scrollbar-thumb: #9ca3af;
+  --scrollbar-track: #f1f5f9;
+  --scrollbar-thumb: #cbd5e1;
 }
 
+/* Optional Dark Mode (Not primary but kept for flexibility) */
 .dark {
-  /* Dark mode surfaces */
-  --bg-primary:   #050505;
-  --bg-secondary: #0d0d0d;
-  --bg-card:      #111118;
-  --bg-muted:     #1e1e2e;
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --bg-muted: #334155;
 
-  /* Dark mode text */
-  --text-primary:   #f0f0ff;
-  --text-secondary: #a0a0b8;
-  --text-muted:     #6b6b88;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
 
-  /* Dark mode borders */
-  --border-color:   rgba(0, 210, 255, 0.2);
-  --border-subtle:  rgba(255, 255, 255, 0.06);
+  --border-color: rgba(59, 130, 246, 0.2);
+  --border-subtle: rgba(255, 255, 255, 0.06);
 
-  /* Scrollbar */
-  --scrollbar-track: #111118;
-  --scrollbar-thumb: #2a2a3a;
+  --scrollbar-track: #0f172a;
+  --scrollbar-thumb: #334155;
 }
 
 /* ============================================================
    Base Reset & Global Styles
    ============================================================ */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -73,20 +74,25 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Poppins', 'Inter', sans-serif;
   font-weight: 700;
   line-height: 1.2;
 }
 
 a {
-  color: var(--color-cyan);
+  color: var(--color-blue);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 a:hover {
-  color: var(--color-violet);
+  color: var(--color-green);
 }
 
 button {
@@ -95,153 +101,97 @@ button {
   transition: all 0.2s ease;
 }
 
-input, textarea, select {
-  font-family: inherit;
-}
-
-img {
-  max-width: 100%;
-  height: auto;
-}
-
 /* ============================================================
-   Glassmorphism Utilities
+   Glassmorphism Utilities (Updated for Light Theme)
    ============================================================ */
 .glass {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.glass-dark {
-  background: rgba(5, 5, 5, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(0, 210, 255, 0.12);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
   transition: all 0.3s ease;
 }
 
 .glass-card:hover {
-  border-color: rgba(0, 210, 255, 0.3);
-  box-shadow: 0 0 30px rgba(0, 210, 255, 0.08);
-}
-
-/* Light mode glass variants */
-.light .glass,
-:root:not(.dark) .glass {
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(0, 210, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
+  border-color: rgba(59, 130, 246, 0.2);
 }
 
 /* ============================================================
-   Gradient Text
+   Gradient Text (New Blue-Green Palette)
    ============================================================ */
 .text-gradient-web3 {
-  background: linear-gradient(135deg, #00d2ff, #7000ff);
+  background: linear-gradient(135deg, #3b82f6, #10b981);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .text-gradient-neon {
-  background: linear-gradient(135deg, #00d2ff, #00ff99);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.text-gradient-violet {
-  background: linear-gradient(135deg, #7000ff, #00d2ff);
+  background: linear-gradient(135deg, #10b981, #3b82f6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 /* ============================================================
-   Neon Glow Effects
+   Soft Glow Effects (Shadows instead of Neon)
    ============================================================ */
-.glow-cyan {
-  box-shadow: 0 0 20px rgba(0, 210, 255, 0.4), 0 0 60px rgba(0, 210, 255, 0.15);
+.shadow-soft {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
 }
 
-.glow-violet {
-  box-shadow: 0 0 20px rgba(112, 0, 255, 0.4), 0 0 60px rgba(112, 0, 255, 0.15);
-}
-
-.glow-neon {
-  box-shadow: 0 0 20px rgba(0, 255, 153, 0.4), 0 0 60px rgba(0, 255, 153, 0.15);
-}
-
-.border-glow-cyan {
-  border: 1px solid rgba(0, 210, 255, 0.4);
-  box-shadow: 0 0 10px rgba(0, 210, 255, 0.2), inset 0 0 10px rgba(0, 210, 255, 0.05);
-}
-
-.border-glow-violet {
-  border: 1px solid rgba(112, 0, 255, 0.4);
-  box-shadow: 0 0 10px rgba(112, 0, 255, 0.2), inset 0 0 10px rgba(112, 0, 255, 0.05);
+.glow-blue {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
 }
 
 /* ============================================================
    Animations
    ============================================================ */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to   { opacity: 1; transform: translateY(0); }
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-20px); }
+/* ============================================================
+   Custom Components Utility
+   ============================================================ */
+.badge-primary {
+  background: rgba(59, 130, 246, 0.1);
+  color: #2563eb;
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
-@keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(0, 210, 255, 0.3); }
-  50%       { box-shadow: 0 0 40px rgba(0, 210, 255, 0.7), 0 0 80px rgba(112, 0, 255, 0.3); }
+.badge-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
 }
-
-@keyframes shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
-
-@keyframes gradientShift {
-  0%, 100% { background-position: 0% 50%; }
-  50%       { background-position: 100% 50%; }
-}
-
-@keyframes gridFlow {
-  0%   { transform: translateY(0); }
-  100% { transform: translateY(60px); }
-}
-
-@keyframes loading {
-  0%   { left: -100%; }
-  100% { left: 100%; }
-}
-
-.fade-in    { animation: fadeIn 0.6s ease-out; }
-.fade-in-up { animation: fadeInUp 0.6s ease-out; }
-.float      { animation: float 6s ease-in-out infinite; }
 
 /* ============================================================
    Scrollbar
    ============================================================ */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -250,215 +200,9 @@ img {
 
 ::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-cyan);
-}
-
-/* ============================================================
-   Utility Classes
-   ============================================================ */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-.text-balance {
-  text-wrap: balance;
-}
-
-.transition-smooth {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Loading skeleton */
-.loading {
-  position: relative;
-  overflow: hidden;
-}
-
-.loading::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(0, 210, 255, 0.1), transparent);
-  animation: loading 1.5s infinite;
-}
-
-/* ============================================================
-   Form & Badge Utilities
-   ============================================================ */
-.error-message {
-  color: #f87171;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-}
-
-.success-message {
-  color: #00ff99;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.125rem 0.625rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.badge-primary {
-  background: rgba(0, 210, 255, 0.15);
-  color: #00d2ff;
-  border: 1px solid rgba(0, 210, 255, 0.3);
-}
-
-.badge-secondary {
-  background: rgba(112, 0, 255, 0.15);
-  color: #a855f7;
-  border: 1px solid rgba(112, 0, 255, 0.3);
-}
-
-.badge-success {
-  background: rgba(0, 255, 153, 0.15);
-  color: #00ff99;
-  border: 1px solid rgba(0, 255, 153, 0.3);
-}
-
-.badge-warning {
-  background: rgba(251, 191, 36, 0.15);
-  color: #fbbf24;
-  border: 1px solid rgba(251, 191, 36, 0.3);
-}
-
-.badge-danger {
-  background: rgba(248, 113, 113, 0.15);
-  color: #f87171;
-  border: 1px solid rgba(248, 113, 113, 0.3);
-}
-
-/* ============================================================
-   Modal & Overlay
-   ============================================================ */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 50;
-}
-
-.modal-content {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 1rem;
-  box-shadow: 0 0 60px rgba(0, 210, 255, 0.1);
-  max-width: 28rem;
-  width: 100%;
-  margin: 1rem;
-  padding: 1.5rem;
-}
-
-/* ============================================================
-   Alert Styles
-   ============================================================ */
-.alert {
-  padding: 1rem;
-  border-radius: 0.75rem;
-  border: 1px solid;
-}
-
-.alert-success {
-  background: rgba(0, 255, 153, 0.08);
-  border-color: rgba(0, 255, 153, 0.3);
-  color: #00ff99;
-}
-
-.alert-error {
-  background: rgba(248, 113, 113, 0.08);
-  border-color: rgba(248, 113, 113, 0.3);
-  color: #f87171;
-}
-
-.alert-warning {
-  background: rgba(251, 191, 36, 0.08);
-  border-color: rgba(251, 191, 36, 0.3);
-  color: #fbbf24;
-}
-
-.alert-info {
-  background: rgba(0, 210, 255, 0.08);
-  border-color: rgba(0, 210, 255, 0.3);
-  color: #00d2ff;
-}
-
-/* ============================================================
-   Table Styles
-   ============================================================ */
-.table {
-  min-width: 100%;
-  border-collapse: collapse;
-}
-
-.table th {
-  padding: 0.75rem 1.5rem;
-  text-align: left;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.table td {
-  padding: 1rem 1.5rem;
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-/* ============================================================
-   Pagination
-   ============================================================ */
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-top: 1px solid var(--border-subtle);
-  padding: 0.75rem 1rem;
-}
-
-.pagination-button {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  background: transparent;
-  transition: all 0.2s ease;
-}
-
-.pagination-button:hover {
-  border-color: var(--color-cyan);
-  color: var(--color-cyan);
-}
-
-.pagination-button.active {
-  background: linear-gradient(135deg, #00d2ff, #7000ff);
-  border-color: transparent;
-  color: white;
+  background: var(--color-blue);
 }

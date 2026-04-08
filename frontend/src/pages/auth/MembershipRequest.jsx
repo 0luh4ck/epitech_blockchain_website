@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Mail, User, Phone, FileText, Send, CheckCircle } from 'lucide-react';
+import { Mail, User, Phone, FileText, Send, CheckCircle2, ArrowLeft, ShieldCheck, Zap } from 'lucide-react';
 import { ROUTES } from '../../utils/constants';
 import { api } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
+import { motion } from 'framer-motion';
+import ParticleGrid from '../../components/ParticleGrid';
+import BlockchainButton from '../../components/BlockchainButton';
 
 const MembershipRequest = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -33,249 +36,164 @@ const MembershipRequest = () => {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <div className="text-center">
-            <div className="mx-auto h-16 w-16 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center mb-6">
-              <CheckCircle className="h-8 w-8 text-white" />
-            </div>
-            <h2 className="text-3xl font-extrabold text-white mb-4">
-              Demande soumise !
-            </h2>
-            <p className="text-gray-300 mb-8">
-              Votre demande d'adhésion a été soumise avec succès. 
-              Nos administrateurs l'examineront et vous contacteront bientôt.
-            </p>
-            <Link
-              to={ROUTES.HOME}
-              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200"
-            >
-              Retour à l'accueil
-            </Link>
+      <div className="min-h-screen flex items-center justify-center bg-white px-4 relative overflow-hidden">
+        <ParticleGrid />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md w-full text-center bg-white p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/50 relative z-10"
+        >
+          <div className="mx-auto h-20 w-20 bg-green-50 rounded-full flex items-center justify-center mb-8">
+            <CheckCircle2 className="h-10 w-10 text-green-500" />
           </div>
-        </div>
+          <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">
+            Demande Envoyée !
+          </h2>
+          <p className="text-slate-500 font-medium leading-relaxed mb-10">
+            Votre demande d'adhésion a été transmise au bureau.
+            Nous reviendrons vers vous par email très prochainement.
+          </p>
+          <Link to={ROUTES.HOME} className="block w-full">
+            <BlockchainButton className="w-full py-4">
+              Retour à l'accueil
+            </BlockchainButton>
+          </Link>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <div className="mx-auto h-12 w-12 bg-gradient-to-r from-green-500 to-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-xl">E</span>
+    <div className="min-h-screen flex flex-col md:flex-row relative bg-white overflow-hidden">
+      <ParticleGrid />
+
+      {/* Left Panel: Info & Visual */}
+      <div className="w-full md:w-5/12 bg-slate-900 p-12 lg:p-20 flex flex-col justify-between relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 blur-[120px] rounded-full" />
+        <div className="relative z-10">
+          <Link to={ROUTES.HOME} className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors uppercase text-[10px] font-black tracking-widest mb-20 group">
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            Retour
+          </Link>
+
+          <h1 className="text-4xl lg:text-5xl font-black text-white mb-8 leading-tight tracking-tighter">
+            Rejoignez le <br />
+            <span className="text-blue-400">Club Blockchain</span>
+          </h1>
+
+          <div className="space-y-8">
+            <div className="flex gap-6 items-start">
+              <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0 border border-white/10">
+                <ShieldCheck className="w-5 h-5 text-blue-400" />
+              </div>
+              <div>
+                <h4 className="text-sm font-black text-white mb-1">Élite Technologique</h4>
+                <p className="text-xs text-slate-400 font-medium leading-relaxed">Accédez aux meilleurs workshops et ressources blockchain du pays.</p>
+              </div>
+            </div>
+            <div className="flex gap-6 items-start">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0 border border-emerald-500/20">
+                <Zap className="w-5 h-5 text-emerald-400" />
+              </div>
+              <div>
+                <h4 className="text-sm font-black text-white mb-1">Accélération de Carrière</h4>
+                <p className="text-xs text-slate-400 font-medium leading-relaxed">Connectez-vous directement avec les entreprises leaders du Web3.</p>
+              </div>
+            </div>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
-            Demande d'adhésion
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-300">
-            Rejoignez le Club Blockchain Epitech Bénin
-          </p>
         </div>
-        
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-4">
-            {/* First Name */}
-            <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-300">
-                Prénom
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
+
+        <div className="relative z-10 pt-20">
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Engagement 2024-2025</p>
+          <div className="h-1 w-24 bg-blue-600 rounded-full" />
+        </div>
+      </div>
+
+      {/* Right Panel: Form */}
+      <div className="w-full md:w-7/12 p-12 lg:p-20 flex items-center overflow-y-auto">
+        <div className="max-w-md w-full mx-auto">
+          <div className="mb-12">
+            <h2 className="text-3xl font-black text-slate-900 mb-2">Formulaire d'Adhésion</h2>
+            <p className="text-slate-500 font-medium">Parlez-nous un peu de vous pour commencer.</p>
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 pl-1">Prénom</label>
+                <div className="relative group">
+                  <User className="absolute left-4 top-4 h-4 w-4 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
+                  <input
+                    {...register('firstName', { required: 'Requis' })}
+                    className="w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-blue-400 transition-all font-bold text-slate-900"
+                    placeholder="Vitalik"
+                  />
                 </div>
+              </div>
+              <div>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 pl-1">Nom</label>
                 <input
-                  {...register('firstName', {
-                    required: 'Le prénom est requis',
-                    minLength: {
-                      value: 2,
-                      message: 'Le prénom doit contenir au moins 2 caractères'
-                    },
-                    maxLength: {
-                      value: 50,
-                      message: 'Le prénom ne doit pas dépasser 50 caractères'
-                    }
-                  })}
-                  type="text"
-                  className="appearance-none rounded-md relative block w-full pl-10 pr-3 py-2 border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                  placeholder="Votre prénom"
+                  {...register('lastName', { required: 'Requis' })}
+                  className="w-full px-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-blue-400 transition-all font-bold text-slate-900"
+                  placeholder="Buterin"
                 />
               </div>
-              {errors.firstName && (
-                <p className="mt-1 text-sm text-red-400">{errors.firstName.message}</p>
-              )}
             </div>
 
-            {/* Last Name */}
             <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-300">
-                Nom
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
-                </div>
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 pl-1">Email Epitech</label>
+              <div className="relative group">
+                <Mail className="absolute left-4 top-4 h-4 w-4 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
                 <input
-                  {...register('lastName', {
-                    required: 'Le nom est requis',
-                    minLength: {
-                      value: 2,
-                      message: 'Le nom doit contenir au moins 2 caractères'
-                    },
-                    maxLength: {
-                      value: 50,
-                      message: 'Le nom ne doit pas dépasser 50 caractères'
-                    }
-                  })}
-                  type="text"
-                  className="appearance-none rounded-md relative block w-full pl-10 pr-3 py-2 border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                  placeholder="Votre nom"
+                  {...register('email', { required: 'Requis' })}
+                  className="w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-blue-400 transition-all font-bold text-slate-900"
+                  placeholder="votre.nom@epitech.eu"
                 />
               </div>
-              {errors.lastName && (
-                <p className="mt-1 text-sm text-red-400">{errors.lastName.message}</p>
-              )}
             </div>
 
-            {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300">
-                Adresse email
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
-                </div>
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 pl-1">Téléphone</label>
+              <div className="relative group">
+                <Phone className="absolute left-4 top-4 h-4 w-4 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
                 <input
-                  {...register('email', {
-                    required: 'L\'email est requis',
-                    pattern: {
-                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: 'Format d\'email invalide'
-                    }
-                  })}
-                  type="email"
-                  className="appearance-none rounded-md relative block w-full pl-10 pr-3 py-2 border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                  placeholder="votre@email.com"
+                  {...register('phone')}
+                  className="w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-blue-400 transition-all font-bold text-slate-900"
+                  placeholder="+229 XXXX XXXX"
                 />
               </div>
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-400">{errors.email.message}</p>
-              )}
             </div>
 
-            {/* Phone */}
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-300">
-                Téléphone (optionnel)
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Phone className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  {...register('phone', {
-                    pattern: {
-                      value: /^(\+229|229)?[0-9]{8}$/,
-                      message: 'Format de téléphone invalide'
-                    }
-                  })}
-                  type="tel"
-                  className="appearance-none rounded-md relative block w-full pl-10 pr-3 py-2 border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                  placeholder="+229 XX XX XX XX"
-                />
-              </div>
-              {errors.phone && (
-                <p className="mt-1 text-sm text-red-400">{errors.phone.message}</p>
-              )}
-            </div>
-
-            {/* Student ID */}
-            <div>
-              <label htmlFor="studentId" className="block text-sm font-medium text-gray-300">
-                Identifiant étudiant (optionnel)
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  {...register('studentId', {
-                    minLength: {
-                      value: 3,
-                      message: 'L\'identifiant doit contenir au moins 3 caractères'
-                    },
-                    maxLength: {
-                      value: 20,
-                      message: 'L\'identifiant ne doit pas dépasser 20 caractères'
-                    }
-                  })}
-                  type="text"
-                  className="appearance-none rounded-md relative block w-full pl-10 pr-3 py-2 border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                  placeholder="Votre identifiant étudiant"
-                />
-              </div>
-              {errors.studentId && (
-                <p className="mt-1 text-sm text-red-400">{errors.studentId.message}</p>
-              )}
-            </div>
-
-            {/* Motivation */}
-            <div>
-              <label htmlFor="motivation" className="block text-sm font-medium text-gray-300">
-                Motivation (optionnel)
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute top-3 left-3 pointer-events-none">
-                  <FileText className="h-5 w-5 text-gray-400" />
-                </div>
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 pl-1">Votre Motivation</label>
+              <div className="relative">
+                <FileText className="absolute left-4 top-4 h-4 w-4 text-slate-300" />
                 <textarea
-                  {...register('motivation', {
-                    maxLength: {
-                      value: 1000,
-                      message: 'La motivation ne doit pas dépasser 1000 caractères'
-                    }
-                  })}
+                  {...register('motivation')}
                   rows={4}
-                  className="appearance-none rounded-md relative block w-full pl-10 pr-3 py-2 border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm resize-none"
-                  placeholder="Pourquoi souhaitez-vous rejoindre le Club Blockchain Epitech ?"
+                  className="w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-blue-400 transition-all font-medium text-slate-900 resize-none"
+                  placeholder="Pourquoi rejoindre le club ?"
                 />
               </div>
-              {errors.motivation && (
-                <p className="mt-1 text-sm text-red-400">{errors.motivation.message}</p>
-              )}
             </div>
-          </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-            >
-              {isSubmitting ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-              ) : (
-                <>
-                  <Send className="h-5 w-5 mr-2" />
-                  Soumettre la demande
-                </>
-              )}
-            </button>
-          </div>
-
-          <div className="text-center">
-            <p className="text-sm text-gray-400">
-              Déjà membre ?{' '}
-              <Link
-                to={ROUTES.LOGIN}
-                className="font-medium text-green-400 hover:text-green-300"
+            <div className="pt-4">
+              <BlockchainButton
+                type="submit"
+                primary
+                disabled={isSubmitting}
+                className="w-full py-5 text-lg group"
               >
-                Se connecter
-              </Link>
-            </p>
-          </div>
-        </form>
+                {isSubmitting ? 'Envoi en cours...' : 'Envoyer ma demande'}
+                <Send className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </BlockchainButton>
+            </div>
+
+            <div className="text-center pt-6">
+              <p className="text-sm text-slate-500 font-medium">Déjà membre ? <Link to={ROUTES.LOGIN} className="font-black text-blue-600 hover:underline">Se connecter</Link></p>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

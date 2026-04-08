@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, User, LogOut, Settings, Shield } from 'lucide-react';
+import { Menu, X, User, LogOut, Settings, Shield, ChevronDown } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../utils/constants';
-// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Header = () => {
@@ -12,14 +11,20 @@ const Header = () => {
   const { isAuthenticated, user, logout, isAdmin, isExecutive } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const navigation = [
     { name: 'Accueil', href: ROUTES.HOME },
     { name: 'À Propos', href: ROUTES.ABOUT },
-    { name: 'Bureau Exécutif', href: ROUTES.EXECUTIVE_BOARD },
+    { name: 'Bureau', href: ROUTES.EXECUTIVE_BOARD },
     { name: 'Partenaires', href: ROUTES.PARTNERS },
-    { name: 'Activités', href: ROUTES.ACTIVITIES },
-    { name: 'Contact', href: ROUTES.CONTACT }
+    { name: 'Activités', href: ROUTES.ACTIVITIES }
   ];
 
   const handleLogout = () => {
@@ -28,40 +33,49 @@ const Header = () => {
     setIsUserMenuOpen(false);
   };
 
-  const isActiveRoute = (route) => {
-    return location.pathname === route;
-  };
+  const isActiveRoute = (route) => location.pathname === route;
 
   return (
-    <header className="bg-white shadow-lg sticky top-0 z-50">
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/80 backdrop-blur-lg border-b border-slate-100 py-3 shadow-sm' : 'bg-transparent py-5'
+        }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center">
           {/* Logo */}
-          <div className="flex-shrink-0">
-            <Link to={ROUTES.HOME} className="flex items-center">
+          <Link to={ROUTES.HOME} className="flex items-center group">
+            <div className="relative">
+              <div className="absolute -inset-1 bg-gradient-to-tr from-blue-600 to-green-500 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200" />
               <img
                 src="/logo.png"
-                alt="Logo Club Blockchain Epitech"
-                className="w-10 h-10 rounded-lg object-cover"
+                alt="Logo"
+                className="relative w-10 h-10 rounded-xl object-cover border border-white/50 bg-white"
               />
-              <span className="ml-3 text-xl font-bold text-gray-900">
-                Club Blockchain
-              </span>
-            </Link>
-          </div>
+            </div>
+            <div className="ml-4 flex flex-col">
+              <span className="text-sm font-black text-slate-900 tracking-tighter uppercase leading-none">Club Blockchain</span>
+              <span className="text-[10px] font-bold text-blue-600 tracking-[0.2em] uppercase mt-0.5">Epitech Bénin</span>
+            </div>
+          </Link>
 
           {/* Navigation Desktop */}
-          <nav className="hidden md:flex space-x-8">
+          <nav className="hidden md:flex items-center space-x-1">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActiveRoute(item.href)
-                  ? 'text-green-600 bg-green-50'
-                  : 'text-gray-700 hover:text-green-600 hover:bg-gray-50'
+                className={`relative px-4 py-2 text-xs font-black uppercase tracking-widest transition-all duration-300 rounded-xl ${isActiveRoute(item.href)
+                    ? 'text-blue-600 bg-blue-50'
+                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                   }`}
               >
                 {item.name}
+                {isActiveRoute(item.href) && (
+                  <motion.div
+                    layoutId="activeTab"
+                    className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-blue-600 rounded-full"
+                  />
+                )}
               </Link>
             ))}
           </nav>
@@ -72,122 +86,132 @@ const Header = () => {
               <div className="relative">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center space-x-2 text-gray-700 hover:text-green-600 transition-colors"
+                  className="flex items-center space-x-3 p-1.5 pr-3 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-all group"
                 >
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4" />
+                  <div className="w-8 h-8 bg-gradient-to-tr from-blue-600 to-green-500 rounded-xl flex items-center justify-center p-0.5 shadow-md group-hover:scale-105 transition-transform">
+                    <div className="w-full h-full rounded-[10px] bg-white flex items-center justify-center">
+                      <User className="w-4 h-4 text-blue-600" />
+                    </div>
                   </div>
-                  <span className="hidden sm:block text-sm font-medium">
+                  <span className="hidden sm:block text-xs font-black text-slate-700 uppercase tracking-tighter">
                     {user?.firstName}
                   </span>
+                  <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* User Menu Dropdown */}
-                {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                    <div className="px-4 py-2 border-b border-gray-100">
-                      <p className="text-sm font-medium text-gray-900">
-                        {user?.firstName} {user?.lastName}
-                      </p>
-                      <p className="text-xs text-gray-500">{user?.email}</p>
-                      {user?.position && (
-                        <p className="text-xs text-green-600 font-medium">
-                          {user.position}
+                <AnimatePresence>
+                  {isUserMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute right-0 mt-3 w-64 bg-white rounded-[24px] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden z-50 p-2"
+                    >
+                      <div className="px-4 py-4 mb-2 bg-slate-50/50 rounded-2xl border border-slate-50">
+                        <p className="text-sm font-black text-slate-900 truncate">
+                          {user?.firstName} {user?.lastName}
                         </p>
-                      )}
-                    </div>
+                        <p className="text-[10px] font-bold text-slate-400 truncate mt-0.5">{user?.email}</p>
+                      </div>
 
-                    <Link
-                      to={ROUTES.DASHBOARD}
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={() => setIsUserMenuOpen(false)}
-                    >
-                      <Settings className="w-4 h-4 mr-2" />
-                      Tableau de bord
-                    </Link>
+                      <div className="space-y-1">
+                        <Link
+                          to={ROUTES.PROFILE}
+                          className="flex items-center px-4 py-3 text-xs font-black text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          <Settings className="w-4 h-4 mr-3" />
+                          Mon Profil
+                        </Link>
 
-                    <Link
-                      to={ROUTES.PROFILE}
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={() => setIsUserMenuOpen(false)}
-                    >
-                      <User className="w-4 h-4 mr-2" />
-                      Mon profil
-                    </Link>
+                        {(isAdmin() || isExecutive()) && (
+                          <Link
+                            to={ROUTES.ADMIN}
+                            className="flex items-center px-4 py-3 text-xs font-black text-slate-600 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            <Shield className="w-4 h-4 mr-3" />
+                            Administration
+                          </Link>
+                        )}
 
-                    {(isAdmin() || isExecutive()) && (
-                      <Link
-                        to={ROUTES.ADMIN}
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setIsUserMenuOpen(false)}
-                      >
-                        <Shield className="w-4 h-4 mr-2" />
-                        Administration
-                      </Link>
-                    )}
-
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Déconnexion
-                    </button>
-                  </div>
-                )}
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center w-full px-4 py-3 text-xs font-black text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                        >
+                          <LogOut className="w-4 h-4 mr-3" />
+                          Déconnexion
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             ) : (
-              <Link
-                to={ROUTES.LOGIN}
-                className="bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-              >
-                Espace Membre
-              </Link>
+              <div className="flex items-center gap-3">
+                <Link
+                  to={ROUTES.LOGIN}
+                  className="hidden sm:block text-xs font-black text-slate-600 hover:text-blue-600 px-4 transition-colors uppercase tracking-widest"
+                >
+                  Connexion
+                </Link>
+                <Link
+                  to={ROUTES.REGISTER}
+                  className="bg-gradient-to-r from-blue-600 to-green-500 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-500/20 hover:scale-105 active:scale-95"
+                >
+                  Rejoindre
+                </Link>
+              </div>
             )}
 
             {/* Mobile menu button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-md text-gray-700 hover:text-green-600 hover:bg-gray-100"
+              className="md:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all"
             >
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Mobile Navigation */}
+      {/* Mobile Navigation */}
+      <AnimatePresence>
         {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50 rounded-lg mt-2">
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden bg-white border-b border-slate-100 overflow-hidden"
+          >
+            <div className="px-4 pt-4 pb-8 space-y-2">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${isActiveRoute(item.href)
-                    ? 'text-green-600 bg-green-100'
-                    : 'text-gray-700 hover:text-green-600 hover:bg-gray-100'
+                  className={`block px-4 py-4 rounded-2xl text-sm font-black uppercase tracking-widest transition-all ${isActiveRoute(item.href)
+                      ? 'text-blue-600 bg-blue-50'
+                      : 'text-slate-600 hover:bg-slate-50'
                     }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.name}
                 </Link>
               ))}
-
               {!isAuthenticated && (
-                <div className="border-t border-gray-200 pt-2 mt-2">
-                  <Link
-                    to={ROUTES.LOGIN}
-                    className="block px-4 py-3 rounded-lg text-base font-medium text-center bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Espace Membre
-                  </Link>
-                </div>
+                <Link
+                  to={ROUTES.LOGIN}
+                  className="block px-4 py-4 rounded-2xl text-sm font-black text-center bg-slate-900 text-white mt-4"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Espace Membre
+                </Link>
               )}
             </div>
-          </div>
+          </motion.div>
         )}
-      </div>
+      </AnimatePresence>
     </header>
   );
 };

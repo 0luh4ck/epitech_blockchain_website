@@ -29,10 +29,10 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Composant de chargement
 const LoadingSpinner = () => (
-  <div className="min-h-screen flex items-center justify-center bg-dark-bg">
+  <div className="min-h-screen flex items-center justify-center bg-white">
     <div className="relative">
-      <div className="animate-spin rounded-full h-16 w-16 border-2 border-transparent border-t-primary-500 border-r-secondary-500"></div>
-      <div className="absolute inset-0 rounded-full animate-ping opacity-20 border-2 border-primary-500"></div>
+      <div className="animate-spin rounded-full h-16 w-16 border-2 border-transparent border-t-blue-600 border-r-green-500"></div>
+      <div className="absolute inset-0 rounded-full animate-ping opacity-10 border-2 border-blue-500"></div>
     </div>
   </div>
 );

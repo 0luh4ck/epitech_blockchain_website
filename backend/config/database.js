@@ -6,18 +6,16 @@ dotenv.config();
 // Configuration de la base de données
 const dbConfig = {
   host: process.env.DB_HOST,
-  //port: process.env.DB_PORT,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  ssl: {
+  ssl: process.env.DB_SSL === 'true' ? {
     rejectUnauthorized: false
-  },
+  } : undefined,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
   acquireTimeout: 60000,
-  // Removed invalid options: timeout, reconnect
 };
 
 // Créer le pool de connexions
