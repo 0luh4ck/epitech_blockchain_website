@@ -57,7 +57,7 @@ const BlockchainNav = () => {
             <Link to={ROUTES.HOME} className="flex items-center gap-3 group flex-shrink-0">
               <div className="relative w-9 h-9">
                 <img
-                  src="../public/logo.png"
+                  src="/logo.png"
                   alt="Club Blockchain Epitech"
                   className="w-9 h-9 rounded-lg object-cover ring-1 ring-primary-500/40 group-hover:ring-primary-500 transition-all duration-300"
                   onError={(e) => {

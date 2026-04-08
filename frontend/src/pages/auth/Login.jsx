@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff, Mail, Lock, Zap } from 'lucide-react';
-// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../utils/constants';
+import ParticleGrid from '../../components/ParticleGrid';
+import BlockchainButton from '../../components/BlockchainButton';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -49,21 +50,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#050505] py-12 px-4">
-      {/* Background glow blobs */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full opacity-15 blur-3xl"
-          style={{ background: 'radial-gradient(circle, #00d2ff, transparent)' }} />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full opacity-10 blur-3xl"
-          style={{ background: 'radial-gradient(circle, #7000ff, transparent)' }} />
-      </div>
-
-      {/* Animated grid lines */}
-      <div className="absolute inset-0 pointer-events-none opacity-5"
-        style={{
-          backgroundImage: 'linear-gradient(rgba(0,210,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(0,210,255,0.5) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
-        }}
-      />
+      <ParticleGrid />
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}
@@ -71,7 +58,6 @@ const Login = () => {
         transition={{ duration: 0.6 }}
         className="relative w-full max-w-md"
       >
-        {/* Card */}
         <div
           className="rounded-3xl p-8 md:p-10"
           style={{
@@ -82,108 +68,68 @@ const Login = () => {
             boxShadow: '0 0 60px rgba(0,210,255,0.08), 0 40px 80px rgba(0,0,0,0.4)',
           }}
         >
-          {/* Header */}
           <div className="text-center mb-8">
-            {/* Logo */}
             <div className="flex justify-center mb-5">
-              <div className="relative">
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
                 <img
-                  src="../public/logo.png"
+                  src="/logo.png"
                   alt="Club Blockchain Epitech"
-                  className="w-16 h-16 rounded-xl object-cover"
-                  style={{ border: '2px solid rgba(0,210,255,0.4)', boxShadow: '0 0 20px rgba(0,210,255,0.3)' }}
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
-                  }}
+                  className="relative w-20 h-20 rounded-2xl object-cover border border-white/10"
                 />
-                <div
-                  className="hidden w-16 h-16 rounded-xl items-center justify-center text-white"
-                  style={{ background: 'linear-gradient(135deg, #00d2ff, #7000ff)' }}
-                >
-                  <Zap className="w-8 h-8" />
-                </div>
               </div>
             </div>
 
             <h1 className="text-2xl font-heading font-black text-white mb-2">
               Espace Membre
             </h1>
-            <p className="text-sm text-gray-500">
-              Accès réservé aux membres du bureau exécutif
+            <p className="text-sm text-gray-500 font-medium">
+              Accès réservé aux membres du club
             </p>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Email */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">
+              <label className="block text-sm font-medium text-gray-400 mb-2 pl-1">
                 Adresse Email
               </label>
-              <div className="relative">
+              <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Mail className="h-4 w-4 text-gray-600" />
+                  <Mail className="h-4 w-4 text-gray-600 group-focus-within:text-primary-400 transition-colors" />
                 </div>
                 <input
                   {...register('email', {
-                    required: 'Votre adresse email est requise',
+                    required: 'Requis',
                     pattern: {
                       value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: 'Format d\'email invalide',
+                      message: 'Email invalide',
                     },
                   })}
                   type="email"
                   placeholder="votre.nom@epitech.eu"
-                  className="w-full pl-11 pr-4 py-3 rounded-xl text-sm text-white placeholder-gray-600 outline-none transition-all duration-200"
-                  style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: errors.email ? '1px solid rgba(248,113,113,0.5)' : '1px solid rgba(0,210,255,0.15)',
-                  }}
-                  onFocus={e => {
-                    e.target.style.border = '1px solid rgba(0,210,255,0.5)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(0,210,255,0.1)';
-                  }}
-                  onBlur={e => {
-                    e.target.style.border = errors.email ? '1px solid rgba(248,113,113,0.5)' : '1px solid rgba(0,210,255,0.15)';
-                    e.target.style.boxShadow = 'none';
-                  }}
+                  className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:border-primary-500/50 outline-none transition-all"
                 />
               </div>
               {errors.email && (
-                <p className="mt-1.5 text-xs text-red-400">{errors.email.message}</p>
+                <p className="mt-1 text-xs text-red-400 pl-1">{errors.email.message}</p>
               )}
             </div>
 
-            {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">
+              <label className="block text-sm font-medium text-gray-400 mb-2 pl-1">
                 Mot de passe
               </label>
-              <div className="relative">
+              <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="h-4 w-4 text-gray-600" />
+                  <Lock className="h-4 w-4 text-gray-600 group-focus-within:text-primary-400 transition-colors" />
                 </div>
                 <input
                   {...register('password', {
-                    required: 'Le mot de passe est requis',
-                    minLength: { value: 6, message: 'Au moins 6 caractères' },
+                    required: 'Requis',
                   })}
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Votre mot de passe"
-                  className="w-full pl-11 pr-12 py-3 rounded-xl text-sm text-white placeholder-gray-600 outline-none transition-all duration-200"
-                  style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: errors.password ? '1px solid rgba(248,113,113,0.5)' : '1px solid rgba(0,210,255,0.15)',
-                  }}
-                  onFocus={e => {
-                    e.target.style.border = '1px solid rgba(0,210,255,0.5)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(0,210,255,0.1)';
-                  }}
-                  onBlur={e => {
-                    e.target.style.border = errors.password ? '1px solid rgba(248,113,113,0.5)' : '1px solid rgba(0,210,255,0.15)';
-                    e.target.style.boxShadow = 'none';
-                  }}
+                  className="w-full pl-11 pr-12 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:border-primary-500/50 outline-none transition-all"
                 />
                 <button
                   type="button"
@@ -194,38 +140,24 @@ const Login = () => {
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1.5 text-xs text-red-400">{errors.password.message}</p>
+                <p className="mt-1 text-xs text-red-400 pl-1">{errors.password.message}</p>
               )}
             </div>
 
-            {/* Forgot password link */}
             <div className="flex justify-end">
               <a
-                href="mailto:contact@blockchain-epitech.com"
-                className="text-xs text-primary-500 hover:text-primary-400 transition-colors"
+                href="mailto:contact@epitech-blockchain.bj"
+                className="text-xs text-primary-400 hover:underline font-medium"
               >
-                Contacter l'administrateur
+                Mot de passe oublié ?
               </a>
             </div>
 
-            {/* Submit */}
-            <button
+            <BlockchainButton
               type="submit"
+              primary
               disabled={isSubmitting}
-              className="w-full py-3.5 rounded-xl text-sm font-semibold font-heading text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                background: 'linear-gradient(135deg, #00d2ff, #7000ff)',
-              }}
-              onMouseEnter={e => {
-                if (!isSubmitting) {
-                  e.currentTarget.style.boxShadow = '0 0 25px rgba(0,210,255,0.5), 0 0 50px rgba(112,0,255,0.25)';
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                }
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.boxShadow = 'none';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
+              className="w-full py-4 mt-2"
             >
               {isSubmitting ? (
                 <div className="flex items-center justify-center gap-2">
@@ -235,22 +167,20 @@ const Login = () => {
               ) : (
                 'Se connecter'
               )}
-            </button>
+            </BlockchainButton>
           </form>
 
-          {/* Footer */}
           <div className="mt-8 pt-6 border-t border-white/5 text-center">
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-gray-600 font-medium">
               © {new Date().getFullYear()} Club Blockchain Epitech — Tous droits réservés
             </p>
           </div>
         </div>
 
-        {/* Back to home */}
         <div className="text-center mt-6">
           <Link
             to={ROUTES.HOME}
-            className="text-sm text-gray-600 hover:text-primary-400 transition-colors"
+            className="text-sm text-gray-600 hover:text-primary-400 transition-colors font-medium"
           >
             ← Retour à l'accueil
           </Link>

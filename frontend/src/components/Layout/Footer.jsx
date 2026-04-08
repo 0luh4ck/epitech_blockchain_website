@@ -47,7 +47,7 @@ const Footer = () => {
             <Link to={ROUTES.HOME} className="flex items-center gap-3 mb-5 group">
               <div className="relative w-10 h-10 flex-shrink-0">
                 <img
-                  src="../public/logo.png"
+                  src="/logo.png"
                   alt="Club Blockchain Epitech"
                   className="w-10 h-10 rounded-lg object-cover"
                   style={{ border: '1px solid rgba(0,210,255,0.3)' }}

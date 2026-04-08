@@ -40,7 +40,7 @@ const Header = () => {
           <div className="flex-shrink-0">
             <Link to={ROUTES.HOME} className="flex items-center">
               <img
-                src="../public/logo.png"
+                src="/logo.png"
                 alt="Logo Club Blockchain Epitech"
                 className="w-10 h-10 rounded-lg object-cover"
               />
