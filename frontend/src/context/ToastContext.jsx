@@ -4,6 +4,7 @@ import BlockchainToastContainer from '../components/BlockchainToastContainer';
 
 const ToastContext = createContext();
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useToast = () => {
   const context = useContext(ToastContext);
   if (!context) {
@@ -18,9 +19,9 @@ export const ToastProvider = ({ children }) => {
   return (
     <ToastContext.Provider value={toast}>
       {children}
-      <BlockchainToastContainer 
-        toasts={toast.toasts} 
-        onRemove={toast.removeToast} 
+      <BlockchainToastContainer
+        toasts={toast.toasts}
+        onRemove={toast.removeToast}
       />
     </ToastContext.Provider>
   );

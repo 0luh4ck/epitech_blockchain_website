@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Users, Calendar, BookOpen, Award, Target, Globe, Zap, Shield, TrendingUp } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { ROUTES } from '../utils/constants';
 import { statsService } from '../services/stats';
 import BlockchainButton from '../components/BlockchainButton';

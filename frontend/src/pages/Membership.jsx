@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 
 const Membership = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
-  
+
   const {
     register,
     handleSubmit,
@@ -41,7 +41,8 @@ const Membership = () => {
       await membershipService.submitApplication(data);
       setIsSubmitted(true);
       toast.success('Demande d\'adhésion soumise avec succès !');
-    } catch (error) {
+    } catch (err) {
+      console.error('Erreur adhésion:', err);
       toast.error('Erreur lors de la soumission de votre demande');
     }
   };
@@ -56,7 +57,7 @@ const Membership = () => {
               Demande Soumise avec Succès !
             </h1>
             <p className="text-lg text-gray-600 mb-6">
-              Merci pour votre intérêt à rejoindre le Club Blockchain d'Epitech Bénin. 
+              Merci pour votre intérêt à rejoindre le Club Blockchain d'Epitech Bénin.
               Votre demande d'adhésion a été transmise à notre équipe.
             </p>
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
@@ -137,7 +138,7 @@ const Membership = () => {
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
               Formulaire d'Adhésion
             </h2>
-            
+
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* Personal Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

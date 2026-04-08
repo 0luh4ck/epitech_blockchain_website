@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, User, LogOut, Settings, Shield } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../utils/constants';
-import { motion } from 'framer-motion';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -56,8 +55,8 @@ const Header = () => {
                 key={item.name}
                 to={item.href}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActiveRoute(item.href)
-                    ? 'text-green-600 bg-green-50'
-                    : 'text-gray-700 hover:text-green-600 hover:bg-gray-50'
+                  ? 'text-green-600 bg-green-50'
+                  : 'text-gray-700 hover:text-green-600 hover:bg-gray-50'
                   }`}
               >
                 {item.name}
@@ -163,8 +162,8 @@ const Header = () => {
                   key={item.name}
                   to={item.href}
                   className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${isActiveRoute(item.href)
-                      ? 'text-green-600 bg-green-100'
-                      : 'text-gray-700 hover:text-green-600 hover:bg-gray-100'
+                    ? 'text-green-600 bg-green-100'
+                    : 'text-gray-700 hover:text-green-600 hover:bg-gray-100'
                     }`}
                   onClick={() => setIsMenuOpen(false)}
                 >

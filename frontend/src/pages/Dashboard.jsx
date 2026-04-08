@@ -2,7 +2,6 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Calendar, Users, BookOpen, Award, BarChart3, Settings } from 'lucide-react';
 import { statsService } from '../services/stats';
-import { toast } from 'react-hot-toast';
 
 const Dashboard = () => {
   const { user, isAdmin, isExecutive } = useAuth();

@@ -33,7 +33,7 @@ const authReducer = (state, action) => {
         isLoading: true,
         error: null
       };
-    
+
     case AUTH_ACTIONS.LOGIN_SUCCESS:
       return {
         ...state,
@@ -43,7 +43,7 @@ const authReducer = (state, action) => {
         isLoading: false,
         error: null
       };
-    
+
     case AUTH_ACTIONS.LOGIN_FAILURE:
       return {
         ...state,
@@ -53,7 +53,7 @@ const authReducer = (state, action) => {
         isLoading: false,
         error: action.payload
       };
-    
+
     case AUTH_ACTIONS.LOGOUT:
       return {
         ...state,
@@ -63,25 +63,25 @@ const authReducer = (state, action) => {
         isLoading: false,
         error: null
       };
-    
+
     case AUTH_ACTIONS.UPDATE_USER:
       return {
         ...state,
         user: { ...state.user, ...action.payload }
       };
-    
+
     case AUTH_ACTIONS.SET_LOADING:
       return {
         ...state,
         isLoading: action.payload
       };
-    
+
     case AUTH_ACTIONS.CLEAR_ERROR:
       return {
         ...state,
         error: null
       };
-    
+
     default:
       return state;
   }
@@ -108,7 +108,8 @@ export const AuthProvider = ({ children }) => {
               user: response.data.user
             }
           });
-        } catch (error) {
+        } catch (err) {
+          console.error('Auth sync error:', err);
           // Token invalide, nettoyer le localStorage
           localStorage.removeItem('token');
           localStorage.removeItem('user');
@@ -125,19 +126,19 @@ export const AuthProvider = ({ children }) => {
   // Fonction de connexion
   const login = async (email, password) => {
     dispatch({ type: AUTH_ACTIONS.LOGIN_START });
-    
+
     try {
       const response = await authService.login(email, password);
-      
+
       // Sauvegarder dans le localStorage
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
-      
+
       dispatch({
         type: AUTH_ACTIONS.LOGIN_SUCCESS,
         payload: response.data
       });
-      
+
       toast.success('Connexion réussie !');
       return response.data;
     } catch (error) {
@@ -154,19 +155,19 @@ export const AuthProvider = ({ children }) => {
   // Fonction d'inscription
   const register = async (userData) => {
     dispatch({ type: AUTH_ACTIONS.LOGIN_START });
-    
+
     try {
       const response = await authService.register(userData);
-      
+
       // Sauvegarder dans le localStorage
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
-      
+
       dispatch({
         type: AUTH_ACTIONS.LOGIN_SUCCESS,
         payload: response.data
       });
-      
+
       toast.success('Compte créé avec succès !');
       return response.data;
     } catch (error) {
@@ -191,16 +192,16 @@ export const AuthProvider = ({ children }) => {
   const updateProfile = async (profileData) => {
     try {
       const response = await authService.updateProfile(profileData);
-      
+
       // Mettre à jour l'utilisateur dans le state et le localStorage
       const updatedUser = response.data.user;
       localStorage.setItem('user', JSON.stringify(updatedUser));
-      
+
       dispatch({
         type: AUTH_ACTIONS.UPDATE_USER,
         payload: updatedUser
       });
-      
+
       toast.success('Profil mis à jour avec succès !');
       return response.data;
     } catch (error) {
@@ -269,6 +270,7 @@ export const AuthProvider = ({ children }) => {
 };
 
 // Hook personnalisé pour utiliser le contexte d'authentification
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

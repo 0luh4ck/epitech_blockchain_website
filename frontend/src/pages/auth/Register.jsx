@@ -41,8 +41,9 @@ const Register = () => {
       });
       const from = location.state?.from?.pathname || ROUTES.DASHBOARD;
       navigate(from, { replace: true });
-    } catch (error) {
+    } catch (err) {
       // L'erreur est déjà gérée dans le contexte d'authentification
+      console.error('Registration error:', err);
     }
   };
 
@@ -74,7 +75,7 @@ const Register = () => {
             </Link>
           </p>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4">
             {/* First Name */}

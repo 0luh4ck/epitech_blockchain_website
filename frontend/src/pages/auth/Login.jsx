@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff, Mail, Lock, Zap } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../utils/constants';
 
@@ -30,7 +29,9 @@ const Login = () => {
       await login(data.email, data.password);
       const from = location.state?.from?.pathname || ROUTES.DASHBOARD;
       navigate(from, { replace: true });
-    } catch (_) { }
+    } catch (err) {
+      console.error('Login error:', err);
+    }
   };
 
   if (isLoading) {

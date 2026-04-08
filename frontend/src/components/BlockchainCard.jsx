@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 
 const BlockchainCard = ({
@@ -8,7 +9,6 @@ const BlockchainCard = ({
   icon: Icon,
   className = '',
   glowColor = '#00d2ff',
-  variant = 'default',
   ...props
 }) => {
   const [isHovered, setIsHovered] = useState(false);
