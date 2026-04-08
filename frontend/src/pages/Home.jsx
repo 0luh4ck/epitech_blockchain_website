@@ -217,7 +217,7 @@ const Home = () => {
           >
             <div className="relative">
               <img
-                src="/logo.png"
+                src="../public/logo.png"
                 alt="Logo Club Blockchain Epitech Bénin"
                 className="w-28 h-28 md:w-36 md:h-36 rounded-2xl object-cover shadow-2xl"
                 style={{ border: '2px solid rgba(0,210,255,0.4)', boxShadow: '0 0 40px rgba(0,210,255,0.3), 0 0 80px rgba(112,0,255,0.15)' }}
