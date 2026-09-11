@@ -29,15 +29,12 @@ const Profile = () => {
           >
             <div className="bg-white border border-slate-100 rounded-[40px] p-8 shadow-2xl shadow-slate-200/50 sticky top-28">
               <div className="relative mb-8 flex justify-center">
-                <div className="w-32 h-32 rounded-[32px] bg-gradient-to-tr from-blue-600 to-green-500 p-1">
-                  <div className="w-full h-full rounded-[30px] bg-white flex items-center justify-center border-4 border-white overflow-hidden shadow-inner">
-                    <img
-                      src="/logo.png"
-                      alt="Avatar"
-                      className="w-16 h-16 object-contain grayscale-[0.2]"
-                    />
-                  </div>
-                </div>
+                <img
+                  src={user?.avatar || "/logo.png"}
+                  onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/logo.png"; }}
+                  alt="Avatar Utilisateur"
+                  className="w-24 h-24 rounded-full object-cover border-4 border-emerald-500"
+                />
                 <button className="absolute bottom-0 right-1/4 p-2 bg-blue-600 text-white rounded-xl shadow-lg hover:scale-110 transition-transform">
                   <Edit2 className="w-4 h-4" />
                 </button>
