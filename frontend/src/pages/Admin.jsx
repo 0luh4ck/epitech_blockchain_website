@@ -1,63 +1,94 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Users, Inbox, Calendar, BarChart3 } from 'lucide-react';
+import { Users, Clock, ShieldCheck, Calendar } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { usersService } from '../services/users';
 import { membershipRequestsService } from '../services/membershipRequests';
+import { activitiesService } from '../services/activities';
+import Skeleton from '../components/Skeleton';
 
-const CARD_CLASS =
-  'bg-slate-900/80 border border-slate-800/80 rounded-2xl p-6 transition-all duration-200 hover:border-red-500/30 focus-visible:ring-2 focus-visible:ring-red-400';
+const KPI_CARD_CLASS =
+  'bg-slate-900/80 border border-slate-800/80 rounded-2xl p-6 shadow-xl backdrop-blur-md hover:border-slate-700/80 transition-all';
 
+/**
+ * Dashboard administration : 4 KPI dynamiques (données API réelles).
+ * Aucune carte de navigation, aucune valeur statique.
+ */
 const Admin = () => {
-  const { user, isAdmin, isExecutive } = useAuth();
-  const [pendingCount, setPendingCount] = useState(0);
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [kpis, setKpis] = useState({
+    totalMembers: 0,
+    pending: 0,
+    bureau: 0,
+    upcomingActivities: 0,
+  });
 
-  // Badge : nombre de demandes d'adhésion en attente
   useEffect(() => {
-    const loadPending = async () => {
-      try {
-        const response = await membershipRequestsService.getStats();
-        const count =
-          response.data?.byStatus?.find((s) => s.status === 'pending')?.count || 0;
-        setPendingCount(Number(count) || 0);
-      } catch (error) {
-        console.error('Erreur chargement demandes en attente:', error.message);
-      }
+    const loadKpis = async () => {
+      // Un seul aller-retour groupé : stats membres + demandes + activités
+      const [usersRes, requestsRes, activitiesRes] = await Promise.allSettled([
+        usersService.getUserStats(),
+        membershipRequestsService.getStats(),
+        activitiesService.getActivities({ limit: 100 }),
+      ]);
+
+      const overview =
+        usersRes.status === 'fulfilled' ? usersRes.value?.data?.overview : null;
+      const reqStats =
+        requestsRes.status === 'fulfilled' ? requestsRes.value?.data : null;
+      const activities =
+        activitiesRes.status === 'fulfilled'
+          ? activitiesRes.value?.data?.activities || []
+          : [];
+
+      const now = new Date();
+      setKpis({
+        totalMembers: Number(overview?.total_users) || 0,
+        pending:
+          Number(
+            reqStats?.byStatus?.find((s) => s.status === 'pending')?.count
+          ) || 0,
+        bureau:
+          (Number(overview?.admins) || 0) + (Number(overview?.executives) || 0),
+        upcomingActivities: activities.filter((a) => {
+          if (!a?.startDate || a?.status === 'cancelled') return false;
+          return new Date(a.startDate) >= now;
+        }).length,
+      });
+      setLoading(false);
     };
-    loadPending();
+
+    loadKpis();
   }, []);
 
   const cards = [
     {
-      title: "Demandes d'Adhésion",
-      description: "Examiner et valider les demandes d'adhésion des nouveaux membres",
-      icon: Inbox,
-      href: '/admin/membership-requests',
-      available: isAdmin() || isExecutive(),
-      badge: pendingCount > 0 ? `${pendingCount} en attente` : null,
-    },
-    {
-      title: 'Gestion des Membres',
-      description: 'Gérer les comptes des membres existants',
+      label: 'Total membres',
+      value: kpis.totalMembers,
       icon: Users,
-      href: '/admin/members',
-      available: isAdmin() || isExecutive(),
-      badge: null,
+      iconWrap: 'bg-blue-500/10',
+      iconColor: 'text-blue-400',
     },
     {
-      title: 'Gestion des Activités / QCM',
-      description: 'Créer et administrer les activités, événements et examens',
+      label: 'Membres en attente',
+      value: kpis.pending,
+      icon: Clock,
+      iconWrap: 'bg-amber-500/10',
+      iconColor: 'text-amber-400',
+    },
+    {
+      label: 'Membres du bureau',
+      value: kpis.bureau,
+      icon: ShieldCheck,
+      iconWrap: 'bg-red-500/10',
+      iconColor: 'text-red-400',
+    },
+    {
+      label: 'Activités à venir',
+      value: kpis.upcomingActivities,
       icon: Calendar,
-      href: '/admin/activity-editor',
-      available: isAdmin() || isExecutive(),
-      badge: null,
-    },
-    {
-      title: 'Statistiques & Paramètres',
-      description: 'Consulter les statistiques, configurer le système et la sécurité',
-      icon: BarChart3,
-      href: '/admin/stats',
-      available: isAdmin(),
-      badge: null,
+      iconWrap: 'bg-emerald-500/10',
+      iconColor: 'text-emerald-400',
     },
   ];
 
@@ -77,47 +108,39 @@ const Admin = () => {
         </p>
       </div>
 
-      {/* 4 cartes principales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {cards.map((card) => {
-          const Icon = card.icon;
-          const inner = (
-            <>
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-3 bg-red-500/10 rounded-xl">
-                  <Icon className="w-6 h-6 text-red-400" />
-                </div>
-                {card.badge && (
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-black bg-red-500/15 text-red-300 border border-red-500/30">
-                    {card.badge}
-                  </span>
-                )}
-              </div>
-              <h2 className="text-lg font-black text-slate-100 mb-2">
-                {card.title}
-              </h2>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                {card.description}
-              </p>
-              {!card.available && (
-                <p className="mt-3 text-sm font-bold text-red-400">
-                  Accès restreint
-                </p>
-              )}
-            </>
-          );
-
-          return card.available ? (
-            <Link key={card.title} to={card.href} className={CARD_CLASS}>
-              {inner}
-            </Link>
-          ) : (
-            <div key={card.title} className={`${CARD_CLASS} opacity-60`}>
-              {inner}
+      {/* 4 KPI dynamiques */}
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {[0, 1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-6"
+            >
+              <Skeleton dark variant="line" lines={2} />
             </div>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {cards.map((card) => (
+            <div key={card.label} className={KPI_CARD_CLASS}>
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-slate-400 text-sm font-medium">
+                    {card.label}
+                  </p>
+                  <p className="text-3xl font-bold text-slate-100 mt-2">
+                    {card.value}
+                  </p>
+                </div>
+                <div className={`p-3 rounded-xl ${card.iconWrap}`}>
+                  <card.icon className={`h-6 w-6 ${card.iconColor}`} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
