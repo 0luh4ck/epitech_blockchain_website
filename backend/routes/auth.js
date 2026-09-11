@@ -7,6 +7,11 @@ import { handleValidationErrors, validateRegister, validateLogin } from '../midd
 
 const router = express.Router();
 
+// Email Superadmin : autorisé explicitement au login même si des flags
+// globaux (is_active / anonymisation accidentelle) bloquent les autres comptes.
+// La restauration n'est appliquée QU'APRÈS vérification bcrypt du mot de passe.
+const SUPERADMIN_EMAIL = 'epiblockchain@epitech.eu';
+
 /**
  * @swagger
  * /api/auth/register:
@@ -127,7 +132,7 @@ router.post('/login', validateLogin, async (req, res) => {
     // Trouver l'utilisateur
     console.log('🔑 Tentative de connexion pour:', email, '| espace demandé:', space || '(défaut)');
     const users = await query(
-      'SELECT id, email, password, first_name, last_name, role, is_active, is_verified, must_change_password FROM users WHERE email = ?',
+      'SELECT id, email, password, first_name, last_name, role, is_active, is_verified, is_anonymized, must_change_password FROM users WHERE email = ?',
       [email]
     );
 
@@ -142,6 +147,40 @@ router.post('/login', validateLogin, async (req, res) => {
     const user = users[0];
     const realRole = String(user.role || '').toLowerCase();
     console.log('👤 Utilisateur trouvé:', { email: user.email, role: user.role, isActive: user.is_active });
+
+    // --- Garantie Superadmin : mot de passe vérifié D'ABORD, flags restaurés ensuite ---
+    // Même si is_active=FALSE ou is_anonymized=TRUE (anonymisation accidentelle),
+    // un mot de passe correct restaure le compte et autorise la connexion.
+    if (String(email).toLowerCase() === SUPERADMIN_EMAIL) {
+      const superadminPasswordOk = await bcrypt.compare(password, user.password);
+      console.log('🔐 [superadmin] bcrypt.compare =>', superadminPasswordOk);
+      if (!superadminPasswordOk) {
+        console.log('❌ Mot de passe Superadmin incorrect');
+        return res.status(401).json({
+          success: false,
+          message: 'Email ou mot de passe incorrect'
+        });
+      }
+      if (!user.is_active || user.is_anonymized) {
+        console.log('🛠️ [superadmin] auto-restauration des flags (is_active/is_anonymized)');
+        try {
+          await query(
+            'UPDATE users SET is_active = TRUE, is_verified = TRUE, is_anonymized = FALSE, updated_at = NOW() WHERE id = ?',
+            [user.id]
+          );
+        } catch (healError) {
+          // Repli pour les schémas sans colonne is_anonymized
+          console.error('⚠️ [superadmin] heal avec is_anonymized impossible, repli :', healError.message);
+          await query(
+            'UPDATE users SET is_active = TRUE, is_verified = TRUE, updated_at = NOW() WHERE id = ?',
+            [user.id]
+          );
+        }
+        user.is_active = true;
+        user.is_verified = true;
+        user.is_anonymized = false;
+      }
+    }
 
     // --- Contrôle d'accès par espace (Tabs public vs /admin/login) ---
     // Espace public : 'member' (Membre) | 'executive' (Membre du Bureau)
