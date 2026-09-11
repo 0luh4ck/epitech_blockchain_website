@@ -39,7 +39,9 @@ const ReactivateModal = ({ user, onClose, onReactivated }) => {
       toast.success('Compte réactivé avec succès.');
       onReactivated?.();
     } catch (err) {
-      const msg = err.response?.data?.message || 'Échec de la réactivation.';
+      const data = err.response?.data || {};
+      const details = Array.isArray(data.errors) ? ` Détails : ${data.errors.join(' ; ')}` : '';
+      const msg = `${data.message || data.error || 'Échec de la réactivation.'}${details}`;
       setError(msg);
       toast.error(msg);
     } finally {
