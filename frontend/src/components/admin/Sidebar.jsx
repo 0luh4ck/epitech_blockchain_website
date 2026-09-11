@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../utils/constants';
+import ClubLogo from '../ClubLogo';
 
 const MENU = [
   { label: 'Tableau de bord', href: ROUTES.ADMIN, icon: LayoutDashboard },
@@ -78,11 +79,7 @@ const Sidebar = ({ mobileOpen, onClose, onNavigate }) => {
       >
         {/* Branding */}
         <div className="flex items-center gap-3 px-5 pt-6 pb-5 border-b border-white/10">
-          <img
-            src="/logo.png"
-            alt="Epitech Blockchain Club Logo"
-            className="h-10 w-auto object-contain rounded-lg bg-white/5 border border-white/10 p-1 shrink-0"
-          />
+          <ClubLogo className="h-10 w-auto object-contain rounded-lg bg-white/5 border border-white/10 p-1 shrink-0" />
           <div className={`min-w-0 ${labelClass}`}>
             <p className="text-sm font-black text-white uppercase tracking-tight truncate">Club Blockchain</p>
             <p className="text-[10px] font-bold text-red-400 uppercase tracking-[0.2em]">Espace Admin</p>

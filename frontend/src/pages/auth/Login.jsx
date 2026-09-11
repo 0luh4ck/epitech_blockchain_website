@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../utils/constants';
 import ParticleGrid from '../../components/ParticleGrid';
 import BlockchainButton from '../../components/BlockchainButton';
+import ClubLogo from '../../components/ClubLogo';
 
 // Espaces publics UNIQUEMENT : pas d'option ni de lien d'administration ici.
 // La connexion d'administration vit sur une route confidentielle non divulguée.
@@ -75,11 +76,7 @@ const Login = () => {
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
               <div className="relative group p-1 bg-gradient-to-tr from-blue-600 to-green-500 rounded-3xl shrink-0">
-                <img
-                  src="/logo.png"
-                  alt="Epitech Blockchain Club Logo"
-                  className="relative w-20 h-20 rounded-[22px] object-contain bg-white border-2 border-white"
-                />
+                <ClubLogo className="relative h-20 w-auto object-contain rounded-[22px] bg-white border-2 border-white" />
               </div>
             </div>
 

@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, ChevronDown, BookOpen, FileText, KeyRound, ClipboardCheck, CalendarDays, Code2, HelpCircle, Mail } from 'lucide-react';
 import { ROUTES } from '../utils/constants';
+import ClubLogo from '../components/ClubLogo';
 
 const API_DOCS_URL =
   `${(import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/$/, '')}/docs`;
@@ -157,7 +158,7 @@ const Docs = () => {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-10">
-        <img src="/logo.png" alt="Epitech Blockchain Club Logo" className="h-16 w-auto object-contain mx-auto mb-4" />
+        <ClubLogo className="h-16 w-auto object-contain mx-auto mb-4" />
         <h1 className="text-4xl font-black text-slate-900 tracking-tight">Documentation</h1>
         <p className="text-slate-500 font-medium mt-2">Guides d'utilisation de la plateforme du Club Blockchain Epitech Bénin</p>
         <div className="relative max-w-xl mx-auto mt-6">
