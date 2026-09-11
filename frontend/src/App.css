@@ -1,8 +1,9 @@
+/* Fichier legacy (template Vite) : NON importé par main.jsx.
+   Règle #root neutralisée pour ne jamais compresser le layout :
+   pas de max-width, pas de centrage, pas de padding global. */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  min-height: 100vh;
 }
 
 .logo {

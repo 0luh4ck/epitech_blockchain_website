@@ -7,7 +7,8 @@ const Layout = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col bg-white transition-colors duration-300">
       <Header />
-      <main className="flex-grow">
+      {/* Contenu aligné en haut, pleine largeur (les pages gèrent leur max-w-7xl) */}
+      <main className="flex-grow w-full">
         {children}
       </main>
       <Footer />
