@@ -69,7 +69,7 @@ const router = express.Router();
  * /api/users:
  *   post:
  *     summary: Créer un membre manuellement (Admin)
- *     description: "Crée le compte avec un mot de passe temporaire (retourné en réponse, à transmettre). Invitation email optionnelle (simulation si SMTP absent)."
+ *     description: "Clés camelCase (firstName/lastName) ou snake_case acceptées ; alias 'bureau' → 'executive'. Mot de passe temporaire toujours généré serveur et retourné (à transmettre). Invitation email optionnelle (simulation si SMTP absent)."
  *     tags: [Users]
  *     security: [{ bearerAuth: [] }]
  *     requestBody:
@@ -98,35 +98,54 @@ const router = express.Router();
 // @access  Private (Admin seulement)
 router.post('/', authenticateToken, requireAdmin, async (req, res) => {
   try {
-    const { email, firstName, lastName, role = 'member', status = 'active', sendInvite = false } = req.body;
-    console.log('👤 [users] création manuelle :', { email, role, status, sendInvite: !!sendInvite });
+    // Contrat DTO tolérant : accepte camelCase (frontend) ET snake_case (scripts),
+    // + alias historique 'bureau' → 'executive' (ENUM BDD : admin/member/executive).
+    // Le mot de passe est TOUJOURS généré côté serveur (jamais exigé du formulaire).
+    const body = req.body || {};
+    console.log('👤 [users] création manuelle, clés reçues:', Object.keys(body));
+    const email = String(body.email || '').trim().toLowerCase();
+    const firstName = String(body.firstName ?? body.first_name ?? '').trim();
+    const lastName = String(body.lastName ?? body.last_name ?? '').trim();
+    let role = String(body.role || 'member').trim().toLowerCase();
+    const status = String(body.status || 'active').trim().toLowerCase();
+    const sendInvite = !!body.sendInvite;
+    console.log('👤 [users] création manuelle :', { email, role, status, sendInvite });
+    if (role === 'bureau') role = 'executive';
 
-    if (!email || !firstName || !lastName) {
+    const errors = [];
+    if (!email) errors.push('email requis');
+    if (!firstName) errors.push('firstName (ou first_name) requis');
+    if (!lastName) errors.push('lastName (ou last_name) requis');
+    if (errors.length > 0) {
       return res.status(400).json({
         success: false,
         code: 'MISSING_FIELDS',
-        message: 'Email, prénom et nom sont requis'
+        message: 'Email, prénom et nom sont requis',
+        errors
       });
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({
         success: false,
         code: 'INVALID_EMAIL',
-        message: 'Format d\'email invalide'
+        message: 'Format d\'email invalide',
+        errors: [`email invalide : "${email}"`]
       });
     }
     if (!['member', 'executive', 'admin'].includes(role)) {
       return res.status(400).json({
         success: false,
         code: 'INVALID_ROLE',
-        message: 'Rôle invalide (member, executive, admin)'
+        message: 'Rôle invalide (member, executive, admin — alias accepté : bureau)',
+        errors: [`role reçu : "${body.role}"`]
       });
     }
     if (!['active', 'pending'].includes(status)) {
       return res.status(400).json({
         success: false,
         code: 'INVALID_STATUS',
-        message: 'Statut invalide (active, pending)'
+        message: 'Statut invalide (active, pending)',
+        errors: [`status reçu : "${body.status}"`]
       });
     }
 
