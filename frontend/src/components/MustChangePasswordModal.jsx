@@ -11,6 +11,7 @@ export const MustChangePasswordModal = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [focused, setFocused] = useState(null);
 
   // Ne pas afficher la modale si l'utilisateur n'a pas le flag mustChangePassword
   if (!user || !user.mustChangePassword) {
@@ -73,13 +74,16 @@ export const MustChangePasswordModal = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '20px'
+      padding: '12px',
+      overflowY: 'auto'
     }}>
       <div style={{
         background: '#0f172a',
         border: '1px solid #334155',
         borderRadius: '16px',
-        padding: '32px',
+        padding: 'clamp(20px, 4vw, 32px)',
+        maxHeight: '90vh',
+        overflowY: 'auto',
         maxWidth: '480px',
         width: '100%',
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(99, 102, 241, 0.2)',
@@ -131,13 +135,18 @@ export const MustChangePasswordModal = () => {
               type="password"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
+              onFocus={() => setFocused('current')}
+              onBlur={() => setFocused(null)}
               required
+              disabled={loading}
               placeholder="••••••••"
+              aria-label="Mot de passe actuel"
               style={{
                 width: '100%',
                 padding: '12px 14px',
                 background: '#1e293b',
-                border: '1px solid #475569',
+                border: `1px solid ${focused === 'current' ? '#818cf8' : '#475569'}`,
+                boxShadow: focused === 'current' ? '0 0 0 3px rgba(129,140,248,0.35)' : 'none',
                 borderRadius: '8px',
                 color: '#ffffff',
                 fontSize: '14px',
@@ -154,13 +163,20 @@ export const MustChangePasswordModal = () => {
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
+              onFocus={() => setFocused('new')}
+              onBlur={() => setFocused(null)}
               required
+              disabled={loading}
               placeholder="••••••••"
+              aria-label="Nouveau mot de passe"
               style={{
                 width: '100%',
                 padding: '12px 14px',
                 background: '#1e293b',
-                border: isMismatch ? '1px solid #ef4444' : isMatch ? '1px solid #10b981' : '1px solid #475569',
+                border: focused === 'new'
+                  ? '1px solid #818cf8'
+                  : isMismatch ? '1px solid #ef4444' : isMatch ? '1px solid #10b981' : '1px solid #475569',
+                boxShadow: focused === 'new' ? '0 0 0 3px rgba(129,140,248,0.35)' : 'none',
                 borderRadius: '8px',
                 color: '#ffffff',
                 fontSize: '14px',
@@ -177,13 +193,20 @@ export const MustChangePasswordModal = () => {
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              onFocus={() => setFocused('confirm')}
+              onBlur={() => setFocused(null)}
               required
+              disabled={loading}
               placeholder="••••••••"
+              aria-label="Confirmer le nouveau mot de passe"
               style={{
                 width: '100%',
                 padding: '12px 14px',
                 background: '#1e293b',
-                border: isMismatch ? '1px solid #ef4444' : isMatch ? '1px solid #10b981' : '1px solid #475569',
+                border: focused === 'confirm'
+                  ? '1px solid #818cf8'
+                  : isMismatch ? '1px solid #ef4444' : isMatch ? '1px solid #10b981' : '1px solid #475569',
+                boxShadow: focused === 'confirm' ? '0 0 0 3px rgba(129,140,248,0.35)' : 'none',
                 borderRadius: '8px',
                 color: '#ffffff',
                 fontSize: '14px',
@@ -222,7 +245,12 @@ export const MustChangePasswordModal = () => {
               boxShadow: '0 4px 14px rgba(99, 102, 241, 0.4)'
             }}
           >
-            {loading ? 'Mise à jour en cours...' : 'Définir mon nouveau mot de passe'}
+            {loading ? (
+              <>
+                <span className="btn-spinner" aria-hidden="true" />
+                Mise à jour en cours…
+              </>
+            ) : 'Définir mon nouveau mot de passe'}
           </button>
         </form>
       </div>

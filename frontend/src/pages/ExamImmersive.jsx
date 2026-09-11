@@ -48,10 +48,27 @@ export const ExamImmersive = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const draftKey = `exam_draft_${id || '1'}`;
+
   // 45 minutes = 2700 secondes
   const [timeLeft, setTimeLeft] = useState(2700);
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState({});
+  // Sauvegarde automatique locale : restaure les réponses après déconnexion/rechargement
+  const [answers, setAnswers] = useState(() => {
+    try {
+      const saved = localStorage.getItem(draftKey);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+  const [restored, setRestored] = useState(() => {
+    try {
+      return !!localStorage.getItem(draftKey);
+    } catch {
+      return false;
+    }
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
@@ -73,8 +90,18 @@ export const ExamImmersive = () => {
     return () => clearInterval(timerRef.current);
   }, []);
 
+  // Persiste chaque réponse localement à chaque modification
+  useEffect(() => {
+    try {
+      localStorage.setItem(draftKey, JSON.stringify(answers));
+    } catch {
+      // Stockage indisponible : l'examen reste utilisable en mémoire
+    }
+  }, [answers, draftKey]);
+
   const handleSelectOption = (questionId, optionIndex) => {
     setAnswers(prev => ({ ...prev, [questionId]: optionIndex }));
+    setRestored(false);
   };
 
   const calculateScore = () => {
@@ -106,6 +133,12 @@ export const ExamImmersive = () => {
     };
 
     localStorage.setItem(`exam_result_${id || '1'}`, JSON.stringify(resultData));
+    // Brouillon consommé : on le supprime après soumission
+    try {
+      localStorage.removeItem(draftKey);
+    } catch {
+      // Ignoré
+    }
 
     setTimeout(() => {
       navigate(`/exams/${id || '1'}/result`);
@@ -198,16 +231,33 @@ export const ExamImmersive = () => {
         }} />
       </div>
 
+      {/* Brouillon restauré après interruption (sauvegarde locale auto) */}
+      {restored && answeredCount > 0 && (
+        <div role="status" style={{
+          margin: '12px auto 0',
+          maxWidth: '1100px',
+          width: 'calc(100% - 40px)',
+          background: 'rgba(16, 185, 129, 0.12)',
+          border: '1px solid #10b981',
+          color: '#a7f3d0',
+          padding: '10px 16px',
+          borderRadius: '12px',
+          fontSize: '13px'
+        }}>
+          💾 Vos {answeredCount} réponse{answeredCount > 1 ? 's' : ''} précédente{answeredCount > 1 ? 's' : ''} ont été restaurées automatiquement.
+        </div>
+      )}
+
       {/* Contenu principal */}
       <div style={{
         flex: 1,
         maxWidth: '1100px',
         width: '100%',
         margin: '0 auto',
-        padding: '32px 20px',
+        padding: 'clamp(16px, 4vw, 32px) clamp(12px, 3vw, 20px)',
         display: 'grid',
-        gridTemplateColumns: '1fr 300px',
-        gap: '32px'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
+        gap: 'clamp(16px, 4vw, 32px)'
       }}>
         {/* Carte Question courante */}
         <main>

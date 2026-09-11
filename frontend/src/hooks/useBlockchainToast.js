@@ -36,6 +36,12 @@ const useBlockchainToast = () => {
     setToasts([]);
   }, []);
 
+  // Alias de compatibilité : showToast(message, type) utilisé par les modales
+  const showToast = useCallback((message, type = 'info', duration) => {
+    const valid = ['success', 'error', 'warning', 'info'].includes(type) ? type : 'info';
+    return addToast({ type: valid, message, duration });
+  }, [addToast]);
+
   return {
     toasts,
     addToast,
@@ -44,6 +50,7 @@ const useBlockchainToast = () => {
     error,
     warning,
     info,
+    showToast,
     clearAll
   };
 };
