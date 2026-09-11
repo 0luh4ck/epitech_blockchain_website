@@ -36,6 +36,15 @@ const Header = () => {
 
   const isActiveRoute = (route) => location.pathname === route;
 
+  // Sessions admin/superadmin : la Navbar publique est totalement masquée pour
+  // éviter toute navigation dans l'espace public avec un compte à privilèges.
+  // Ces rôles naviguent exclusivement via la Sidebar (AdminLayout).
+  const hidePublicNav =
+    isAuthenticated && (user?.role === 'admin' || user?.role === 'superadmin');
+  if (hidePublicNav) {
+    return null;
+  }
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/80 backdrop-blur-lg border-b border-slate-100 py-3 shadow-sm' : 'bg-transparent py-5'

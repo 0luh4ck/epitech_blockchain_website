@@ -60,6 +60,32 @@ const AdminRoute = ({ children }) => {
   return isAdmin ? children : <Navigate to={ROUTES.DASHBOARD} replace />;
 };
 
+// Séparation hermétique des layouts :
+// - Layout (public : Navbar + Footer) = routes publiques et espace membre UNIQUEMENT.
+// - AdminLayout (privé : Sidebar slate-950, ni Navbar ni Footer) = /admin/*,
+//   route superadmin et /profile pour les rôles privilégiés.
+const PRIVILEGED_ROLES = ['admin', 'superadmin', 'executive'];
+const getStoredRole = () => {
+  try {
+    return JSON.parse(localStorage.getItem('user') || '{}').role;
+  } catch {
+    return undefined;
+  }
+};
+
+// /profile : layout admin (Sidebar) si admin/bureau, layout public sinon
+const ProfileRoute = ({ children }) => (
+  <ProtectedRoute>
+    {PRIVILEGED_ROLES.includes(getStoredRole()) ? (
+      <AdminRoute>
+        <AdminLayout>{children}</AdminLayout>
+      </AdminRoute>
+    ) : (
+      <Layout>{children}</Layout>
+    )}
+  </ProtectedRoute>
+);
+
 function App() {
   return (
     <ThemeProvider>
@@ -104,9 +130,9 @@ function App() {
                   <Route
                     path={ROUTES.PROFILE}
                     element={
-                      <ProtectedRoute>
-                        <Layout><Profile /></Layout>
-                      </ProtectedRoute>
+                      <ProfileRoute>
+                        <Profile />
+                      </ProfileRoute>
                     }
                   />
                   {/* Espace admin STRICTEMENT isolé : AdminLayout (Sidebar),
