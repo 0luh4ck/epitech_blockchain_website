@@ -94,7 +94,13 @@ const MembersManagement = () => {
     loadUsers();
   }, [loadUsers]);
 
+  // Garde défensive : les comptes anonymisés ne remontent jamais à l'UI
+  // (déjà exclus côté API, double protection).
+  const isUsableAccount = (u) =>
+    !u.isAnonymized && !String(u.email || '').endsWith('@deleted.local');
+
   const filtered = users.filter((u) => {
+    if (!isUsableAccount(u)) return false;
     if (statusFilter === 'all') return true;
     return statusOf(u) === statusFilter;
   });
@@ -138,8 +144,10 @@ const MembersManagement = () => {
       if (roleFilter !== 'all') params.role = roleFilter;
       if (search) params.search = search;
       const res = await usersService.getUsers(params);
-      const rows = (res.data.users || []).filter((u) =>
-        statusFilter === 'all' ? true : statusOf(u) === statusFilter
+      const rows = (res.data.users || []).filter(
+        (u) =>
+          isUsableAccount(u) &&
+          (statusFilter === 'all' ? true : statusOf(u) === statusFilter)
       );
       const header = ['id', 'email', 'firstName', 'lastName', 'phone', 'studentId', 'role', 'position', 'isActive', 'isVerified', 'lastLogin', 'createdAt'];
       const escape = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;

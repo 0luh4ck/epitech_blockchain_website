@@ -67,9 +67,12 @@ const Admin = () => {
           (Number(overview?.admins) || 0) + (Number(overview?.executives) || 0),
         upcomingActivities: upcoming.length,
       });
-      setRecentMembers(
-        latestRes.status === 'fulfilled' ? latestRes.value?.data?.users || [] : []
-      );
+      // Garde défensive : aucun compte anonymisé au dashboard (déjà exclus côté API)
+      const usable = (u) =>
+        !u?.isAnonymized && !String(u?.email || '').endsWith('@deleted.local');
+      const latestUsers =
+        latestRes.status === 'fulfilled' ? latestRes.value?.data?.users || [] : [];
+      setRecentMembers(latestUsers.filter(usable));
       setNextActivity(upcoming[0] || null);
       // Fil d'activité : 4 dernières demandes traitées (données réelles)
       setRecentDecisions(

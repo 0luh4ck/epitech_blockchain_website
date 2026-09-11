@@ -27,11 +27,12 @@ router.get('/dashboard', async (req, res) => {
       WHERE status = 'published' AND start_date >= NOW()
     `);
 
-    // 2. Membres actifs
+    // 2. Membres actifs (hors comptes anonymisés/archivés)
     const activeMembers = await query(`
-      SELECT COUNT(*) as count 
-      FROM users 
+      SELECT COUNT(*) as count
+      FROM users
       WHERE is_active = true AND is_verified = true
+        AND (is_anonymized IS NULL OR is_anonymized = FALSE)
     `);
 
     // 3. Examens disponibles
