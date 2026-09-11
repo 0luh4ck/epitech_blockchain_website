@@ -193,11 +193,15 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
 // @access  Private (Admin/Executive)
 router.get('/', authenticateToken, requireExecutive, async (req, res) => {
   try {
-    const { page = 1, limit = 20, role, search } = req.query;
+    const { page = 1, limit = 20, role, search, includeAnonymized } = req.query;
     const offset = (page - 1) * limit;
 
-    // Les comptes anonymisés/archivés sont systématiquement exclus des listes
-    let whereClause = 'WHERE (is_anonymized IS NULL OR is_anonymized = FALSE)';
+    // Les comptes anonymisés/archivés sont exclus par défaut ;
+    // includeAnonymized=true les réinclut (écran de réactivation admin).
+    let whereClause =
+      includeAnonymized === 'true'
+        ? 'WHERE 1=1'
+        : 'WHERE (is_anonymized IS NULL OR is_anonymized = FALSE)';
     let params = [];
 
     // Filtrer par rôle
@@ -471,37 +475,200 @@ router.put('/:id', authenticateToken, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   delete:
+ *     summary: Anonymiser un compte (soft delete, JAMAIS de DELETE physique)
+ *     description: "Passe is_anonymized=TRUE / is_active=FALSE et archive les PII (email fictif unique, mot de passe inexploitable). Le compte disparaît des listes et statistiques. Le Superadmin est protégé (403)."
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     responses:
+ *       200: { description: 'Compte anonymisé', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Admin requis / compte Superadmin protégé', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       404: { description: 'Utilisateur non trouvé', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       500: { description: 'Erreur serveur', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/users/{id}/reactivate:
+ *   patch:
+ *     summary: Réactiver un compte anonymisé (nouveau mot de passe temporaire)
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email: { type: string, format: email, example: 'membre@epitech.eu' }
+ *               firstName: { type: string, example: 'Ada' }
+ *               lastName: { type: string, example: 'Lovelace' }
+ *     responses:
+ *       200: { description: 'Compte réactivé (data.user + data.tempPassword)', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       400: { description: 'Email manquant/invalide/déjà utilisé ou compte non anonymisé', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Admin requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       404: { description: 'Utilisateur non trouvé', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       500: { description: 'Erreur serveur', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ */
 // @route   DELETE /api/users/:id
-// @desc    Désactiver un utilisateur (soft delete)
+// @desc    Anonymiser un compte (soft delete — aucun DELETE physique)
 // @access  Private (Admin seulement)
 router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
 
     // Vérifier que l'utilisateur existe
-    const users = await query('SELECT id FROM users WHERE id = ?', [id]);
+    const users = await query('SELECT id, email FROM users WHERE id = ?', [id]);
     if (users.length === 0) {
       return res.status(404).json({
         success: false,
+        code: 'USER_NOT_FOUND',
         message: 'Utilisateur non trouvé'
       });
     }
 
-    // Désactiver l'utilisateur
+    // Garde-fou : le Superadmin ne peut jamais être anonymisé
+    if (users[0].email === 'epiblockchain@epitech.eu') {
+      console.log(`⛔ [users] tentative d'anonymisation du Superadmin (id=${id}) refusée`);
+      return res.status(403).json({
+        success: false,
+        code: 'SUPERADMIN_PROTECTED',
+        message: 'Le compte Superadmin ne peut pas être anonymisé'
+      });
+    }
+
+    // Soft delete : anonymisation dynamique (ID conservé, PII archivées)
     await query(
-      'UPDATE users SET is_active = false, updated_at = NOW() WHERE id = ?',
+      `UPDATE users SET
+        first_name = 'Anonyme',
+        last_name = CONCAT('User_', id),
+        email = CONCAT('archived_user_', id, '@deleted.local'),
+        phone = NULL,
+        student_id = NULL,
+        bio = NULL,
+        avatar = NULL,
+        verification_token = NULL,
+        reset_password_token = NULL,
+        reset_password_expires = NULL,
+        password = CONCAT('$UNUSABLE$', SHA2(CONCAT(UUID(), id, RAND()), 256)),
+        is_active = FALSE,
+        is_verified = FALSE,
+        must_change_password = FALSE,
+        is_anonymized = TRUE,
+        updated_at = NOW()
+       WHERE id = ?`,
       [id]
     );
 
+    console.log(`🗃️ [users] compte id=${id} anonymisé (soft delete)`);
     res.json({
       success: true,
-      message: 'Utilisateur désactivé avec succès'
+      code: 'ANONYMIZED',
+      message: 'Compte anonymisé avec succès. Il est exclu des listes et statistiques.'
     });
   } catch (error) {
-    console.error('Erreur lors de la désactivation de l\'utilisateur:', error);
+    console.error('Erreur lors de l\'anonymisation de l\'utilisateur:', error);
     res.status(500).json({
       success: false,
-      message: 'Erreur lors de la désactivation de l\'utilisateur'
+      message: 'Erreur lors de l\'anonymisation de l\'utilisateur'
+    });
+  }
+});
+
+// @route   PATCH /api/users/:id/reactivate
+// @desc    Réactiver un compte anonymisé (nouvelle identité + mot de passe temporaire)
+// @access  Private (Admin seulement)
+router.patch('/:id/reactivate', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { email, firstName, lastName } = req.body || {};
+    console.log('♻️ [users] réactivation demandée :', { id, email });
+
+    const rows = await query(
+      'SELECT id, email, is_anonymized FROM users WHERE id = ?',
+      [id]
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        code: 'USER_NOT_FOUND',
+        message: 'Utilisateur non trouvé'
+      });
+    }
+    if (!rows[0].is_anonymized) {
+      return res.status(400).json({
+        success: false,
+        code: 'NOT_ANONYMIZED',
+        message: 'Ce compte n\'est pas anonymisé, réactivation inutile'
+      });
+    }
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({
+        success: false,
+        code: 'EMAIL_REQUIRED',
+        message: 'Un email valide doit être réassigné lors de la réactivation'
+      });
+    }
+    const taken = await query(
+      'SELECT id FROM users WHERE email = ? AND id != ?',
+      [email, id]
+    );
+    if (taken.length > 0) {
+      return res.status(400).json({
+        success: false,
+        code: 'EMAIL_TAKEN',
+        message: 'Cet email est déjà utilisé par un autre compte'
+      });
+    }
+
+    const tempPassword = generateTemporaryPassword();
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+    await query(
+      `UPDATE users SET
+        email = ?, first_name = ?, last_name = ?,
+        password = ?, is_active = TRUE, is_verified = TRUE,
+        must_change_password = TRUE, is_anonymized = FALSE,
+        updated_at = NOW()
+       WHERE id = ?`,
+      [
+        email,
+        (firstName || '').trim() || 'Membre',
+        (lastName || '').trim() || `User_${id}`,
+        hashedPassword,
+        id
+      ]
+    );
+
+    console.log(`✅ [users] compte id=${id} réactivé (${email})`);
+    res.json({
+      success: true,
+      message: 'Compte réactivé avec succès. Transmettez le mot de passe temporaire.',
+      data: {
+        user: {
+          id: Number(id),
+          email,
+          firstName: (firstName || '').trim() || 'Membre',
+          lastName: (lastName || '').trim() || `User_${id}`,
+          isActive: true,
+          isVerified: true,
+          isAnonymized: false,
+          mustChangePassword: true
+        },
+        tempPassword
+      }
+    });
+  } catch (error) {
+    console.error('Erreur lors de la réactivation du compte:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la réactivation du compte'
     });
   }
 });
