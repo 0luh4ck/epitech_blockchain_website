@@ -240,7 +240,12 @@ export const AuthProvider = ({ children }) => {
       }
       const errorMessage = error.response?.data?.message || 'Erreur lors du changement de mot de passe';
       toast.error(errorMessage);
-      return { success: false, message: errorMessage };
+      return {
+        success: false,
+        message: errorMessage,
+        code: error.response?.data?.code,
+        hint: error.response?.data?.hint,
+      };
     }
   };
 

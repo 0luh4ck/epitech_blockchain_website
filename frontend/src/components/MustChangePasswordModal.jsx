@@ -58,6 +58,8 @@ export const MustChangePasswordModal = () => {
 
         let res;
         try {
+          // Contrat d'API : { currentPassword, newPassword } — clés uniquement, jamais les valeurs
+          console.debug('[change-password] clés envoyées:', ['currentPassword', 'newPassword']);
           res = await changePassword(currentPassword, newPassword);
         } catch (err) {
           // Sécurité : changePassword ne rejette normalement jamais, mais on
@@ -96,7 +98,12 @@ export const MustChangePasswordModal = () => {
           // formulaire, sans fermer la modale ni réinitialiser la saisie.
           setNetworkWarning('Problème de connexion réseau détecté. Veuillez réessayer.');
         } else {
-          setError(res.message || 'Erreur lors de la mise à jour du mot de passe.');
+          // Message explicite du backend (+ aide contextuelle éventuelle).
+          setError(
+            [res.message || 'Erreur lors de la mise à jour du mot de passe.', res.hint]
+              .filter(Boolean)
+              .join(' ')
+          );
         }
         return;
       }
