@@ -4,6 +4,7 @@ import { Menu, X, User, LogOut, Settings, Shield, Sun, Moon } from 'lucide-react
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { ROUTES } from '../utils/constants';
+import ClubLogo from './ClubLogo';
 
 const BlockchainNav = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -55,24 +56,7 @@ const BlockchainNav = () => {
 
             {/* Logo */}
             <Link to={ROUTES.HOME} className="flex items-center gap-3 group flex-shrink-0">
-              <div className="relative w-9 h-9">
-                <img
-                  src="/logo.png"
-                  alt="Club Blockchain Epitech"
-                  className="w-9 h-9 rounded-lg object-cover ring-1 ring-primary-500/40 group-hover:ring-primary-500 transition-all duration-300"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
-                  }}
-                />
-                {/* Fallback logo */}
-                <div
-                  className="hidden w-9 h-9 rounded-lg items-center justify-center text-white font-bold text-sm"
-                  style={{ background: 'linear-gradient(135deg, #00d2ff, #7000ff)' }}
-                >
-                  BC
-                </div>
-              </div>
+              <ClubLogo className="w-9 h-9 rounded-lg object-cover ring-1 ring-primary-500/40 group-hover:ring-primary-500 transition-all duration-300" showFallbackBadge={true} />
               <span className="font-heading font-bold text-lg text-gray-900 dark:text-white group-hover:text-gradient-web3 transition-colors duration-300 hidden sm:block">
                 Club Blockchain
               </span>

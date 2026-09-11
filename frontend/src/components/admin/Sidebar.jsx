@@ -19,7 +19,7 @@ import ClubLogo from '../ClubLogo';
 const MENU = [
   { label: 'Tableau de bord', href: ROUTES.ADMIN, icon: LayoutDashboard },
   { label: 'Demandes en attente', href: '/admin/membership-requests', icon: Inbox },
-  { label: 'Gestion des membres', href: ROUTES.ADMIN, icon: Users },
+  { label: 'Gestion des membres', href: '/admin/members', icon: Users },
   { label: 'Création activités / QCM', href: '/admin/activity-editor', icon: PenSquare },
   { label: 'Paramètres & Sécurité', href: ROUTES.PROFILE, icon: Settings },
 ];
@@ -45,10 +45,9 @@ const Sidebar = ({ mobileOpen, onClose, onNavigate }) => {
   };
 
   const linkClass = (href) => {
+    // Correspondance au segment près (évite que /admin/members matche /admin/membership-requests)
     const active =
-      href === ROUTES.ADMIN
-        ? location.pathname === ROUTES.ADMIN
-        : location.pathname.startsWith(href);
+      location.pathname === href || location.pathname.startsWith(`${href}/`);
     return `flex items-center gap-3 px-4 py-3 min-h-[44px] rounded-xl text-sm font-bold transition-all duration-200 ease-in-out focus-visible:ring-2 focus-visible:ring-red-400 ${
       collapsed ? 'lg:justify-center lg:px-2' : ''
     } ${

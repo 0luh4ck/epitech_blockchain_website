@@ -13,6 +13,12 @@ export const usersService = {
     return response.data;
   },
 
+  // Créer un membre manuellement (admin) — retourne le mot de passe temporaire
+  createUser: async (userData) => {
+    const response = await api.post('/users', userData);
+    return response.data;
+  },
+
   // Obtenir un utilisateur par ID
   getUser: async (id) => {
     const response = await api.get(`/users/${id}`);

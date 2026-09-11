@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Linkedin, Twitter, Mail, ExternalLink, ShieldCheck, Zap, Award } from 'lucide-react';
 import ParticleGrid from '../components/ParticleGrid';
 import BlockchainCard from '../components/BlockchainCard';
+import logoImg from '../assets/logo.png';
 
 const ExecutiveBoard = () => {
   const members = [
@@ -10,7 +11,7 @@ const ExecutiveBoard = () => {
       name: 'Moktar S.',
       role: 'Président & Coordinateur Tech',
       description: 'Expert en architectures décentralisées et évangéliste Web3.',
-      image: '/logo.png',
+      image: logoImg,
       socials: {
         linkedin: '#',
         twitter: '#',
@@ -21,7 +22,7 @@ const ExecutiveBoard = () => {
       name: 'Jean D.',
       role: 'VP Exécutif',
       description: 'Gestion stratégique et partenariats écosystémiques.',
-      image: '/logo.png',
+      image: logoImg,
       socials: {
         linkedin: '#',
         twitter: '#'
@@ -31,7 +32,7 @@ const ExecutiveBoard = () => {
       name: 'Alice M.',
       role: 'Trésorière',
       description: 'Responsable de la viabilité financière et des subventions.',
-      image: '/logo.png',
+      image: logoImg,
       socials: {
         linkedin: '#',
         mail: 'mailto:treasury@epitech-blockchain.bj'

@@ -18,6 +18,7 @@ import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../utils/constants';
 import ParticleGrid from '../../components/ParticleGrid';
 import BlockchainButton from '../../components/BlockchainButton';
+import ClubLogo from '../../components/ClubLogo';
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -70,7 +71,7 @@ const Register = () => {
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-600/20 to-transparent opacity-50" />
             <div className="relative z-10">
               <Link to={ROUTES.HOME} className="inline-block mb-12">
-                <img src="/logo.png" alt="Logo" className="w-12 h-12 rounded-xl border border-white/20" />
+                <ClubLogo className="w-12 h-12 rounded-xl border border-white/20 object-contain" />
               </Link>
               <h2 className="text-3xl font-black text-white mb-6 leading-tight">Rejoignez la <br />Révolution.</h2>
               <div className="space-y-6">

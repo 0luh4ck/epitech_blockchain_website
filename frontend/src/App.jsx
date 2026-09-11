@@ -31,6 +31,7 @@ const Admin = lazy(() => import('./pages/Admin'));
 // principal et son chunk reste dissocié des pages publiques.
 const AdminLogin = lazy(() => import('./pages/auth/AdminLogin'));
 const MembershipRequests = lazy(() => import('./pages/admin/MembershipRequests'));
+const MembersManagement = lazy(() => import('./pages/admin/MembersManagement'));
 const ExamImmersive = lazy(() => import('./pages/ExamImmersive'));
 const ExamResult = lazy(() => import('./pages/ExamResult'));
 const ActivityEditor = lazy(() => import('./pages/admin/ActivityEditor'));
@@ -163,6 +164,16 @@ function App() {
                       <ProtectedRoute>
                         <AdminRoute>
                           <AdminLayout><ActivityEditor /></AdminLayout>
+                        </AdminRoute>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/members"
+                    element={
+                      <ProtectedRoute>
+                        <AdminRoute>
+                          <AdminLayout><MembersManagement /></AdminLayout>
                         </AdminRoute>
                       </ProtectedRoute>
                     }

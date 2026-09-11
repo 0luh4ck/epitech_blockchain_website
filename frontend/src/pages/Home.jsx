@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import BlockchainButton from '../components/BlockchainButton';
 import BlockchainCard from '../components/BlockchainCard';
 import ParticleGrid from '../components/ParticleGrid';
+import ClubLogo from '../components/ClubLogo';
 import { ROUTES } from '../utils/constants';
 import { statsService } from '../services/stats';
 
@@ -205,10 +206,8 @@ const Home = () => {
             <div className="relative">
               <div className="aspect-square rounded-[40px] overflow-hidden border border-white shadow-2xl bg-white flex items-center justify-center p-12 group transition-all duration-700 hover:rotate-2">
                 <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 to-green-500/5 opacity-50" />
-                <img
-                  src="/logo.png"
-                  alt="Logo Club"
-                  className="w-2/3 h-auto grayscale-[0.2] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000"
+                <ClubLogo
+                  className="w-2/3 h-auto grayscale-[0.2] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000 object-contain"
                 />
               </div>
               {/* Floating elements */}
