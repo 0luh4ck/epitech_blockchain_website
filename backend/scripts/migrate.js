@@ -23,6 +23,7 @@ export const REQUIRED_USER_COLUMNS = [
   { name: 'reset_password_expires', definition: 'DATETIME' },
   { name: 'last_login', definition: 'DATETIME' },
   { name: 'must_change_password', definition: 'BOOLEAN DEFAULT false' },
+  { name: 'is_anonymized', definition: 'BOOLEAN DEFAULT false' },
 ];
 
 // Fonction pure (testable) : colonnes requises absentes de la table.

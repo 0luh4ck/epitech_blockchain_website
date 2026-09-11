@@ -10,7 +10,7 @@ const router = express.Router();
  * @swagger
  * /api/users:
  *   get:
- *     summary: Lister les membres (Bureau)
+ *     summary: Lister les membres (Bureau, hors comptes anonymisés)
  *     tags: [Users]
  *     security: [{ bearerAuth: [] }]
  *     responses:
@@ -196,7 +196,8 @@ router.get('/', authenticateToken, requireExecutive, async (req, res) => {
     const { page = 1, limit = 20, role, search } = req.query;
     const offset = (page - 1) * limit;
 
-    let whereClause = 'WHERE 1=1';
+    // Les comptes anonymisés/archivés sont systématiquement exclus des listes
+    let whereClause = 'WHERE (is_anonymized IS NULL OR is_anonymized = FALSE)';
     let params = [];
 
     // Filtrer par rôle
@@ -221,9 +222,9 @@ router.get('/', authenticateToken, requireExecutive, async (req, res) => {
 
     // Récupérer les utilisateurs
     const users = await query(
-      `SELECT id, email, first_name, last_name, phone, student_id, role, position, is_active, is_verified, last_login, created_at 
-       FROM users ${whereClause} 
-       ORDER BY created_at DESC 
+      `SELECT id, email, first_name, last_name, phone, student_id, role, position, is_active, is_verified, is_anonymized, last_login, created_at
+       FROM users ${whereClause}
+       ORDER BY created_at DESC
        LIMIT ? OFFSET ?`,
       [...params, parseInt(limit), offset]
     );
@@ -242,6 +243,7 @@ router.get('/', authenticateToken, requireExecutive, async (req, res) => {
           position: user.position,
           isActive: user.is_active,
           isVerified: user.is_verified,
+          isAnonymized: !!user.is_anonymized,
           lastLogin: user.last_login,
           createdAt: user.created_at
         })),
@@ -269,8 +271,9 @@ router.get('/executive-board', async (req, res) => {
   try {
     const executives = await query(
       `SELECT id, first_name, last_name, position, bio, avatar, role
-       FROM users 
+       FROM users
        WHERE role IN ('admin', 'executive') AND is_active = true
+         AND (is_anonymized IS NULL OR is_anonymized = FALSE)
        ORDER BY 
          CASE role 
            WHEN 'admin' THEN 1 
@@ -508,8 +511,9 @@ router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
 // @access  Private (Admin/Executive)
 router.get('/stats/overview', authenticateToken, requireExecutive, async (req, res) => {
   try {
+    // Toutes les agrégations excluent les comptes anonymisés/archivés
     const stats = await query(`
-      SELECT 
+      SELECT
         COUNT(*) as total_users,
         SUM(CASE WHEN role = 'admin' THEN 1 ELSE 0 END) as admins,
         SUM(CASE WHEN role = 'executive' THEN 1 ELSE 0 END) as executives,
@@ -518,14 +522,16 @@ router.get('/stats/overview', authenticateToken, requireExecutive, async (req, r
         SUM(CASE WHEN is_verified = true THEN 1 ELSE 0 END) as verified_users,
         SUM(CASE WHEN last_login >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) as active_last_month
       FROM users
+      WHERE (is_anonymized IS NULL OR is_anonymized = FALSE)
     `);
 
     const monthlyRegistrations = await query(`
-      SELECT 
+      SELECT
         DATE_FORMAT(created_at, '%Y-%m') as month,
         COUNT(*) as count
-      FROM users 
+      FROM users
       WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+        AND (is_anonymized IS NULL OR is_anonymized = FALSE)
       GROUP BY DATE_FORMAT(created_at, '%Y-%m')
       ORDER BY month ASC
     `);
