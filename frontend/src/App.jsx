@@ -81,10 +81,10 @@ function App() {
 
                   {/* Routes d'authentification */}
                   <Route path={ROUTES.LOGIN} element={<Login />} />
-                  {/* Connexion Superadmin : route obscurcie, non liée depuis
-                      /login ni la navigation. Rendue dans l'espace admin isolé
-                      (Sidebar, sans Navbar ni Footer publics). */}
-                  <Route path={SUPERADMIN_LOGIN_PATH} element={<AdminLayout><AdminLogin /></AdminLayout>} />
+                  {/* Connexion Superadmin : écran TOTALEMENT isolé — ni Layout
+                      public (Navbar/Footer), ni AdminLayout (Sidebar). La Sidebar
+                      n'est rendue que dans l'espace authentifié ci-dessous. */}
+                  <Route path={SUPERADMIN_LOGIN_PATH} element={<AdminLogin />} />
                   {/* Honeypots : anciens chemins devinables -> 404, jamais de login */}
                   {LEGACY_SUPERADMIN_HONEYPOTS.map((honeypot) => (
                     <Route key={honeypot} path={honeypot} element={<NotFound />} />

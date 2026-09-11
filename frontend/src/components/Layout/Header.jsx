@@ -4,6 +4,7 @@ import { Menu, X, User, LogOut, Settings, Shield, ChevronDown } from 'lucide-rea
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../utils/constants';
 import { motion, AnimatePresence } from 'framer-motion';
+import ClubLogo from '../ClubLogo';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -46,11 +47,7 @@ const Header = () => {
           <Link to={ROUTES.HOME} className="flex items-center group">
             <div className="relative">
               <div className="absolute -inset-1 bg-gradient-to-tr from-blue-600 to-green-500 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200" />
-              <img
-                src="/logo.png"
-                alt="Epitech Blockchain Club Logo"
-                className="relative w-10 h-10 rounded-xl object-contain border border-white/50 bg-white"
-              />
+              <ClubLogo className="relative h-10 w-auto object-contain rounded-xl border border-white/50 bg-white" />
             </div>
             <div className="ml-4 flex flex-col">
               <span className="text-sm font-black text-slate-900 tracking-tighter uppercase leading-none">Club Blockchain</span>

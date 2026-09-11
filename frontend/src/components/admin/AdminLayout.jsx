@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import Sidebar from './Sidebar';
+import ClubLogo from '../ClubLogo';
 
 /**
  * Layout STRICTEMENT isolé de l'espace d'administration.
@@ -13,7 +14,7 @@ const AdminLayout = ({ children }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex bg-slate-100">
+    <div className="min-h-screen flex bg-slate-950">
       <Sidebar
         mobileOpen={mobileOpen}
         onClose={() => setMobileOpen(false)}
@@ -30,11 +31,7 @@ const AdminLayout = ({ children }) => {
           >
             <Menu className="h-5 w-5" />
           </button>
-          <img
-            src="/logo.png"
-            alt="Epitech Blockchain Club Logo"
-            className="h-8 w-auto object-contain"
-          />
+          <ClubLogo className="h-8 w-auto object-contain" />
           <span className="text-xs font-black text-red-400 uppercase tracking-[0.2em]">
             Espace Admin
           </span>
