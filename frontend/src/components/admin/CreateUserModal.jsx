@@ -125,9 +125,9 @@ const CreateUserModal = ({ onClose, onCreated }) => {
               </button>
             </div>
             <p className="text-xs text-slate-500">
-              {created.inviteSent
-                ? 'Invitation envoyée par email.'
-                : "Invitation email non envoyée (ou mode simulation SMTP)."}
+              {created.inviteQueued
+                ? "Le compte a été créé. Un email d'invitation est en cours d'envoi en arrière-plan. Vous pouvez copier ce mot de passe si le destinataire ne le reçoit pas."
+                : "Aucune invitation email demandée. Transmettez ce mot de passe au nouveau membre."}
             </p>
             <button
               onClick={onClose}

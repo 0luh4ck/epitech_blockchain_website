@@ -26,12 +26,39 @@ api.interceptors.request.use(
   }
 );
 
+// Erreur réseau éphémère (pas de réponse reçue : coupure, ERR_NETWORK_CHANGED,
+// timeout) → éligible à UNE retentative automatique.
+const isTransientNetworkError = (error) => {
+  if (error.response) return false;
+  const code = String(error.code || '');
+  const message = String(error.message || '');
+  return (
+    code === 'ERR_NETWORK' ||
+    code === 'ECONNABORTED' ||
+    code === 'ETIMEDOUT' ||
+    /network|ERR_NETWORK_CHANGED|Failed to fetch|Load failed|Network request failed|timeout/i.test(message)
+  );
+};
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 // Intercepteur pour gérer les réponses
 api.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
+  async (error) => {
+    // Retentative unique après 1s sur panne réseau (avant tout traitement).
+    // Note : si la requête avait en fait abouti côté serveur (ex. création),
+    // le backend répondra 400 explicite (ex. EMAIL_TAKEN), sans corruption silencieuse.
+    const config = error.config || {};
+    if (isTransientNetworkError(error) && !config.__retried) {
+      config.__retried = true;
+      console.warn('[api] panne réseau détectée, nouvelle tentative dans 1s…');
+      await wait(1000);
+      return api(config);
+    }
+
     if (error.response?.status === 401) {
       // Token expiré ou invalide : on purge la session locale…
       const hadSession = !!localStorage.getItem('token');

@@ -69,7 +69,7 @@ const router = express.Router();
  * /api/users:
  *   post:
  *     summary: Créer un membre manuellement (Admin)
- *     description: "Clés camelCase (firstName/lastName) ou snake_case acceptées ; alias 'bureau' → 'executive'. Mot de passe temporaire toujours généré serveur et retourné (à transmettre). Invitation email optionnelle (simulation si SMTP absent)."
+ *     description: "Réponse 201 immédiate (< 200ms) avec tempPassword ; l'email d'invitation part en arrière-plan non-bloquant (inviteQueued). Clés camelCase ou snake_case ; alias 'bureau' → 'executive'."
  *     tags: [Users]
  *     security: [{ bearerAuth: [] }]
  *     requestBody:
@@ -169,17 +169,10 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
       [email, hashedPassword, firstName, lastName, role, isVerified]
     );
 
-    let inviteSent = false;
-    if (sendInvite) {
-      try {
-        const mailRes = await sendApprovalEmail({ email, firstName, lastName, tempPassword });
-        inviteSent = !!mailRes;
-      } catch (mailError) {
-        console.error('⚠️ [users] échec invitation email:', mailError.message);
-      }
-    }
-
-    console.log(`✅ [users] compte créé id=${result.insertId} (${email}), invitation: ${inviteSent}`);
+    // Réponse ULTRA-RAPIDE (< 200ms) : l'email part en arrière-plan APRES
+    // la réponse HTTP, via setImmediate non attendu (jamais de blocage/timeout,
+    // même si le SMTP rame ou le réseau est instable).
+    console.log(`✅ [users] compte créé id=${result.insertId} (${email})`);
     res.status(201).json({
       success: true,
       message: 'Profil créé avec succès. Transmettez le mot de passe temporaire.',
@@ -195,9 +188,23 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
           mustChangePassword: true
         },
         tempPassword,
-        inviteSent
+        inviteQueued: !!sendInvite
       }
     });
+
+    if (sendInvite) {
+      setImmediate(() => {
+        sendApprovalEmail({ email, firstName, lastName, tempPassword })
+          .then((info) => console.log(
+            `✉️ [users] invitation arrière-plan envoyée à ${email}:`,
+            info?.simulated ? '(simulation SMTP)' : (info?.messageId || info)
+          ))
+          .catch((mailError) => console.error(
+            `⚠️ [users] échec invitation arrière-plan pour ${email}:`,
+            mailError.message
+          ));
+      });
+    }
   } catch (error) {
     console.error('Erreur lors de la création du membre:', error);
     res.status(500).json({
