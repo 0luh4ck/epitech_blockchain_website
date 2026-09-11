@@ -77,10 +77,12 @@ const BlockchainToast = ({
   };
 
   return (
-    <div 
-      className={`fixed ${positions[position]} z-50 transition-all duration-300 ${
-        isVisible && !isLeaving 
-          ? 'opacity-100 translate-y-0 scale-100' 
+    <div
+      role="status"
+      aria-live="polite"
+      className={`toast-item fixed ${positions[position]} z-50 transition-all duration-300 ${
+        isVisible && !isLeaving
+          ? 'opacity-100 translate-y-0 scale-100'
           : 'opacity-0 translate-y-2 scale-95'
       }`}
     >
@@ -120,33 +122,27 @@ const BlockchainToast = ({
             </p>
           </div>
           
-          {/* Bouton de fermeture */}
+          {/* Bouton de fermeture (cible tactile 44px sur mobile via CSS global) */}
           <button
             onClick={handleClose}
-            className={`flex-shrink-0 ${config.textColor} hover:opacity-70 transition-opacity`}
+            aria-label="Fermer la notification"
+            className={`flex-shrink-0 ${config.textColor} hover:opacity-70 transition-opacity focus-visible:ring-2 focus-visible:ring-white rounded-md p-1 -m-1 min-w-[32px] min-h-[32px] flex items-center justify-center`}
           >
             <X className="w-4 h-4" />
           </button>
         </div>
-        
-        {/* Barre de progression */}
+
+        {/* Barre de progression temporelle (CSS global .toast-progress-bar, pause au survol) */}
         <div className="absolute bottom-0 left-0 h-1 bg-black/20 w-full">
-          <div 
-            className="h-full bg-white/30 animate-pulse"
+          <div
+            className="toast-progress-bar h-full"
             style={{
-              animation: `progress ${duration}ms linear forwards`,
+              animationDuration: `${duration}ms`,
               backgroundColor: config.glowColor
             }}
           />
         </div>
       </div>
-      
-      <style jsx>{`
-        @keyframes progress {
-          from { width: 100%; }
-          to { width: 0%; }
-        }
-      `}</style>
     </div>
   );
 };

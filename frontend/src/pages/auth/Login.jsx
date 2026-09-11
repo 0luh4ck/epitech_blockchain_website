@@ -83,7 +83,7 @@ const Login = () => {
               </div>
             </div>
 
-            <h1 className="text-3xl font-black text-slate-900 mb-2 tracking-tight">
+            <h1 className="fluid-title font-black text-slate-900 mb-2 tracking-tight">
               Espace <span className="text-blue-600">{activeSpace.label}</span>
             </h1>
             <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">
@@ -157,7 +157,8 @@ const Login = () => {
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-300 hover:text-blue-500 transition-colors"
+                  aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                  className="absolute inset-y-0 right-0 pr-2 min-w-[44px] flex items-center justify-center text-slate-300 hover:text-blue-500 active:text-blue-600 transition-colors rounded-r-2xl focus-visible:ring-2 focus-visible:ring-blue-500"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}

@@ -75,7 +75,7 @@ const AdminLogin = () => {
                 <ShieldAlert className="w-10 h-10 text-red-400" />
               </div>
             </div>
-            <h1 className="text-3xl font-black text-white mb-2 tracking-tight">
+            <h1 className="fluid-title font-black text-white mb-2 tracking-tight">
               Accès <span className="text-red-400">Administration</span>
             </h1>
             <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">
@@ -128,7 +128,8 @@ const AdminLogin = () => {
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-red-400 transition-colors"
+                  aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                  className="absolute inset-y-0 right-0 pr-2 min-w-[44px] flex items-center justify-center text-slate-500 hover:text-red-400 active:text-red-300 transition-colors rounded-r-2xl focus-visible:ring-2 focus-visible:ring-red-400"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}

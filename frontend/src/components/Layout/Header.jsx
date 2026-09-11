@@ -64,7 +64,7 @@ const Header = () => {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`relative px-4 py-2 text-xs font-black uppercase tracking-widest transition-all duration-300 rounded-xl ${isActiveRoute(item.href)
+                className={`relative px-4 py-2.5 min-h-[44px] inline-flex items-center text-xs font-black uppercase tracking-widest transition-all duration-300 rounded-xl focus-visible:ring-2 focus-visible:ring-blue-500 ${isActiveRoute(item.href)
                     ? 'text-blue-600 bg-blue-50'
                     : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                   }`}
@@ -86,7 +86,9 @@ const Header = () => {
               <div className="relative">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center space-x-3 p-1.5 pr-3 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-all group"
+                  aria-expanded={isUserMenuOpen}
+                  aria-label="Menu utilisateur"
+                  className="flex items-center space-x-3 p-1.5 pr-3 min-h-[44px] rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-all group focus-visible:ring-2 focus-visible:ring-blue-500"
                 >
                   <div className="w-8 h-8 bg-gradient-to-tr from-blue-600 to-green-500 rounded-xl flex items-center justify-center p-0.5 shadow-md group-hover:scale-105 transition-transform">
                     <div className="w-full h-full rounded-[10px] bg-white flex items-center justify-center">
@@ -165,10 +167,12 @@ const Header = () => {
               </div>
             )}
 
-            {/* Mobile menu button */}
+            {/* Mobile menu button (hamburger, 44px, accessible) */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all"
+              aria-expanded={isMenuOpen}
+              aria-label={isMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+              className="md:hidden p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-slate-700 hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all focus-visible:ring-2 focus-visible:ring-blue-500"
             >
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>

@@ -14,11 +14,15 @@ import {
 } from 'lucide-react';
 import { membershipRequestsService } from '../../services/membershipRequests';
 import { MEMBERSHIP_STATUS } from '../../utils/constants';
+import { useToast } from '../../context/ToastContext';
+import Skeleton from '../../components/Skeleton';
 
 const MembershipRequests = () => {
+  const toast = useToast();
   const [requests, setRequests] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
+  const [actingId, setActingId] = useState(null); // approve/reject en cours (spinner + anti double-clic)
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -66,24 +70,36 @@ const MembershipRequests = () => {
   };
 
   const handleApprove = async (id) => {
+    if (actingId) return;
+    setActingId(id);
     try {
       await membershipRequestsService.approveRequest(id);
+      toast.success('Demande approuvée, compte membre créé.');
       loadRequests();
       loadStats();
       setSelectedRequest(null);
     } catch (error) {
       console.error('Erreur lors de l\'approbation:', error);
+      toast.error(error.response?.data?.message || 'Échec de l\'approbation. Veuillez réessayer.');
+    } finally {
+      setActingId(null);
     }
   };
 
   const handleReject = async (id, reason) => {
+    if (actingId) return;
+    setActingId(id);
     try {
       await membershipRequestsService.rejectRequest(id, { rejection_reason: reason });
+      toast.success('Demande rejetée.');
       loadRequests();
       loadStats();
       setSelectedRequest(null);
     } catch (error) {
       console.error('Erreur lors du rejet:', error);
+      toast.error(error.response?.data?.message || 'Échec du rejet. Veuillez réessayer.');
+    } finally {
+      setActingId(null);
     }
   };
 
@@ -228,12 +244,71 @@ const MembershipRequests = () => {
       {/* Liste des demandes */}
       <div className="bg-white shadow rounded-lg">
         {loading ? (
-          <div className="p-8 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
-            <p className="mt-2 text-gray-600">Chargement des demandes...</p>
+          <div className="p-6">
+            <Skeleton variant="table" rows={5} columns={4} />
+          </div>
+        ) : filteredRequests.length === 0 ? (
+          <div className="p-8 text-center text-gray-500 font-medium">
+            Aucune demande ne correspond aux critères.
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          {/* Cartes mobiles (< 768px) : pas de défilement horizontal */}
+          <div className="md:hidden divide-y divide-gray-100">
+            {filteredRequests.map((request) => (
+              <div key={request.id} className="p-4 space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="h-11 w-11 rounded-full bg-gradient-to-r from-green-500 to-blue-600 flex items-center justify-center shrink-0">
+                    <span className="text-white font-medium text-sm">
+                      {request.first_name[0]}{request.last_name[0]}
+                    </span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-bold text-gray-900 truncate">
+                      {request.first_name} {request.last_name}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">{request.email}</p>
+                  </div>
+                  {getStatusBadge(request.status)}
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setSelectedRequest(request)}
+                    aria-label="Voir le détail"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 rounded-lg border border-gray-300 text-sm font-bold text-gray-700 active:bg-gray-100 transition-all focus-visible:ring-2 focus-visible:ring-green-500"
+                  >
+                    <Eye className="h-4 w-4" /> Détails
+                  </button>
+                  {request.status === 'pending' && (
+                    <>
+                      <button
+                        onClick={() => handleApprove(request.id)}
+                        disabled={actingId === request.id}
+                        aria-label="Approuver"
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 rounded-lg bg-green-600 text-sm font-bold text-white disabled:opacity-60 active:bg-green-700 transition-all focus-visible:ring-2 focus-visible:ring-green-500"
+                      >
+                        {actingId === request.id
+                          ? <><span className="btn-spinner" aria-hidden="true" />…</>
+                          : <><CheckCircle className="h-4 w-4" /> Approuver</>}
+                      </button>
+                      <button
+                        onClick={() => handleReject(request.id, 'Rejeté par l\'administrateur')}
+                        disabled={actingId === request.id}
+                        aria-label="Rejeter"
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 rounded-lg border border-red-300 text-sm font-bold text-red-700 disabled:opacity-60 active:bg-red-50 transition-all focus-visible:ring-2 focus-visible:ring-red-500"
+                      >
+                        {actingId === request.id
+                          ? <><span className="btn-spinner" aria-hidden="true" />…</>
+                          : <><XCircle className="h-4 w-4" /> Rejeter</>}
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* Tableau desktop */}
+          <div className="overflow-x-auto hidden md:block">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -296,23 +371,35 @@ const MembershipRequests = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <button
                         onClick={() => setSelectedRequest(request)}
-                        className="text-green-600 hover:text-green-900 mr-3"
+                        aria-label="Voir le détail"
+                        title="Voir le détail"
+                        className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-green-600 hover:text-green-900 hover:-translate-y-0.5 active:translate-y-0 mr-1 transition-all focus-visible:ring-2 focus-visible:ring-green-500 rounded-lg"
                       >
-                        <Eye className="h-4 w-4" />
+                        <Eye className="h-5 w-5" />
                       </button>
                       {request.status === 'pending' && (
                         <>
                           <button
                             onClick={() => handleApprove(request.id)}
-                            className="text-green-600 hover:text-green-900 mr-3"
+                            disabled={actingId === request.id}
+                            aria-label="Approuver la demande"
+                            title="Approuver"
+                            className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-green-600 hover:text-green-900 hover:-translate-y-0.5 active:translate-y-0 mr-1 disabled:opacity-60 transition-all focus-visible:ring-2 focus-visible:ring-green-500 rounded-lg"
                           >
-                            <CheckCircle className="h-4 w-4" />
+                            {actingId === request.id
+                              ? <span className="btn-spinner" aria-hidden="true" />
+                              : <CheckCircle className="h-5 w-5" />}
                           </button>
                           <button
                             onClick={() => handleReject(request.id, 'Rejeté par l\'administrateur')}
-                            className="text-red-600 hover:text-red-900"
+                            disabled={actingId === request.id}
+                            aria-label="Rejeter la demande"
+                            title="Rejeter"
+                            className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-red-600 hover:text-red-900 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 transition-all focus-visible:ring-2 focus-visible:ring-red-500 rounded-lg"
                           >
-                            <XCircle className="h-4 w-4" />
+                            {actingId === request.id
+                              ? <span className="btn-spinner" aria-hidden="true" />
+                              : <XCircle className="h-5 w-5" />}
                           </button>
                         </>
                       )}
@@ -322,6 +409,7 @@ const MembershipRequests = () => {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </div>
 
@@ -377,8 +465,8 @@ const MembershipRequests = () => {
 
       {/* Modal de détail */}
       {selectedRequest && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 p-3">
+          <div className="relative top-10 md:top-20 mx-auto p-5 border w-full sm:w-11/12 md:w-3/4 lg:w-1/2 max-h-[85vh] overflow-y-auto shadow-lg rounded-md bg-white">
             <div className="mt-3">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-medium text-gray-900">
@@ -393,7 +481,7 @@ const MembershipRequests = () => {
               </div>
               
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Prénom</label>
                     <p className="mt-1 text-sm text-gray-900">{selectedRequest.first_name}</p>
@@ -446,18 +534,22 @@ const MembershipRequests = () => {
               </div>
               
               {selectedRequest.status === 'pending' && (
-                <div className="flex justify-end space-x-3 mt-6">
+                <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 mt-6">
                   <button
                     onClick={() => handleReject(selectedRequest.id, 'Rejeté par l\'administrateur')}
-                    className="px-4 py-2 border border-red-300 rounded-md text-sm font-medium text-red-700 hover:bg-red-50"
+                    disabled={actingId === selectedRequest.id}
+                    className="min-h-[44px] px-4 py-2 border border-red-300 rounded-md text-sm font-bold text-red-700 hover:bg-red-50 active:bg-red-100 disabled:opacity-60 transition-all focus-visible:ring-2 focus-visible:ring-red-500"
                   >
                     Rejeter
                   </button>
                   <button
                     onClick={() => handleApprove(selectedRequest.id)}
-                    className="px-4 py-2 bg-green-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-green-700"
+                    disabled={actingId === selectedRequest.id}
+                    className="min-h-[44px] px-4 py-2 bg-green-600 border border-transparent rounded-md text-sm font-bold text-white hover:bg-green-700 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 transition-all focus-visible:ring-2 focus-visible:ring-green-500"
                   >
-                    Approuver
+                    {actingId === selectedRequest.id ? (
+                      <><span className="btn-spinner" aria-hidden="true" /> Traitement…</>
+                    ) : 'Approuver'}
                   </button>
                 </div>
               )}

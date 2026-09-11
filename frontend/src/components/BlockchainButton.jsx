@@ -47,10 +47,12 @@ const BlockchainButton = ({
       ref={buttonRef}
       type={type}
       className={`
-        relative overflow-hidden rounded-2xl font-bold font-heading
-        transition-all duration-300 transform
-        active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500/20
-        disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
+        relative overflow-hidden rounded-2xl font-bold font-heading select-none touch-manipulation
+        transition-all duration-200 ease-in-out transform
+        hover:-translate-y-0.5 hover:shadow-lg
+        active:scale-95 active:translate-y-0
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2
+        disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none
         border
         ${variants[variant]} ${sizes[size]} ${className}
       `}

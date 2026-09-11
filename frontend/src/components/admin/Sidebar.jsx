@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -9,6 +9,8 @@ import {
   ShieldCheck,
   LogOut,
   X,
+  ChevronsLeft,
+  ChevronsRight,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../utils/constants';
@@ -30,6 +32,8 @@ const roleLabel = (role) => {
 const Sidebar = ({ mobileOpen, onClose, onNavigate }) => {
   const location = useLocation();
   const { user, logout } = useAuth();
+  // Repli desktop : icons-only (le tiroir mobile reste pleine largeur)
+  const [collapsed, setCollapsed] = useState(false);
 
   const initials = `${user?.firstName?.[0] || ''}${user?.lastName?.[0] || ''}`.toUpperCase() || 'A';
 
@@ -44,12 +48,17 @@ const Sidebar = ({ mobileOpen, onClose, onNavigate }) => {
       href === ROUTES.ADMIN
         ? location.pathname === ROUTES.ADMIN
         : location.pathname.startsWith(href);
-    return `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
+    return `flex items-center gap-3 px-4 py-3 min-h-[44px] rounded-xl text-sm font-bold transition-all duration-200 ease-in-out focus-visible:ring-2 focus-visible:ring-red-400 ${
+      collapsed ? 'lg:justify-center lg:px-2' : ''
+    } ${
       active
         ? 'bg-red-500/15 text-red-300 border border-red-500/30'
-        : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
+        : 'text-slate-400 hover:text-white hover:bg-white/5 hover:-translate-y-0.5 border border-transparent'
     }`;
   };
+
+  // Libellés masqués en mode replié (desktop uniquement)
+  const labelClass = collapsed ? 'lg:hidden' : '';
 
   return (
     <>
@@ -63,7 +72,7 @@ const Sidebar = ({ mobileOpen, onClose, onNavigate }) => {
       )}
 
       <aside
-        className={`fixed lg:static z-50 inset-y-0 left-0 w-72 shrink-0 bg-slate-950 border-r border-white/10 flex flex-col min-h-screen transition-transform duration-300 ${
+        className={`fixed lg:static z-50 inset-y-0 left-0 ${collapsed ? 'w-72 lg:w-20' : 'w-72'} shrink-0 bg-slate-950 border-r border-white/10 flex flex-col min-h-screen transition-all duration-300 ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
@@ -72,28 +81,41 @@ const Sidebar = ({ mobileOpen, onClose, onNavigate }) => {
           <img
             src="/logo.png"
             alt="Epitech Blockchain Club Logo"
-            className="h-10 w-auto object-contain rounded-lg bg-white/5 border border-white/10 p-1"
+            className="h-10 w-auto object-contain rounded-lg bg-white/5 border border-white/10 p-1 shrink-0"
           />
-          <div className="min-w-0">
+          <div className={`min-w-0 ${labelClass}`}>
             <p className="text-sm font-black text-white uppercase tracking-tight truncate">Club Blockchain</p>
             <p className="text-[10px] font-bold text-red-400 uppercase tracking-[0.2em]">Espace Admin</p>
           </div>
+          {/* Repli desktop */}
+          <button
+            onClick={() => setCollapsed((c) => !c)}
+            aria-expanded={!collapsed}
+            aria-label={collapsed ? 'Déplier la barre latérale' : 'Replier la barre latérale'}
+            title={collapsed ? 'Déplier' : 'Replier'}
+            className="ml-auto hidden lg:flex p-2 min-w-[44px] min-h-[44px] items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-all focus-visible:ring-2 focus-visible:ring-red-400"
+          >
+            {collapsed ? <ChevronsRight className="h-5 w-5" /> : <ChevronsLeft className="h-5 w-5" />}
+          </button>
           <button
             onClick={onClose}
             aria-label="Fermer le menu"
-            className="ml-auto lg:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10"
+            className="ml-auto lg:hidden p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-red-400"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Profil admin connecté */}
-        <div className="px-5 py-4 border-b border-white/10">
-          <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+        <div className={`${collapsed ? 'px-3' : 'px-5'} py-4 border-b border-white/10`}>
+          <div
+            className={`flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 ${collapsed ? 'lg:justify-center lg:p-2' : ''}`}
+            title={user?.email || 'Accès restreint'}
+          >
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-red-500 to-amber-500 flex items-center justify-center text-white font-black text-sm shrink-0">
               {initials}
             </div>
-            <div className="min-w-0">
+            <div className={`min-w-0 ${labelClass}`}>
               <p className="text-sm font-black text-white truncate">
                 {user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Administrateur' : 'Non connecté'}
               </p>
@@ -115,10 +137,11 @@ const Sidebar = ({ mobileOpen, onClose, onNavigate }) => {
               key={item.label}
               to={item.href}
               onClick={onClose}
+              title={collapsed ? item.label : undefined}
               className={linkClass(item.href)}
             >
-              <item.icon className="h-4 w-4 shrink-0" />
-              {item.label}
+              <item.icon className="h-5 w-5 shrink-0" />
+              <span className={labelClass}>{item.label}</span>
             </Link>
           ))}
         </nav>
@@ -127,10 +150,11 @@ const Sidebar = ({ mobileOpen, onClose, onNavigate }) => {
         <div className="px-4 pb-6">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-black text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/30 transition-all"
+            title={collapsed ? 'Déconnexion' : undefined}
+            className={`w-full flex items-center gap-3 px-4 py-3 min-h-[44px] rounded-xl text-sm font-black text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/30 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-red-400 ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
           >
-            <LogOut className="h-4 w-4 shrink-0" />
-            Déconnexion
+            <LogOut className="h-5 w-5 shrink-0" />
+            <span className={labelClass}>Déconnexion</span>
           </button>
         </div>
       </aside>
