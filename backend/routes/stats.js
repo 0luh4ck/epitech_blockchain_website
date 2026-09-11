@@ -4,6 +4,17 @@ import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/stats/dashboard:
+ *   get:
+ *     summary: Statistiques publiques du tableau de bord
+ *     tags: [Stats]
+ *     responses:
+ *       200: { description: 'Statistiques publiques', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       500: { description: 'Erreur serveur', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ */
+
 // @route   GET /api/stats/dashboard
 // @desc    Obtenir les statistiques pour le tableau de bord
 // @access  Public

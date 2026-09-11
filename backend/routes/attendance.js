@@ -4,6 +4,62 @@ import { authenticateToken, requireExecutive } from '../middleware/auth.js';
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/attendance/activity/{activityId}:
+ *   get:
+ *     summary: Présences d'une activité (Bureau)
+ *     tags: [Attendance]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: activityId, required: true, schema: { type: integer } }]
+ *     responses:
+ *       200: { description: 'Liste de présence', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/attendance/mark:
+ *   post:
+ *     summary: Marquer une présence (Bureau)
+ *     tags: [Attendance]
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content: { application/json: { schema: { type: object } } }
+ *     responses:
+ *       200: { description: 'Présence enregistrée', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/attendance/bulk-mark:
+ *   post:
+ *     summary: Marquage en masse (Bureau)
+ *     tags: [Attendance]
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content: { application/json: { schema: { type: object } } }
+ *     responses:
+ *       200: { description: 'Présences enregistrées', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/attendance/user/{userId}:
+ *   get:
+ *     summary: Historique de présence d'un membre (authentifié)
+ *     tags: [Attendance]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: userId, required: true, schema: { type: integer } }]
+ *     responses:
+ *       200: { description: 'Historique', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/attendance/stats/overview:
+ *   get:
+ *     summary: Statistiques de présence (Bureau)
+ *     tags: [Attendance]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: 'Statistiques', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ */
+
 // @route   GET /api/attendance/activity/:activityId
 // @desc    Obtenir la liste de présence pour une activité
 // @access  Private (Executive/Admin)

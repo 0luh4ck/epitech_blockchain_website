@@ -5,6 +5,65 @@ import { validateMembershipApplication, handleValidationErrors } from '../middle
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/membership/apply:
+ *   post:
+ *     summary: Candidature d'adhésion (public)
+ *     tags: [Membership]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: { $ref: '#/components/schemas/MembershipRequestInput' }
+ *     responses:
+ *       201: { description: 'Candidature soumise', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       400: { description: 'Validation', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       500: { description: 'Erreur serveur', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/membership/applications:
+ *   get:
+ *     summary: Lister les candidatures (Bureau)
+ *     tags: [Membership]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: 'Candidatures', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/membership/applications/{id}:
+ *   get:
+ *     summary: Détail d'une candidature (Bureau)
+ *     tags: [Membership]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     responses:
+ *       200: { description: 'Candidature', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       404: { description: 'Candidature introuvable', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/membership/applications/{id}/review:
+ *   put:
+ *     summary: Examiner une candidature (Bureau)
+ *     tags: [Membership]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     requestBody:
+ *       required: true
+ *       content: { application/json: { schema: { type: object } } }
+ *     responses:
+ *       200: { description: 'Décision enregistrée', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/membership/stats:
+ *   get:
+ *     summary: Statistiques d'adhésion (Bureau)
+ *     tags: [Membership]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: 'Statistiques', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ */
+
 // @route   POST /api/membership/apply
 // @desc    Soumettre une demande d'adhésion
 // @access  Public

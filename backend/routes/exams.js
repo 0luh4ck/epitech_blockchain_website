@@ -5,6 +5,71 @@ import { validateExam, handleValidationErrors } from '../middleware/validation.j
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/exams:
+ *   get:
+ *     summary: Lister les examens (authentifié)
+ *     tags: [Exams]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: 'Liste des examens', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *   post:
+ *     summary: Créer un examen/QCM (Bureau)
+ *     tags: [Exams]
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content: { application/json: { schema: { type: object } } }
+ *     responses:
+ *       201: { description: 'Examen créé', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       400: { description: 'Validation', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/exams/{id}:
+ *   get:
+ *     summary: Détail d'un examen (authentifié)
+ *     tags: [Exams]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     responses:
+ *       200: { description: 'Examen', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       404: { description: 'Examen introuvable', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/exams/{id}/start:
+ *   post:
+ *     summary: Démarrer une tentative (authentifié)
+ *     tags: [Exams]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     responses:
+ *       200: { description: 'Tentative démarrée', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/exams/{id}/submit:
+ *   post:
+ *     summary: Soumettre ses réponses (authentifié)
+ *     tags: [Exams]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     requestBody:
+ *       required: true
+ *       content: { application/json: { schema: { type: object } } }
+ *     responses:
+ *       200: { description: 'Copie corrigée (score)', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       400: { description: 'Soumission invalide', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/exams/{id}/results:
+ *   get:
+ *     summary: Résultats d'un examen (authentifié)
+ *     tags: [Exams]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     responses:
+ *       200: { description: 'Résultats', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ */
+
 // @route   GET /api/exams
 // @desc    Obtenir la liste des examens
 // @access  Private (Membres)

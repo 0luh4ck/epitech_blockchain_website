@@ -4,6 +4,64 @@ import { authenticateToken, requireAdmin, requireExecutive } from '../middleware
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     summary: Lister les membres (Bureau)
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: 'Liste des membres', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/users/executive-board:
+ *   get:
+ *     summary: Bureau exécutif (public)
+ *     tags: [Users]
+ *     responses:
+ *       200: { description: 'Membres du bureau', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ * /api/users/{id}:
+ *   get:
+ *     summary: Détail d'un membre (authentifié)
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     responses:
+ *       200: { description: 'Membre', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       404: { description: 'Membre introuvable', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *   put:
+ *     summary: Modifier un membre (authentifié)
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     requestBody:
+ *       required: true
+ *       content: { application/json: { schema: { type: object } } }
+ *     responses:
+ *       200: { description: 'Membre mis à jour', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *   delete:
+ *     summary: Supprimer un membre (Admin)
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     responses:
+ *       200: { description: 'Membre supprimé', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Admin requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/users/stats/overview:
+ *   get:
+ *     summary: Statistiques des membres (Bureau)
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: 'Statistiques', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ */
+
 // @route   GET /api/users
 // @desc    Obtenir la liste des utilisateurs (admin/executive seulement)
 // @access  Private (Admin/Executive)

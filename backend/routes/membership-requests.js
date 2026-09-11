@@ -8,6 +8,73 @@ import { generateTemporaryPassword, sendApprovalEmail, sendRejectionEmail } from
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/membership-requests:
+ *   post:
+ *     summary: "Soumettre une demande d'adhésion (public)"
+ *     tags: [MembershipRequests]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: { $ref: '#/components/schemas/MembershipRequestInput' }
+ *     responses:
+ *       201: { description: 'Demande créée (statut pending)', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       400: { description: 'Email déjà utilisé / validation', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       500: { description: 'Erreur serveur', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *   get:
+ *     summary: Lister les demandes d'adhésion (Bureau)
+ *     tags: [MembershipRequests]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - { in: query, name: status, schema: { type: string, enum: [pending, approved, rejected] } }
+ *       - { in: query, name: page, schema: { type: integer, default: 1 } }
+ *       - { in: query, name: limit, schema: { type: integer, default: 20 } }
+ *     responses:
+ *       200: { description: 'Liste paginée', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/membership-requests/{id}/approve:
+ *   put:
+ *     summary: Approuver une demande (crée le compte membre, Bureau)
+ *     tags: [MembershipRequests]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     responses:
+ *       200: { description: 'Demande approuvée', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       404: { description: 'Demande introuvable', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/membership-requests/{id}/reject:
+ *   put:
+ *     summary: Rejeter une demande (Bureau)
+ *     tags: [MembershipRequests]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               rejectionReason: { type: string }
+ *     responses:
+ *       200: { description: 'Demande rejetée', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       404: { description: 'Demande introuvable', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/membership-requests/stats:
+ *   get:
+ *     summary: Statistiques des demandes (Admin)
+ *     tags: [MembershipRequests]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: 'Statistiques', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Admin requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ */
+
 // @route   POST /api/membership-requests
 // @desc    Créer une demande d'adhésion
 // @access  Public

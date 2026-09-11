@@ -86,6 +86,7 @@ export const ROUTES = {
   ACTIVITIES: '/activities',
   MEMBERSHIP: '/membership',
   CONTACT: '/contact',
+  DOCS: '/docs',
   LOGIN: '/login',
   ADMIN_LOGIN: SUPERADMIN_LOGIN_PATH,
   REGISTER: '/register',

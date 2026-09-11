@@ -5,6 +5,74 @@ import { validateActivity, handleValidationErrors } from '../middleware/validati
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/activities:
+ *   get:
+ *     summary: Lister les activités (public)
+ *     tags: [Activities]
+ *     responses:
+ *       200: { description: "Liste des activités", content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *   post:
+ *     summary: Créer une activité (Bureau)
+ *     tags: [Activities]
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content: { application/json: { schema: { type: object } } }
+ *     responses:
+ *       201: { description: 'Activité créée', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       400: { description: 'Validation', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/activities/{id}:
+ *   get:
+ *     summary: Détail d'une activité (public)
+ *     tags: [Activities]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     responses:
+ *       200: { description: 'Activité', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       404: { description: 'Activité introuvable', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *   put:
+ *     summary: Modifier une activité (Bureau)
+ *     tags: [Activities]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     requestBody:
+ *       required: true
+ *       content: { application/json: { schema: { type: object } } }
+ *     responses:
+ *       200: { description: 'Activité mise à jour', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *   delete:
+ *     summary: Supprimer une activité (Bureau)
+ *     tags: [Activities]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     responses:
+ *       200: { description: 'Activité supprimée', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/activities/{id}/register:
+ *   post:
+ *     summary: "S'inscrire à une activité (authentifié)"
+ *     tags: [Activities]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     responses:
+ *       201: { description: 'Inscription enregistrée', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *   delete:
+ *     summary: "Se désinscrire d'une activité (authentifié)"
+ *     tags: [Activities]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     responses:
+ *       200: { description: 'Inscription annulée', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ */
+
 // @route   GET /api/activities
 // @desc    Obtenir la liste des activités
 // @access  Public (avec données personnalisées si connecté)
