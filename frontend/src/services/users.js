@@ -31,9 +31,17 @@ export const usersService = {
     return response.data;
   },
 
-  // Désactiver un utilisateur (admin)
+  // Anonymiser un compte = soft delete, jamais de DELETE physique (admin).
+  // Réponse : { user, message }. Le compte disparaît des listes et stats.
   deleteUser: async (id) => {
     const response = await api.delete(`/users/${id}`);
+    return response.data;
+  },
+
+  // Réactiver un compte anonymisé (admin) — retourne le mot de passe temporaire.
+  // data: { email (requis), firstName?, lastName? }
+  reactivateUser: async (id, data) => {
+    const response = await api.patch(`/users/${id}/reactivate`, data);
     return response.data;
   },
 

@@ -6,11 +6,13 @@ import {
   Trash2,
   ArrowUpCircle,
   Power,
+  RotateCcw,
 } from 'lucide-react';
 import { usersService } from '../../services/users';
 import { useToast } from '../../context/ToastContext';
 import Skeleton from '../../components/Skeleton';
 import CreateUserModal from '../../components/admin/CreateUserModal';
+import ReactivateModal from '../../components/admin/ReactivateModal';
 
 const ROLE_OPTIONS = [
   { value: 'member', label: 'Membre' },
@@ -45,7 +47,16 @@ const statusBadge = (status) => {
 };
 
 const statusLabel = (status) =>
-  status === 'active' ? 'Actif' : status === 'pending' ? 'En attente' : 'Désactivé';
+  status === 'active'
+    ? 'Actif'
+    : status === 'pending'
+      ? 'En attente'
+      : status === 'archived'
+        ? 'Archivé'
+        : 'Désactivé';
+
+const archivedBadge =
+  'bg-slate-700/60 text-slate-300 border border-slate-700 rounded-full px-3 py-1 text-xs';
 
 /**
  * Gestion opérationnelle des comptes membres (Admin/Bureau).
@@ -62,6 +73,8 @@ const MembersManagement = () => {
   const [roleFilter, setRoleFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [showCreate, setShowCreate] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
+  const [reactivateTarget, setReactivateTarget] = useState(null);
 
   // Recherche avec debounce (évite une requête par frappe)
   useEffect(() => {
@@ -78,6 +91,8 @@ const MembersManagement = () => {
       const params = { page: pagination.page, limit: pagination.limit };
       if (roleFilter !== 'all') params.role = roleFilter;
       if (search) params.search = search;
+      // Les archivés sont exclus par défaut côté API ; le toggle les réinclut
+      if (showArchived) params.includeAnonymized = 'true';
       const res = await usersService.getUsers(params);
       setUsers(res.data.users || []);
       setPagination(res.data.pagination);
@@ -88,21 +103,23 @@ const MembersManagement = () => {
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagination.page, roleFilter, search]);
+  }, [pagination.page, roleFilter, search, showArchived]);
 
   useEffect(() => {
     loadUsers();
   }, [loadUsers]);
 
-  // Garde défensive : les comptes anonymisés ne remontent jamais à l'UI
-  // (déjà exclus côté API, double protection).
-  const isUsableAccount = (u) =>
-    !u.isAnonymized && !String(u.email || '').endsWith('@deleted.local');
+  // Un compte archivé (anonymisé) n'apparaît que si le toggle est actif.
+  // L'API les exclut déjà par défaut : double protection côté UI.
+  const isArchived = (u) =>
+    !!u.isAnonymized || String(u.email || '').endsWith('@deleted.local');
+
+  const effectiveStatus = (u) => (isArchived(u) ? 'archived' : statusOf(u));
 
   const filtered = users.filter((u) => {
-    if (!isUsableAccount(u)) return false;
+    if (!showArchived && isArchived(u)) return false;
     if (statusFilter === 'all') return true;
-    return statusOf(u) === statusFilter;
+    return effectiveStatus(u) === statusFilter;
   });
 
   const mutate = async (id, fn, successMsg) => {
@@ -132,9 +149,11 @@ const MembersManagement = () => {
       user.isActive ? 'Compte désactivé.' : 'Compte réactivé.'
     );
 
+  // Suppression = anonymisation (soft delete) : aucune ligne n'est effacée.
+  // Le compte disparaît des listes/stats et peut être réactivé ensuite.
   const handleDelete = (user) => {
-    if (!window.confirm(`Supprimer définitivement ${user.firstName} ${user.lastName} (${user.email}) ?`)) return;
-    mutate(user.id, () => usersService.deleteUser(user.id), 'Compte supprimé.');
+    if (!window.confirm(`Anonymiser ${user.firstName} ${user.lastName} (${user.email}) ? Le compte sera archivé (soft delete) et pourra être réactivé.`)) return;
+    mutate(user.id, () => usersService.deleteUser(user.id), 'Compte anonymisé (soft delete).');
   };
 
   const handleExportCsv = async () => {
@@ -146,8 +165,8 @@ const MembersManagement = () => {
       const res = await usersService.getUsers(params);
       const rows = (res.data.users || []).filter(
         (u) =>
-          isUsableAccount(u) &&
-          (statusFilter === 'all' ? true : statusOf(u) === statusFilter)
+          (showArchived || !isArchived(u)) &&
+          (statusFilter === 'all' ? true : effectiveStatus(u) === statusFilter)
       );
       const header = ['id', 'email', 'firstName', 'lastName', 'phone', 'studentId', 'role', 'position', 'isActive', 'isVerified', 'lastLogin', 'createdAt'];
       const escape = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
@@ -230,7 +249,20 @@ const MembersManagement = () => {
             <option value="active">Actif</option>
             <option value="pending">En attente</option>
             <option value="disabled">Désactivé</option>
+            <option value="archived">Archivé</option>
           </select>
+          <button
+            onClick={() => setShowArchived((v) => !v)}
+            aria-pressed={showArchived}
+            title="Inclure les comptes anonymisés (réactivation possible)"
+            className={`inline-flex items-center justify-center min-h-[44px] px-4 rounded-xl border font-bold text-sm transition-all focus-visible:ring-2 focus-visible:ring-red-400 ${
+              showArchived
+                ? 'bg-red-500/15 border-red-500/40 text-red-300'
+                : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
+            }`}
+          >
+            {showArchived ? 'Masquer les archivés' : 'Afficher les archivés'}
+          </button>
         </div>
       </div>
 
@@ -263,31 +295,47 @@ const MembersManagement = () => {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <span className={`${roleBadge(u.role)} font-bold`}>{u.role}</span>
-                    <span className={`${statusBadge(statusOf(u))} font-bold`}>{statusLabel(statusOf(u))}</span>
+                    {isArchived(u) ? (
+                      <span className={`${archivedBadge} font-bold`}>Archivé</span>
+                    ) : (
+                      <span className={`${statusBadge(statusOf(u))} font-bold`}>{statusLabel(statusOf(u))}</span>
+                    )}
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={() => handlePromote(u.id)}
-                      disabled={actingId === u.id || u.role === 'executive'}
-                      className="flex-1 inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 rounded-xl bg-slate-800 text-sm font-bold text-slate-200 border border-slate-700/50 disabled:opacity-50 transition-all focus-visible:ring-2 focus-visible:ring-red-400"
-                    >
-                      <ArrowUpCircle className="h-4 w-4" /> Bureau
-                    </button>
-                    <button
-                      onClick={() => handleToggleActive(u)}
-                      disabled={actingId === u.id}
-                      className="flex-1 inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 rounded-xl bg-slate-800 text-sm font-bold text-slate-200 border border-slate-700/50 disabled:opacity-50 transition-all focus-visible:ring-2 focus-visible:ring-red-400"
-                    >
-                      <Power className="h-4 w-4" /> {u.isActive ? 'Désactiver' : 'Activer'}
-                    </button>
-                    <button
-                      onClick={() => handleDelete(u)}
-                      disabled={actingId === u.id}
-                      aria-label="Supprimer"
-                      className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl border border-red-500/40 text-red-300 disabled:opacity-50 transition-all focus-visible:ring-2 focus-visible:ring-red-400"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    {isArchived(u) ? (
+                      <button
+                        onClick={() => setReactivateTarget(u)}
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 rounded-xl bg-emerald-600 text-sm font-bold text-white hover:bg-emerald-500 transition-all focus-visible:ring-2 focus-visible:ring-emerald-400"
+                      >
+                        <RotateCcw className="h-4 w-4" /> Réactiver
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => handlePromote(u.id)}
+                          disabled={actingId === u.id || u.role === 'executive'}
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 rounded-xl bg-slate-800 text-sm font-bold text-slate-200 border border-slate-700/50 disabled:opacity-50 transition-all focus-visible:ring-2 focus-visible:ring-red-400"
+                        >
+                          <ArrowUpCircle className="h-4 w-4" /> Bureau
+                        </button>
+                        <button
+                          onClick={() => handleToggleActive(u)}
+                          disabled={actingId === u.id}
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 rounded-xl bg-slate-800 text-sm font-bold text-slate-200 border border-slate-700/50 disabled:opacity-50 transition-all focus-visible:ring-2 focus-visible:ring-red-400"
+                        >
+                          <Power className="h-4 w-4" /> {u.isActive ? 'Désactiver' : 'Activer'}
+                        </button>
+                        <button
+                          onClick={() => handleDelete(u)}
+                          disabled={actingId === u.id}
+                          aria-label="Anonymiser le compte (soft delete)"
+                          title="Anonymiser (soft delete)"
+                          className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl border border-red-500/40 text-red-300 disabled:opacity-50 transition-all focus-visible:ring-2 focus-visible:ring-red-400"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}
@@ -326,40 +374,57 @@ const MembersManagement = () => {
                         </select>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`${statusBadge(statusOf(u))} font-bold`}>{statusLabel(statusOf(u))}</span>
+                        {isArchived(u) ? (
+                          <span className={`${archivedBadge} font-bold`}>Archivé</span>
+                        ) : (
+                          <span className={`${statusBadge(statusOf(u))} font-bold`}>{statusLabel(statusOf(u))}</span>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-400">
                         {u.lastLogin ? new Date(u.lastLogin).toLocaleString('fr-FR') : 'Jamais'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => handlePromote(u.id)}
-                            disabled={actingId === u.id || u.role === 'executive'}
-                            title="Promouvoir dans le Bureau"
-                            aria-label={`Promouvoir ${u.email}`}
-                            className="inline-flex items-center justify-center min-w-[40px] min-h-[40px] text-slate-300 hover:text-white rounded-lg disabled:opacity-50 transition-all focus-visible:ring-2 focus-visible:ring-red-400"
-                          >
-                            {actingId === u.id ? <span className="btn-spinner" aria-hidden="true" /> : <ArrowUpCircle className="h-5 w-5" />}
-                          </button>
-                          <button
-                            onClick={() => handleToggleActive(u)}
-                            disabled={actingId === u.id}
-                            title={u.isActive ? 'Désactiver' : 'Réactiver'}
-                            aria-label={`${u.isActive ? 'Désactiver' : 'Réactiver'} ${u.email}`}
-                            className="inline-flex items-center justify-center min-w-[40px] min-h-[40px] text-slate-300 hover:text-white rounded-lg disabled:opacity-50 transition-all focus-visible:ring-2 focus-visible:ring-red-400"
-                          >
-                            <Power className="h-5 w-5" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(u)}
-                            disabled={actingId === u.id}
-                            title="Supprimer"
-                            aria-label={`Supprimer ${u.email}`}
-                            className="inline-flex items-center justify-center min-w-[40px] min-h-[40px] text-red-400 hover:text-red-300 rounded-lg disabled:opacity-50 transition-all focus-visible:ring-2 focus-visible:ring-red-400"
-                          >
-                            <Trash2 className="h-5 w-5" />
-                          </button>
+                          {isArchived(u) ? (
+                            <button
+                              onClick={() => setReactivateTarget(u)}
+                              title="Réactiver le compte"
+                              aria-label={`Réactiver le compte ${u.id}`}
+                              className="inline-flex items-center gap-1.5 min-h-[40px] px-3 text-emerald-400 hover:text-emerald-300 text-sm font-bold rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-emerald-400"
+                            >
+                              <RotateCcw className="h-5 w-5" /> Réactiver
+                            </button>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => handlePromote(u.id)}
+                                disabled={actingId === u.id || u.role === 'executive'}
+                                title="Promouvoir dans le Bureau"
+                                aria-label={`Promouvoir ${u.email}`}
+                                className="inline-flex items-center justify-center min-w-[40px] min-h-[40px] text-slate-300 hover:text-white rounded-lg disabled:opacity-50 transition-all focus-visible:ring-2 focus-visible:ring-red-400"
+                              >
+                                {actingId === u.id ? <span className="btn-spinner" aria-hidden="true" /> : <ArrowUpCircle className="h-5 w-5" />}
+                              </button>
+                              <button
+                                onClick={() => handleToggleActive(u)}
+                                disabled={actingId === u.id}
+                                title={u.isActive ? 'Désactiver' : 'Réactiver'}
+                                aria-label={`${u.isActive ? 'Désactiver' : 'Réactiver'} ${u.email}`}
+                                className="inline-flex items-center justify-center min-w-[40px] min-h-[40px] text-slate-300 hover:text-white rounded-lg disabled:opacity-50 transition-all focus-visible:ring-2 focus-visible:ring-red-400"
+                              >
+                                <Power className="h-5 w-5" />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(u)}
+                                disabled={actingId === u.id}
+                                title="Anonymiser (soft delete)"
+                                aria-label={`Anonymiser ${u.email}`}
+                                className="inline-flex items-center justify-center min-w-[40px] min-h-[40px] text-red-400 hover:text-red-300 rounded-lg disabled:opacity-50 transition-all focus-visible:ring-2 focus-visible:ring-red-400"
+                              >
+                                <Trash2 className="h-5 w-5" />
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -401,6 +466,14 @@ const MembersManagement = () => {
         <CreateUserModal
           onClose={() => setShowCreate(false)}
           onCreated={loadUsers}
+        />
+      )}
+
+      {reactivateTarget && (
+        <ReactivateModal
+          user={reactivateTarget}
+          onClose={() => setReactivateTarget(null)}
+          onReactivated={loadUsers}
         />
       )}
     </div>
