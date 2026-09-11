@@ -219,10 +219,9 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 );
 
 -- Insertion des données initiales
-
--- Utilisateur Superadmin par défaut (seul compte initial d'amorce)
-INSERT INTO users (email, password, first_name, last_name, role, position, is_active, is_verified, must_change_password) VALUES
-('epiblockchain@epitech.eu', '$2a$10$OPOqICdd.GbQ7CGv1No7eOnDpiID5qCiaQDKXVUX0G5z793Fa4C2e', 'Superadmin', 'Club Blockchain', 'admin', 'Superadmin System', true, true, true);
+-- NOTE : le compte Superadmin N'EST PAS inséré ici (voir database-schema.sql :
+-- le seed est géré en fin de migrate.js par seedSuperadmin(), après ajout
+-- des colonnes manquantes). Ne pas réintroduire d'INSERT INTO users ici.
 
 -- Partenaires
 INSERT INTO partners (name, description, website, contact_email, is_active) VALUES
