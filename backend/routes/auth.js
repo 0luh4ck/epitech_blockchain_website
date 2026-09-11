@@ -291,12 +291,16 @@ router.put('/profile', authenticateToken, async (req, res) => {
 // @access  Private
 router.post('/change-password', authenticateToken, async (req, res) => {
   try {
+    // Contrat d'API : le frontend doit envoyer EXACTEMENT ces deux clés
+    // (voir authService.change-password et MustChangePasswordModal).
+    console.log('🔑 [change-password] clés reçues:', Object.keys(req.body || {}));
     const { currentPassword, newPassword } = req.body;
     const userId = req.user.id;
 
     if (!currentPassword || !newPassword) {
       return res.status(400).json({
         success: false,
+        code: 'MISSING_FIELDS',
         message: 'Mot de passe actuel et nouveau mot de passe requis'
       });
     }
@@ -304,29 +308,46 @@ router.post('/change-password', authenticateToken, async (req, res) => {
     if (newPassword.length < 6) {
       return res.status(400).json({
         success: false,
+        code: 'WEAK_PASSWORD',
         message: 'Le nouveau mot de passe doit contenir au moins 6 caractères'
       });
     }
 
-    // Récupérer le mot de passe actuel
+    // Récupérer le mot de passe actuel (+ flag pour le cas Superadmin)
     const user = await query(
-      'SELECT password FROM users WHERE id = ?',
+      'SELECT email, password, must_change_password FROM users WHERE id = ?',
       [userId]
     );
 
     if (user.length === 0) {
       return res.status(404).json({
         success: false,
+        code: 'USER_NOT_FOUND',
         message: 'Utilisateur non trouvé'
       });
     }
 
-    // Vérifier le mot de passe actuel
-    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user[0].password);
+    // Debug bcrypt : jamais de secret en clair, uniquement des métadonnées
+    const storedHash = user[0].password || '';
+    console.log('🔍 [change-password] user:', {
+      userId,
+      email: user[0].email,
+      mustChangePassword: !!user[0].must_change_password,
+      hashPresent: !!storedHash,
+      hashPrefix: storedHash.substring(0, 7),
+      hashLength: storedHash.length,
+    });
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, storedHash);
+    console.log('🔐 [change-password] bcrypt.compare =>', isCurrentPasswordValid);
     if (!isCurrentPasswordValid) {
+      const isSuperadmin = user[0].email === 'epiblockchain@epitech.eu';
       return res.status(400).json({
         success: false,
-        message: 'Mot de passe actuel incorrect'
+        code: 'CURRENT_PASSWORD_MISMATCH',
+        message: 'Mot de passe actuel incorrect',
+        hint: isSuperadmin && user[0].must_change_password
+          ? "Compte Superadmin en premier accès : utilisez le mot de passe initial '12345678' (réinitialisé automatiquement à chaque migration)."
+          : undefined
       });
     }
 
