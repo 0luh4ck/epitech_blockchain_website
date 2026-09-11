@@ -13,9 +13,10 @@ export const usersService = {
     return response.data;
   },
 
-  // Créer un membre manuellement (admin) — retourne le mot de passe temporaire
+  // Créer un membre manuellement (admin) — retourne le mot de passe temporaire.
+  // Timeout étendu (30s) : réseaux instables + SMTP ne bloquant plus côté serveur.
   createUser: async (userData) => {
-    const response = await api.post('/users', userData);
+    const response = await api.post('/users', userData, { timeout: 30000 });
     return response.data;
   },
 
@@ -25,9 +26,9 @@ export const usersService = {
     return response.data;
   },
 
-  // Mettre à jour un utilisateur
+  // Mettre à jour un utilisateur (timeout étendu : 30s)
   updateUser: async (id, userData) => {
-    const response = await api.put(`/users/${id}`, userData);
+    const response = await api.put(`/users/${id}`, userData, { timeout: 30000 });
     return response.data;
   },
 
@@ -41,7 +42,7 @@ export const usersService = {
   // Réactiver un compte anonymisé (admin) — retourne le mot de passe temporaire.
   // data: { email (requis), firstName?, lastName? }
   reactivateUser: async (id, data) => {
-    const response = await api.patch(`/users/${id}/reactivate`, data);
+    const response = await api.patch(`/users/${id}/reactivate`, data, { timeout: 30000 });
     return response.data;
   },
 
