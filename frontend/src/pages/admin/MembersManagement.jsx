@@ -130,7 +130,10 @@ const MembersManagement = () => {
       toast.success(successMsg);
       loadUsers();
     } catch (error) {
-      toast.error(error.response?.data?.message || "Échec de l'opération.");
+      // Erreur de validation centralisée : message + tableau errors éventuel
+      const data = error.response?.data || {};
+      const details = Array.isArray(data.errors) ? ` Détails : ${data.errors.join(' ; ')}` : '';
+      toast.error(`${data.message || "Échec de l'opération."}${details}`);
     } finally {
       setActingId(null);
     }

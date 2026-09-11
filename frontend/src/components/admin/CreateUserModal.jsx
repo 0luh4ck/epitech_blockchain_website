@@ -48,7 +48,12 @@ const CreateUserModal = ({ onClose, onCreated }) => {
       toast.success('Profil créé avec succès.');
       onCreated?.();
     } catch (err) {
-      const msg = err.response?.data?.message || 'Échec de la création du profil.';
+      // Contrat exact envoyé : { firstName, lastName, email, role, status, sendInvite }
+      // (rôles ENUM : member/executive/admin). Raison exacte affichée, jamais silencieuse.
+      console.debug('[users] POST /users payload keys:', Object.keys(form));
+      const data = err.response?.data || {};
+      const details = Array.isArray(data.errors) ? ` Détails : ${data.errors.join(' ; ')}` : '';
+      const msg = `${data.message || 'Échec de la création du profil.'}${details}`;
       setError(msg);
       toast.error(msg);
     } finally {
