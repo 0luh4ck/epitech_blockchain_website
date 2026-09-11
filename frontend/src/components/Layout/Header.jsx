@@ -48,8 +48,8 @@ const Header = () => {
               <div className="absolute -inset-1 bg-gradient-to-tr from-blue-600 to-green-500 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200" />
               <img
                 src="/logo.png"
-                alt="Logo"
-                className="relative w-10 h-10 rounded-xl object-cover border border-white/50 bg-white"
+                alt="Epitech Blockchain Club Logo"
+                className="relative w-10 h-10 rounded-xl object-contain border border-white/50 bg-white"
               />
             </div>
             <div className="ml-4 flex flex-col">

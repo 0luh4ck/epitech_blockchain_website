@@ -4,6 +4,56 @@ import { authenticateToken, requireExecutive } from '../middleware/auth.js';
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/partners:
+ *   get:
+ *     summary: Lister les partenaires (public)
+ *     tags: [Partners]
+ *     responses:
+ *       200: { description: 'Partenaires', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *   post:
+ *     summary: Créer un partenaire (Bureau)
+ *     tags: [Partners]
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content: { application/json: { schema: { type: object } } }
+ *     responses:
+ *       201: { description: 'Partenaire créé', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ * /api/partners/{id}:
+ *   get:
+ *     summary: Détail d'un partenaire (public)
+ *     tags: [Partners]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     responses:
+ *       200: { description: 'Partenaire', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       404: { description: 'Partenaire introuvable', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *   put:
+ *     summary: Modifier un partenaire (Bureau)
+ *     tags: [Partners]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     requestBody:
+ *       required: true
+ *       content: { application/json: { schema: { type: object } } }
+ *     responses:
+ *       200: { description: 'Partenaire mis à jour', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *   delete:
+ *     summary: Supprimer un partenaire (Bureau)
+ *     tags: [Partners]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+ *     responses:
+ *       200: { description: 'Partenaire supprimé', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ */
+
 // @route   GET /api/partners
 // @desc    Obtenir la liste des partenaires
 // @access  Public

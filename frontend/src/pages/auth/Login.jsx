@@ -77,8 +77,8 @@ const Login = () => {
               <div className="relative group p-1 bg-gradient-to-tr from-blue-600 to-green-500 rounded-3xl shrink-0">
                 <img
                   src="/logo.png"
-                  alt="Club Blockchain Epitech"
-                  className="relative w-20 h-20 rounded-[22px] object-cover border-2 border-white"
+                  alt="Epitech Blockchain Club Logo"
+                  className="relative w-20 h-20 rounded-[22px] object-contain bg-white border-2 border-white"
                 />
               </div>
             </div>

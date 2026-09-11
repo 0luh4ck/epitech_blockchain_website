@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Layout from './components/Layout/Layout';
+import AdminLayout from './components/admin/AdminLayout';
 import { ROUTES, SUPERADMIN_LOGIN_PATH, LEGACY_SUPERADMIN_HONEYPOTS } from './utils/constants';
 
 // Pages
@@ -33,6 +34,7 @@ const MembershipRequests = lazy(() => import('./pages/admin/MembershipRequests')
 const ExamImmersive = lazy(() => import('./pages/ExamImmersive'));
 const ExamResult = lazy(() => import('./pages/ExamResult'));
 const ActivityEditor = lazy(() => import('./pages/admin/ActivityEditor'));
+const Docs = lazy(() => import('./pages/Docs'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Composant de chargement
@@ -75,12 +77,14 @@ function App() {
                   <Route path={ROUTES.ACTIVITIES} element={<Layout><Activities /></Layout>} />
                   <Route path={ROUTES.MEMBERSHIP} element={<Layout><Membership /></Layout>} />
                   <Route path={ROUTES.CONTACT} element={<Layout><Contact /></Layout>} />
+                  <Route path={ROUTES.DOCS} element={<Layout><Docs /></Layout>} />
 
                   {/* Routes d'authentification */}
                   <Route path={ROUTES.LOGIN} element={<Login />} />
                   {/* Connexion Superadmin : route obscurcie, non liée depuis
-                      /login ni la navigation. configurable via VITE_SUPERADMIN_ROUTE */}
-                  <Route path={SUPERADMIN_LOGIN_PATH} element={<AdminLogin />} />
+                      /login ni la navigation. Rendue dans l'espace admin isolé
+                      (Sidebar, sans Navbar ni Footer publics). */}
+                  <Route path={SUPERADMIN_LOGIN_PATH} element={<AdminLayout><AdminLogin /></AdminLayout>} />
                   {/* Honeypots : anciens chemins devinables -> 404, jamais de login */}
                   {LEGACY_SUPERADMIN_HONEYPOTS.map((honeypot) => (
                     <Route key={honeypot} path={honeypot} element={<NotFound />} />
@@ -105,12 +109,14 @@ function App() {
                       </ProtectedRoute>
                     }
                   />
+                  {/* Espace admin STRICTEMENT isolé : AdminLayout (Sidebar),
+                      jamais le Layout public (ni Navbar ni Footer) */}
                   <Route
                     path={ROUTES.ADMIN}
                     element={
                       <ProtectedRoute>
                         <AdminRoute>
-                          <Layout><Admin /></Layout>
+                          <AdminLayout><Admin /></AdminLayout>
                         </AdminRoute>
                       </ProtectedRoute>
                     }
@@ -120,7 +126,7 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <AdminRoute>
-                          <Layout><MembershipRequests /></Layout>
+                          <AdminLayout><MembershipRequests /></AdminLayout>
                         </AdminRoute>
                       </ProtectedRoute>
                     }
@@ -130,7 +136,7 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <AdminRoute>
-                          <Layout><ActivityEditor /></Layout>
+                          <AdminLayout><ActivityEditor /></AdminLayout>
                         </AdminRoute>
                       </ProtectedRoute>
                     }

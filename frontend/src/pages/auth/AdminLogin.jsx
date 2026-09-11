@@ -45,14 +45,14 @@ const AdminLogin = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950">
+      <div className="flex items-center justify-center bg-slate-950 rounded-3xl min-h-[70vh]">
         <div className="animate-spin rounded-full h-14 w-14 border-2 border-transparent border-t-red-500 border-r-amber-400" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-slate-950 py-12 px-4">
+    <div className="flex items-center justify-center relative overflow-hidden bg-slate-950 rounded-3xl py-12 px-4 min-h-[70vh]">
       <ParticleGrid />
 
       <motion.div
@@ -63,6 +63,13 @@ const AdminLogin = () => {
       >
         <div className="rounded-[40px] p-8 md:p-12 bg-slate-900 border border-red-500/20 shadow-2xl shadow-black">
           <div className="text-center mb-10">
+            <div className="flex justify-center mb-5">
+              <img
+                src="/logo.png"
+                alt="Epitech Blockchain Club Logo"
+                className="h-14 w-auto object-contain rounded-2xl bg-white/5 border border-white/10 p-1.5"
+              />
+            </div>
             <div className="flex justify-center mb-6">
               <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-3xl">
                 <ShieldAlert className="w-10 h-10 text-red-400" />

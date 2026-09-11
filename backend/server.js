@@ -20,6 +20,8 @@ import partnerRoutes from './routes/partners.js';
 import statsRoutes from './routes/stats.js';
 import runMigration from './scripts/migrate.js';
 import { seedSuperadmin } from './scripts/seedSuperadmin.js';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.js';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler.js';
@@ -41,10 +43,15 @@ app.get('/', (req, res) => {
   res.status(200).send('Backend Epitech Blockchain is Live! 🚀');
 });
 
-// Security middleware
-app.use(helmet({
+// Security middleware (CSP désactivée uniquement sur /api/docs : Swagger UI
+// nécessite scripts/styles inline que la CSP par défaut de helmet bloquerait)
+const helmetMiddleware = helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
-}));
+});
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/docs')) return next();
+  return helmetMiddleware(req, res, next);
+});
 
 // Rate limiting
 const limiter = rateLimit({
@@ -103,6 +110,12 @@ app.get('/api/health', (req, res) => {
     environment: process.env.NODE_ENV || 'development'
   });
 });
+
+// Documentation OpenAPI 3.0 (Swagger UI)
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customSiteTitle: 'Club Blockchain Epitech — API Docs',
+}));
+app.get('/api/docs.json', (req, res) => res.json(swaggerSpec));
 
 // API// Routes
 app.use('/api/auth', authRoutes);

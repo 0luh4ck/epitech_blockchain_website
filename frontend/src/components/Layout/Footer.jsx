@@ -12,6 +12,7 @@ const Footer = () => {
       { name: 'Bureau Exécutif', href: ROUTES.EXECUTIVE_BOARD },
       { name: 'Partenaires', href: ROUTES.PARTNERS },
       { name: 'Activités', href: ROUTES.ACTIVITIES },
+      { name: 'Documentation', href: ROUTES.DOCS },
     ],
     participation: [
       { name: 'Adhésion', href: ROUTES.MEMBERSHIP },
@@ -40,7 +41,7 @@ const Footer = () => {
           <div className="lg:col-span-1">
             <Link to={ROUTES.HOME} className="flex items-center group mb-8">
               <div className="w-12 h-12 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-center group-hover:border-blue-200 transition-all">
-                <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
+                <img src="/logo.png" alt="Epitech Blockchain Club Logo" className="w-8 h-8 object-contain" />
               </div>
               <div className="ml-4">
                 <span className="block text-sm font-black text-slate-900 uppercase tracking-tighter">Club Blockchain</span>

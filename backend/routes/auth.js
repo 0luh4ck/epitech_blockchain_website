@@ -7,6 +7,31 @@ import { handleValidationErrors, validateRegister, validateLogin } from '../midd
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Soumettre une demande d'adhésion (workflow d'approbation)
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, firstName, lastName]
+ *             properties:
+ *               email: { type: string, format: email, example: 'candidat@epitech.eu' }
+ *               firstName: { type: string, example: 'Ada' }
+ *               lastName: { type: string, example: 'Lovelace' }
+ *               phone: { type: string, example: '+22997000000' }
+ *               studentId: { type: string, example: 'EPITECH-2024-001' }
+ *               motivation: { type: string }
+ *     responses:
+ *       201: { description: "Demande soumise (pendingApproval: true)", content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       400: { description: 'Email déjà utilisé / demande déjà en attente / données invalides', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       500: { description: 'Erreur serveur', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ */
 // @route   POST /api/auth/register
 // @desc    Enregistrer une demande d'adhésion (Workflow strict d'approbation)
 // @access  Public
@@ -60,6 +85,38 @@ router.post('/register', validateRegister, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Connexion (espaces Membre / Bureau / Admin)
+ *     description: "Le champ `space` doit correspondre au rôle en BDD, sinon 403. Les comptes admin sont rejetés ici et doivent utiliser la route d'administration confidentielle avec `space: admin`."
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: { $ref: '#/components/schemas/LoginRequest' }
+ *     responses:
+ *       200:
+ *         description: 'Connexion réussie (token JWT + utilisateur)'
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiSuccess'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         token: { type: string, example: 'eyJhbGciOiJIUzI1NiIs...' }
+ *                         user: { $ref: '#/components/schemas/AuthUser' }
+ *       400: { description: 'Données invalides', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       401: { description: 'Email/mot de passe incorrect ou compte désactivé', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: "Espace incohérent avec le rôle BDD (ou admin sur l'espace public)", content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       500: { description: 'Erreur serveur', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ */
 // @route   POST /api/auth/login
 // @desc    Connexion d'un utilisateur
 // @access  Public
@@ -186,6 +243,19 @@ router.post('/login', validateLogin, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     summary: Profil de l'utilisateur connecté
+ *     tags: [Auth]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: "Profil (data.user)", content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Token manquant/invalide/expiré', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       404: { description: 'Utilisateur non trouvé', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       500: { description: 'Erreur serveur', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ */
 // @route   GET /api/auth/me
 // @desc    Obtenir les informations de l'utilisateur connecté
 // @access  Private
@@ -234,6 +304,29 @@ router.get('/me', authenticateToken, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/auth/profile:
+ *   put:
+ *     summary: Mettre à jour son profil
+ *     tags: [Auth]
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName: { type: string }
+ *               lastName: { type: string }
+ *               phone: { type: string }
+ *               bio: { type: string }
+ *     responses:
+ *       200: { description: 'Profil mis à jour (data.user)', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       500: { description: 'Erreur serveur', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ */
 // @route   PUT /api/auth/profile
 // @desc    Mettre à jour le profil de l'utilisateur
 // @access  Private
@@ -286,6 +379,25 @@ router.put('/profile', authenticateToken, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/auth/change-password:
+ *   post:
+ *     summary: Changer son mot de passe (lève le flag must_change_password)
+ *     tags: [Auth]
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: { $ref: '#/components/schemas/ChangePasswordRequest' }
+ *     responses:
+ *       200: { description: 'Mot de passe modifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       400: { description: 'Champs manquants / mot de passe faible ou actuel incorrect (code + hint éventuels)', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       404: { description: 'Utilisateur non trouvé', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       500: { description: 'Erreur serveur', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ */
 // @route   POST /api/auth/change-password
 // @desc    Changer le mot de passe (Réinitialise must_change_password à false)
 // @access  Private
@@ -353,6 +465,18 @@ router.post('/change-password', authenticateToken, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/auth/refresh:
+ *   post:
+ *     summary: Rafraîchir le token JWT
+ *     tags: [Auth]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: 'Nouveau token (data.token)', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       500: { description: 'Erreur serveur', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ */
 // @route   POST /api/auth/refresh
 // @desc    Rafraîchir le token JWT
 // @access  Private
