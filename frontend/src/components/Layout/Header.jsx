@@ -9,7 +9,7 @@ import ClubLogo from '../ClubLogo';
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const { isAuthenticated, user, logout, isAdmin, isExecutive } = useAuth();
+  const { isAuthenticated, user, logout, isAdmin, isExecutive, hasAnyRole } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
@@ -133,7 +133,8 @@ const Header = () => {
                           Mon Profil
                         </Link>
 
-                        {(isAdmin() || isExecutive()) && (
+                        {/* Matrice RBAC : Administration visible pour executive/admin/superadmin, masquée pour member */}
+                        {hasAnyRole(['executive', 'admin', 'superadmin']) && (
                           <Link
                             to={ROUTES.ADMIN}
                             className="flex items-center px-4 py-3 text-xs font-black text-slate-600 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all"

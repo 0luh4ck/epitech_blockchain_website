@@ -21,7 +21,8 @@ const MENU = [
   { label: 'Demandes en attente', href: '/admin/membership-requests', icon: Inbox },
   { label: 'Gestion des membres', href: '/admin/members', icon: Users },
   { label: 'Création activités / QCM', href: '/admin/activity-editor', icon: PenSquare },
-  { label: 'Paramètres & Sécurité', href: ROUTES.PROFILE, icon: Settings },
+  // RBAC : Paramètres & Sécurité réservé à admin/superadmin (refusé au Bureau)
+  { label: 'Paramètres & Sécurité', href: ROUTES.PROFILE, icon: Settings, adminOnly: true },
 ];
 
 const roleLabel = (role) => {
@@ -59,6 +60,10 @@ const Sidebar = ({ mobileOpen, onClose, onNavigate }) => {
 
   // Libellés masqués en mode replié (desktop uniquement)
   const labelClass = collapsed ? 'lg:hidden' : '';
+
+  // Matrice RBAC : le Bureau voit tout sauf Paramètres & Sécurité
+  const isPrivilegedAdmin = user?.role === 'admin' || user?.role === 'superadmin';
+  const visibleMenu = MENU.filter((item) => !item.adminOnly || isPrivilegedAdmin);
 
   return (
     <>
@@ -128,7 +133,7 @@ const Sidebar = ({ mobileOpen, onClose, onNavigate }) => {
 
         {/* Navigation contextuelle */}
         <nav className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5">
-          {MENU.map((item) => (
+          {visibleMenu.map((item) => (
             <Link
               key={item.label}
               to={item.href}

@@ -54,9 +54,27 @@ export const authenticateToken = async (req, res, next) => {
   }
 };
 
-// Middleware d'autorisation pour les administrateurs
-export const requireAdmin = (req, res, next) => {
-  if (req.user.role !== 'admin') {
+// Matrice RBAC à 3 niveaux : executive < admin < superadmin.
+// (Le rôle stocké en BDD est 'admin' pour le Superadmin ; 'superadmin' est
+// accepté partout par compatibilité avec le frontend.)
+
+// Niveau 2 — Bureau Exécutif et au-delà : executive, admin, superadmin.
+// Utilisé par : /api/membership-requests, /api/activities, /api/exams, GET /api/users.
+export const requireExecutiveOrAdmin = (req, res, next) => {
+  if (!['executive', 'admin', 'superadmin'].includes(req.user.role)) {
+    return res.status(403).json({
+      success: false,
+      message: 'Accès refusé. Droits du Bureau Exécutif requis.'
+    });
+  }
+  next();
+};
+
+// Niveau 3 — Admin et au-delà : admin, superadmin uniquement.
+// Utilisé par : POST /api/users, PATCH /api/users/:id, DELETE /api/users/:id
+// (modifications de comptes : rôle, statut, anonymisation, réactivation).
+export const requireAdminOnly = (req, res, next) => {
+  if (!['admin', 'superadmin'].includes(req.user.role)) {
     return res.status(403).json({
       success: false,
       message: 'Accès refusé. Droits administrateur requis.'
@@ -65,20 +83,16 @@ export const requireAdmin = (req, res, next) => {
   next();
 };
 
+// --- Alias historiques (conservés pour les routes existantes) ---
+// Middleware d'autorisation pour les administrateurs
+export const requireAdmin = requireAdminOnly;
+
 // Middleware d'autorisation pour les membres du bureau exécutif
-export const requireExecutive = (req, res, next) => {
-  if (!['admin', 'executive'].includes(req.user.role)) {
-    return res.status(403).json({
-      success: false,
-      message: 'Accès refusé. Droits de membre du bureau exécutif requis.'
-    });
-  }
-  next();
-};
+export const requireExecutive = requireExecutiveOrAdmin;
 
 // Middleware d'autorisation pour les membres actifs
 export const requireMember = (req, res, next) => {
-  if (!['admin', 'executive', 'member'].includes(req.user.role)) {
+  if (!['admin', 'executive', 'member', 'superadmin'].includes(req.user.role)) {
     return res.status(403).json({
       success: false,
       message: 'Accès refusé. Adhésion au club requise.'

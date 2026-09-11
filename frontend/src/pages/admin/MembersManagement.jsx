@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { usersService } from '../../services/users';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
 import Skeleton from '../../components/Skeleton';
 import CreateUserModal from '../../components/admin/CreateUserModal';
 import ReactivateModal from '../../components/admin/ReactivateModal';
@@ -64,6 +65,11 @@ const archivedBadge =
  */
 const MembersManagement = () => {
   const toast = useToast();
+  const { user: currentUser } = useAuth();
+  // RBAC : le Bureau (executive) est en lecture seule — écritures réservées
+  // à admin/superadmin (le backend requireAdminOnly les rejette aussi en 403).
+  const canWrite =
+    currentUser?.role === 'admin' || currentUser?.role === 'superadmin';
   const [users, setUsers] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 15, total: 0, pages: 0 });
   const [loading, setLoading] = useState(true);
@@ -209,12 +215,18 @@ const MembersManagement = () => {
             >
               <Download className="h-4 w-4" /> Exporter (CSV)
             </button>
-            <button
-              onClick={() => setShowCreate(true)}
-              className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-bold text-sm shadow-lg shadow-red-950/40 transition-all focus-visible:ring-2 focus-visible:ring-red-400"
-            >
-              <UserPlus className="h-4 w-4" /> Créer un membre
-            </button>
+            {canWrite ? (
+              <button
+                onClick={() => setShowCreate(true)}
+                className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-bold text-sm shadow-lg shadow-red-950/40 transition-all focus-visible:ring-2 focus-visible:ring-red-400"
+              >
+                <UserPlus className="h-4 w-4" /> Créer un membre
+              </button>
+            ) : (
+              <span className="inline-flex items-center min-h-[44px] px-5 rounded-xl bg-slate-800 border border-slate-700 text-slate-400 font-bold text-sm">
+                Lecture seule (Bureau)
+              </span>
+            )}
           </div>
         </div>
 
@@ -304,6 +316,7 @@ const MembersManagement = () => {
                       <span className={`${statusBadge(statusOf(u))} font-bold`}>{statusLabel(statusOf(u))}</span>
                     )}
                   </div>
+                  {canWrite && (
                   <div className="flex flex-wrap gap-2">
                     {isArchived(u) ? (
                       <button
@@ -340,6 +353,7 @@ const MembersManagement = () => {
                       </>
                     )}
                   </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -364,17 +378,21 @@ const MembersManagement = () => {
                         <div className="text-xs text-slate-400">{u.email}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <select
-                          value={u.role}
-                          onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                          disabled={actingId === u.id}
-                          aria-label={`Rôle de ${u.email}`}
-                          className="min-h-[40px] bg-slate-800 border border-slate-700 rounded-lg text-slate-200 text-sm px-2 focus:border-red-500 outline-none disabled:opacity-50"
-                        >
-                          {ROLE_OPTIONS.map((r) => (
-                            <option key={r.value} value={r.value}>{r.label}</option>
-                          ))}
-                        </select>
+                        {canWrite ? (
+                          <select
+                            value={u.role}
+                            onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                            disabled={actingId === u.id}
+                            aria-label={`Rôle de ${u.email}`}
+                            className="min-h-[40px] bg-slate-800 border border-slate-700 rounded-lg text-slate-200 text-sm px-2 focus:border-red-500 outline-none disabled:opacity-50"
+                          >
+                            {ROLE_OPTIONS.map((r) => (
+                              <option key={r.value} value={r.value}>{r.label}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <span className={`${roleBadge(u.role)} font-bold`}>{u.role}</span>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {isArchived(u) ? (
@@ -387,6 +405,7 @@ const MembersManagement = () => {
                         {u.lastLogin ? new Date(u.lastLogin).toLocaleString('fr-FR') : 'Jamais'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
+                        {canWrite && (
                         <div className="flex items-center gap-1">
                           {isArchived(u) ? (
                             <button
@@ -429,6 +448,7 @@ const MembersManagement = () => {
                             </>
                           )}
                         </div>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -465,14 +485,14 @@ const MembersManagement = () => {
         </div>
       )}
 
-      {showCreate && (
+      {canWrite && showCreate && (
         <CreateUserModal
           onClose={() => setShowCreate(false)}
           onCreated={loadUsers}
         />
       )}
 
-      {reactivateTarget && (
+      {canWrite && reactivateTarget && (
         <ReactivateModal
           user={reactivateTarget}
           onClose={() => setReactivateTarget(null)}
