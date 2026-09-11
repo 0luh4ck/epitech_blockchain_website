@@ -53,7 +53,9 @@ const CreateUserModal = ({ onClose, onCreated }) => {
       console.debug('[users] POST /users payload keys:', Object.keys(form));
       const data = err.response?.data || {};
       const details = Array.isArray(data.errors) ? ` Détails : ${data.errors.join(' ; ')}` : '';
-      const msg = `${data.message || 'Échec de la création du profil.'}${details}`;
+      const errorMessage =
+        data.message || data.error || 'Échec de la création du profil.';
+      const msg = `${errorMessage}${details}`;
       setError(msg);
       toast.error(msg);
     } finally {
