@@ -1,6 +1,8 @@
 import express from 'express';
+import bcrypt from 'bcryptjs';
 import { query } from '../config/database.js';
 import { authenticateToken, requireAdmin, requireExecutive } from '../middleware/auth.js';
+import { generateTemporaryPassword, sendApprovalEmail } from '../services/emailService.js';
 
 const router = express.Router();
 
@@ -61,6 +63,130 @@ const router = express.Router();
  *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
  *       403: { description: 'Bureau requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
  */
+
+/**
+ * @swagger
+ * /api/users:
+ *   post:
+ *     summary: Créer un membre manuellement (Admin)
+ *     description: "Crée le compte avec un mot de passe temporaire (retourné en réponse, à transmettre). Invitation email optionnelle (simulation si SMTP absent)."
+ *     tags: [Users]
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, firstName, lastName]
+ *             properties:
+ *               email: { type: string, format: email, example: 'nouveau@epitech.eu' }
+ *               firstName: { type: string, example: 'Ada' }
+ *               lastName: { type: string, example: 'Lovelace' }
+ *               role: { type: string, enum: [member, executive, admin], default: member }
+ *               status: { type: string, enum: [active, pending], default: active, description: 'pending = compte non vérifié' }
+ *               sendInvite: { type: boolean, default: false }
+ *     responses:
+ *       201: { description: 'Compte créé (data.user + data.tempPassword)', content: { application/json: { schema: { $ref: '#/components/schemas/ApiSuccess' } } } }
+ *       400: { description: 'Champs invalides / email déjà utilisé', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       401: { description: 'Non authentifié', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       403: { description: 'Admin requis', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ *       500: { description: 'Erreur serveur', content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+ */
+// @route   POST /api/users
+// @desc    Créer un membre manuellement (mot de passe temporaire + invitation optionnelle)
+// @access  Private (Admin seulement)
+router.post('/', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { email, firstName, lastName, role = 'member', status = 'active', sendInvite = false } = req.body;
+    console.log('👤 [users] création manuelle :', { email, role, status, sendInvite: !!sendInvite });
+
+    if (!email || !firstName || !lastName) {
+      return res.status(400).json({
+        success: false,
+        code: 'MISSING_FIELDS',
+        message: 'Email, prénom et nom sont requis'
+      });
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({
+        success: false,
+        code: 'INVALID_EMAIL',
+        message: 'Format d\'email invalide'
+      });
+    }
+    if (!['member', 'executive', 'admin'].includes(role)) {
+      return res.status(400).json({
+        success: false,
+        code: 'INVALID_ROLE',
+        message: 'Rôle invalide (member, executive, admin)'
+      });
+    }
+    if (!['active', 'pending'].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        code: 'INVALID_STATUS',
+        message: 'Statut invalide (active, pending)'
+      });
+    }
+
+    const existing = await query('SELECT id FROM users WHERE email = ?', [email]);
+    if (existing.length > 0) {
+      return res.status(400).json({
+        success: false,
+        code: 'EMAIL_TAKEN',
+        message: 'Un compte existe déjà pour cet email'
+      });
+    }
+
+    const tempPassword = generateTemporaryPassword();
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+    const isVerified = status === 'active';
+
+    const result = await query(
+      `INSERT INTO users
+        (email, password, first_name, last_name, role, is_active, is_verified, must_change_password)
+       VALUES (?, ?, ?, ?, ?, true, ?, true)`,
+      [email, hashedPassword, firstName, lastName, role, isVerified]
+    );
+
+    let inviteSent = false;
+    if (sendInvite) {
+      try {
+        const mailRes = await sendApprovalEmail({ email, firstName, lastName, tempPassword });
+        inviteSent = !!mailRes;
+      } catch (mailError) {
+        console.error('⚠️ [users] échec invitation email:', mailError.message);
+      }
+    }
+
+    console.log(`✅ [users] compte créé id=${result.insertId} (${email}), invitation: ${inviteSent}`);
+    res.status(201).json({
+      success: true,
+      message: 'Profil créé avec succès. Transmettez le mot de passe temporaire.',
+      data: {
+        user: {
+          id: result.insertId,
+          email,
+          firstName,
+          lastName,
+          role,
+          isActive: true,
+          isVerified,
+          mustChangePassword: true
+        },
+        tempPassword,
+        inviteSent
+      }
+    });
+  } catch (error) {
+    console.error('Erreur lors de la création du membre:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la création du membre'
+    });
+  }
+});
 
 // @route   GET /api/users
 // @desc    Obtenir la liste des utilisateurs (admin/executive seulement)

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Instagram, Linkedin, Twitter, Mail, Phone, MapPin, Zap, ChevronRight } from 'lucide-react';
 import { ROUTES, APP_CONFIG } from '../../utils/constants';
+import ClubLogo from '../ClubLogo';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -41,7 +42,7 @@ const Footer = () => {
           <div className="lg:col-span-1">
             <Link to={ROUTES.HOME} className="flex items-center group mb-8">
               <div className="w-12 h-12 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-center group-hover:border-blue-200 transition-all">
-                <img src="/logo.png" alt="Epitech Blockchain Club Logo" className="w-8 h-8 object-contain" />
+                <ClubLogo className="w-8 h-8 object-contain" />
               </div>
               <div className="ml-4">
                 <span className="block text-sm font-black text-slate-900 uppercase tracking-tighter">Club Blockchain</span>

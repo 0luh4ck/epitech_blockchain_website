@@ -17,6 +17,7 @@ import { statsService } from '../services/stats';
 import ParticleGrid from '../components/ParticleGrid';
 import BlockchainCard from '../components/BlockchainCard';
 import BlockchainButton from '../components/BlockchainButton';
+import ClubLogo from '../components/ClubLogo';
 
 const Dashboard = () => {
   const { user, isAdmin, isExecutive } = useAuth();
@@ -94,7 +95,7 @@ const Dashboard = () => {
             className="flex items-center gap-4 bg-slate-50 p-2 pr-6 rounded-3xl border border-slate-100"
           >
             <div className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center">
-              <img src="/logo.png" alt="Avatar" className="w-8 h-8 object-contain" />
+              <ClubLogo className="w-8 h-8 object-contain" />
             </div>
             <div>
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Status Actuel</p>

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ExternalLink, Handshake, Globe, Shield, Zap, Award } from 'lucide-react';
 import ParticleGrid from '../components/ParticleGrid';
 import BlockchainCard from '../components/BlockchainCard';
+import logoImg from '../assets/logo.png';
 
 const Partners = () => {
   const partners = [
@@ -10,14 +11,14 @@ const Partners = () => {
       name: 'Epitech Bénin',
       type: 'Partenaire Académique',
       description: 'Notre base de formation et d\'excellence technologique au Bénin.',
-      logo: '/logo.png',
+      logo: logoImg,
       website: 'https://www.epitech.bj'
     },
     {
       name: 'Tech Community',
       type: 'Écosystème',
       description: 'Collaboration étroite sur les événements et le partage de ressources.',
-      logo: '/logo.png',
+      logo: logoImg,
       website: '#'
     }
   ];
