@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { isNetworkError } from '../services/auth';
+
+const MAX_ATTEMPTS = 3; // 1 tentative initiale + 2 réessais automatiques
+const RETRY_DELAY_MS = 1000;
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const MustChangePasswordModal = () => {
   const { user, changePassword, setUser } = useAuth();
@@ -10,7 +16,9 @@ export const MustChangePasswordModal = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const [error, setError] = useState('');
+  const [networkWarning, setNetworkWarning] = useState('');
 
   // Ne pas afficher la modale si l'utilisateur n'a pas le flag mustChangePassword
   if (!user || !user.mustChangePassword) {
@@ -24,6 +32,7 @@ export const MustChangePasswordModal = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setNetworkWarning('');
 
     if (!currentPassword) {
       setError('Veuillez saisir votre mot de passe actuel.');
@@ -40,23 +49,66 @@ export const MustChangePasswordModal = () => {
       return;
     }
 
+    // Anti double-clic : verrouille le formulaire pendant toute la séquence (retry inclus)
     setLoading(true);
 
     try {
-      const res = await changePassword(currentPassword, newPassword);
-      if (res.success) {
-        showToast('Mot de passe mis à jour avec succès !', 'success');
-        // Mettre à jour l'utilisateur localement pour fermer la modale bloquante
-        if (setUser) {
-          setUser(prev => ({ ...prev, mustChangePassword: false }));
+      for (let currentAttempt = 1; currentAttempt <= MAX_ATTEMPTS; currentAttempt++) {
+        setAttempt(currentAttempt);
+
+        let res;
+        try {
+          res = await changePassword(currentPassword, newPassword);
+        } catch (err) {
+          // Sécurité : changePassword ne rejette normalement jamais, mais on
+          // traite un rejet réseau comme une tentative échouée (retryable).
+          if (isNetworkError(err) && currentAttempt < MAX_ATTEMPTS) {
+            setNetworkWarning(
+              `Problème de connexion réseau détecté. Nouvelle tentative (${currentAttempt + 1}/${MAX_ATTEMPTS})…`
+            );
+            await wait(RETRY_DELAY_MS);
+            continue;
+          }
+          throw err;
         }
-      } else {
-        setError(res.message || 'Erreur lors de la mise à jour du mot de passe.');
+
+        if (res.success) {
+          showToast('Mot de passe mis à jour avec succès !', 'success');
+          // Mettre à jour l'utilisateur localement pour fermer la modale bloquante
+          if (setUser) {
+            setUser(prev => ({ ...prev, mustChangePassword: false }));
+          }
+          return;
+        }
+
+        // Erreur réseau identifiée par le contexte : réessai automatique.
+        // La modale reste OUVERTE et la saisie est CONSERVÉE.
+        if (res.networkError && currentAttempt < MAX_ATTEMPTS) {
+          setNetworkWarning(
+            `Problème de connexion réseau détecté. Nouvelle tentative (${currentAttempt + 1}/${MAX_ATTEMPTS})…`
+          );
+          await wait(RETRY_DELAY_MS);
+          continue;
+        }
+
+        if (res.networkError) {
+          // Échec final après tous les réessais : avertissement clair sous le
+          // formulaire, sans fermer la modale ni réinitialiser la saisie.
+          setNetworkWarning('Problème de connexion réseau détecté. Veuillez réessayer.');
+        } else {
+          setError(res.message || 'Erreur lors de la mise à jour du mot de passe.');
+        }
+        return;
       }
     } catch (err) {
-      setError('Une erreur est survenue lors de la réinitialisation.');
+      if (isNetworkError(err)) {
+        setNetworkWarning('Problème de connexion réseau détecté. Veuillez réessayer.');
+      } else {
+        setError('Une erreur est survenue lors de la réinitialisation.');
+      }
     } finally {
       setLoading(false);
+      setAttempt(0);
     }
   };
 
@@ -122,6 +174,20 @@ export const MustChangePasswordModal = () => {
           </div>
         )}
 
+        {networkWarning && (
+          <div role="alert" style={{
+            background: 'rgba(245, 158, 11, 0.12)',
+            border: '1px solid #f59e0b',
+            color: '#fcd34d',
+            padding: '12px',
+            borderRadius: '8px',
+            fontSize: '13px',
+            marginBottom: '20px'
+          }}>
+            📡 {networkWarning}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
             <label style={{ display: 'block', fontSize: '13px', color: '#cbd5e1', marginBottom: '6px' }}>
@@ -132,6 +198,7 @@ export const MustChangePasswordModal = () => {
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               required
+              disabled={loading}
               placeholder="••••••••"
               style={{
                 width: '100%',
@@ -155,6 +222,7 @@ export const MustChangePasswordModal = () => {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               required
+              disabled={loading}
               placeholder="••••••••"
               style={{
                 width: '100%',
@@ -178,6 +246,7 @@ export const MustChangePasswordModal = () => {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
+              disabled={loading}
               placeholder="••••••••"
               style={{
                 width: '100%',
@@ -222,7 +291,11 @@ export const MustChangePasswordModal = () => {
               boxShadow: '0 4px 14px rgba(99, 102, 241, 0.4)'
             }}
           >
-            {loading ? 'Mise à jour en cours...' : 'Définir mon nouveau mot de passe'}
+            {loading
+              ? (attempt > 1
+                  ? `Nouvelle tentative ${attempt}/${MAX_ATTEMPTS}…`
+                  : 'Mise à jour en cours…')
+              : 'Définir mon nouveau mot de passe'}
           </button>
         </form>
       </div>

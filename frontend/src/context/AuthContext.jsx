@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { authService } from '../services/auth';
+import { authService, isNetworkError } from '../services/auth';
 import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
@@ -229,6 +229,15 @@ export const AuthProvider = ({ children }) => {
       toast.success('Mot de passe modifié avec succès !');
       return { success: true, data: response?.data };
     } catch (error) {
+      // Panne réseau : pas de toast ici — la modale gère le retry automatique
+      // + l'avertissement inline sans fermer ni réinitialiser le formulaire.
+      if (isNetworkError(error)) {
+        return {
+          success: false,
+          networkError: true,
+          message: 'Problème de connexion réseau détecté. Veuillez réessayer.',
+        };
+      }
       const errorMessage = error.response?.data?.message || 'Erreur lors du changement de mot de passe';
       toast.error(errorMessage);
       return { success: false, message: errorMessage };

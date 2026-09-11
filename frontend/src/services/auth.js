@@ -1,5 +1,22 @@
 import api from './api';
 
+// Détecte une panne réseau (vs une erreur métier renvoyée par l'API).
+// Couvre : ERR_NETWORK_CHANGED, timeout axios, navigateur hors-ligne,
+// fetch/XHR avorté — avec ou sans `error.response` selon le navigateur.
+export const isNetworkError = (error) => {
+  if (!error) return false;
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return true;
+  if (!error.response) return true; // axios : aucune réponse reçue
+  const code = String(error.code || '');
+  const message = String(error.message || '');
+  return (
+    code === 'ERR_NETWORK' ||
+    code === 'ECONNABORTED' ||
+    code === 'ETIMEDOUT' ||
+    /network error|ERR_NETWORK_CHANGED|Failed to fetch|Load failed|Network request failed|timeout/i.test(message)
+  );
+};
+
 export const authService = {
   // Connexion (space: 'member' | 'executive' | 'admin')
   login: async (email, password, space) => {
