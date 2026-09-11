@@ -2,8 +2,9 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { query } from '../config/database.js';
-import { authenticateToken, requireAdmin } from '../middleware/auth.js';
+import { authenticateToken, requireAdmin, requireExecutive } from '../middleware/auth.js';
 import { handleValidationErrors, validateMembershipRequest } from '../middleware/validation.js';
+import { generateTemporaryPassword, sendApprovalEmail, sendRejectionEmail } from '../services/emailService.js';
 
 const router = express.Router();
 
@@ -16,18 +17,18 @@ router.post('/', validateMembershipRequest, async (req, res) => {
 
     // Vérifier si une demande existe déjà avec cet email
     const existingRequest = await query(
-      'SELECT id FROM membership_requests WHERE email = ?',
+      'SELECT id FROM membership_requests WHERE email = ? AND status = "pending"',
       [email]
     );
 
     if (existingRequest.length > 0) {
       return res.status(400).json({
         success: false,
-        message: 'Une demande d\'adhésion avec cet email existe déjà'
+        message: 'Une demande d\'adhésion avec cet email est déjà en attente d\'approbation'
       });
     }
 
-    // Vérifier si l'utilisateur existe déjà
+    // Vérifier si l'utilisateur a déjà un compte
     const existingUser = await query(
       'SELECT id FROM users WHERE email = ?',
       [email]
@@ -36,19 +37,19 @@ router.post('/', validateMembershipRequest, async (req, res) => {
     if (existingUser.length > 0) {
       return res.status(400).json({
         success: false,
-        message: 'Un utilisateur avec cet email existe déjà'
+        message: 'Un compte utilisateur existe déjà pour cet email'
       });
     }
 
     // Créer la demande d'adhésion
     await query(
-      'INSERT INTO membership_requests (email, first_name, last_name, phone, student_id, motivation) VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO membership_requests (email, first_name, last_name, phone, student_id, motivation, status) VALUES (?, ?, ?, ?, ?, ?, "pending")',
       [email, firstName, lastName, phone || null, studentId || null, motivation || null]
     );
 
     res.status(201).json({
       success: true,
-      message: 'Demande d\'adhésion soumise avec succès. Elle sera examinée par nos administrateurs.'
+      message: 'Demande d\'adhésion soumise avec succès. Elle sera examinée par le Bureau Exécutif.'
     });
   } catch (error) {
     console.error('Erreur lors de la création de la demande d\'adhésion:', error);
@@ -60,18 +61,18 @@ router.post('/', validateMembershipRequest, async (req, res) => {
 });
 
 // @route   GET /api/membership-requests
-// @desc    Récupérer toutes les demandes d'adhésion (admin seulement)
-// @access  Private (Admin)
-router.get('/', authenticateToken, requireAdmin, async (req, res) => {
+// @desc    Récupérer toutes les demandes d'adhésion (Admin & Bureau Exécutif)
+// @access  Private (Executive/Admin)
+router.get('/', authenticateToken, requireExecutive, async (req, res) => {
   try {
-    const { status, page = 1, limit = 10 } = req.query;
+    const { status, page = 1, limit = 20 } = req.query;
     const offset = (page - 1) * limit;
 
     let whereClause = '';
     let params = [];
 
     if (status) {
-      whereClause = 'WHERE status = ?';
+      whereClause = 'WHERE mr.status = ?';
       params.push(status);
     }
 
@@ -88,7 +89,7 @@ router.get('/', authenticateToken, requireAdmin, async (req, res) => {
 
     // Compter le total
     const totalResult = await query(
-      `SELECT COUNT(*) as total FROM membership_requests ${whereClause}`,
+      `SELECT COUNT(*) as total FROM membership_requests mr ${whereClause}`,
       params
     );
 
@@ -116,13 +117,13 @@ router.get('/', authenticateToken, requireAdmin, async (req, res) => {
 });
 
 // @route   PUT /api/membership-requests/:id/approve
-// @desc    Approuver une demande d'adhésion (admin seulement)
-// @access  Private (Admin)
-router.put('/:id/approve', authenticateToken, requireAdmin, async (req, res) => {
+// @desc    Approuver une demande d'adhésion, générer MDP & envoyer e-mail
+// @access  Private (Executive/Admin)
+router.put('/:id/approve', authenticateToken, requireExecutive, async (req, res) => {
   try {
     const { id } = req.params;
-    const { password, role = 'member' } = req.body;
-    const adminId = req.user.userId;
+    const { role = 'member' } = req.body;
+    const reviewerId = req.user.id || req.user.userId;
 
     // Vérifier que la demande existe et est en attente
     const request = await query(
@@ -139,30 +140,39 @@ router.put('/:id/approve', authenticateToken, requireAdmin, async (req, res) => 
 
     const membershipRequest = request[0];
 
-    // Générer un mot de passe temporaire si non fourni
-    const tempPassword = password || Math.random().toString(36).slice(-8);
+    // 1. Générer automatiquement un mot de passe temporaire cryptographique (12 caractères)
+    const tempPassword = generateTemporaryPassword();
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(tempPassword, saltRounds);
 
-    // Créer l'utilisateur
+    // 2. Créer l'utilisateur dans la table users
     const userResult = await query(
-      'INSERT INTO users (email, password, first_name, last_name, phone, student_id, role) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO users (email, password, first_name, last_name, phone, student_id, role, is_active, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?, true, true)',
       [membershipRequest.email, hashedPassword, membershipRequest.first_name, membershipRequest.last_name, membershipRequest.phone, membershipRequest.student_id, role]
     );
 
-    // Marquer la demande comme approuvée
+    // 3. Marquer la demande comme approuvée
     await query(
       'UPDATE membership_requests SET status = "approved", reviewed_by = ?, reviewed_at = NOW() WHERE id = ?',
-      [adminId, id]
+      [reviewerId, id]
     );
+
+    // 4. Envoi automatique de l'e-mail avec identifiants via Nodemailer (expéditeur: moktar.vodounnon@epitech.eu)
+    const emailResult = await sendApprovalEmail({
+      email: membershipRequest.email,
+      firstName: membershipRequest.first_name,
+      lastName: membershipRequest.last_name,
+      tempPassword
+    });
 
     res.json({
       success: true,
-      message: 'Demande d\'adhésion approuvée avec succès',
+      message: 'Demande d\'adhésion approuvée. Le mot de passe temporaire a été généré et transmis par e-mail.',
       data: {
         userId: userResult.insertId,
         email: membershipRequest.email,
-        tempPassword: password ? undefined : tempPassword // Ne pas renvoyer le mot de passe si fourni par l'admin
+        tempPasswordGenerated: tempPassword,
+        emailStatus: emailResult
       }
     });
   } catch (error) {
@@ -175,13 +185,13 @@ router.put('/:id/approve', authenticateToken, requireAdmin, async (req, res) => 
 });
 
 // @route   PUT /api/membership-requests/:id/reject
-// @desc    Rejeter une demande d'adhésion (admin seulement)
-// @access  Private (Admin)
-router.put('/:id/reject', authenticateToken, requireAdmin, async (req, res) => {
+// @desc    Rejeter une demande d'adhésion et notifier le candidat
+// @access  Private (Executive/Admin)
+router.put('/:id/reject', authenticateToken, requireExecutive, async (req, res) => {
   try {
     const { id } = req.params;
     const { rejection_reason } = req.body;
-    const adminId = req.user.userId;
+    const reviewerId = req.user.id || req.user.userId;
 
     // Vérifier que la demande existe et est en attente
     const request = await query(
@@ -196,15 +206,24 @@ router.put('/:id/reject', authenticateToken, requireAdmin, async (req, res) => {
       });
     }
 
+    const membershipRequest = request[0];
+
     // Marquer la demande comme rejetée
     await query(
       'UPDATE membership_requests SET status = "rejected", reviewed_by = ?, reviewed_at = NOW(), rejection_reason = ? WHERE id = ?',
-      [adminId, rejection_reason || null, id]
+      [reviewerId, rejection_reason || null, id]
     );
+
+    // Envoi de l'email de notification de rejet
+    await sendRejectionEmail({
+      email: membershipRequest.email,
+      firstName: membershipRequest.first_name,
+      rejectionReason: rejection_reason
+    });
 
     res.json({
       success: true,
-      message: 'Demande d\'adhésion rejetée'
+      message: 'Demande d\'adhésion rejetée avec succès.'
     });
   } catch (error) {
     console.error('Erreur lors du rejet de la demande:', error);

@@ -4,13 +4,15 @@ import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Layout from './components/Layout/Layout';
-import { ROUTES } from './utils/constants';
+import { ROUTES, SUPERADMIN_LOGIN_PATH, LEGACY_SUPERADMIN_HONEYPOTS } from './utils/constants';
 
 // Pages
 import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import MembershipRequest from './pages/auth/MembershipRequest';
+
+import MustChangePasswordModal from './components/MustChangePasswordModal';
 
 // Lazy loading pour les autres pages
 import { lazy, Suspense } from 'react';
@@ -24,7 +26,13 @@ const Contact = lazy(() => import('./pages/Contact'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Admin = lazy(() => import('./pages/Admin'));
+// Formulaire Superadmin en lazy : la route obscurcie n'alourdit pas le bundle
+// principal et son chunk reste dissocié des pages publiques.
+const AdminLogin = lazy(() => import('./pages/auth/AdminLogin'));
 const MembershipRequests = lazy(() => import('./pages/admin/MembershipRequests'));
+const ExamImmersive = lazy(() => import('./pages/ExamImmersive'));
+const ExamResult = lazy(() => import('./pages/ExamResult'));
+const ActivityEditor = lazy(() => import('./pages/admin/ActivityEditor'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Composant de chargement
@@ -43,10 +51,10 @@ const ProtectedRoute = ({ children }) => {
   return token ? children : <Navigate to={ROUTES.LOGIN} replace />;
 };
 
-// Composant pour les routes admin
+// Composant pour les routes admin (admin + executive du Bureau)
 const AdminRoute = ({ children }) => {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const isAdmin = user.role === 'admin' || user.role === 'executive';
+  const isAdmin = user.role === 'admin' || user.role === 'superadmin' || user.role === 'executive';
   return isAdmin ? children : <Navigate to={ROUTES.DASHBOARD} replace />;
 };
 
@@ -70,6 +78,13 @@ function App() {
 
                   {/* Routes d'authentification */}
                   <Route path={ROUTES.LOGIN} element={<Login />} />
+                  {/* Connexion Superadmin : route obscurcie, non liée depuis
+                      /login ni la navigation. configurable via VITE_SUPERADMIN_ROUTE */}
+                  <Route path={SUPERADMIN_LOGIN_PATH} element={<AdminLogin />} />
+                  {/* Honeypots : anciens chemins devinables -> 404, jamais de login */}
+                  {LEGACY_SUPERADMIN_HONEYPOTS.map((honeypot) => (
+                    <Route key={honeypot} path={honeypot} element={<NotFound />} />
+                  ))}
                   <Route path={ROUTES.REGISTER} element={<Register />} />
                   <Route path={ROUTES.MEMBERSHIP_REQUEST} element={<MembershipRequest />} />
 
@@ -110,11 +125,42 @@ function App() {
                       </ProtectedRoute>
                     }
                   />
+                  <Route
+                    path="/admin/activity-editor"
+                    element={
+                      <ProtectedRoute>
+                        <AdminRoute>
+                          <Layout><ActivityEditor /></Layout>
+                        </AdminRoute>
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  {/* Mode Examen & Résultats */}
+                  <Route
+                    path="/exams/:id/take"
+                    element={
+                      <ProtectedRoute>
+                        <ExamImmersive />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/exams/:id/result"
+                    element={
+                      <ProtectedRoute>
+                        <Layout><ExamResult /></Layout>
+                      </ProtectedRoute>
+                    }
+                  />
 
                   {/* Route 404 */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
+
+              {/* Modale Bloquante Must Change Password (Exclusivité Superadmin) */}
+              <MustChangePasswordModal />
             </div>
           </Router>
         </ToastProvider>

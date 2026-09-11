@@ -1,9 +1,10 @@
 import api from './api';
 
 export const authService = {
-  // Connexion
-  login: async (email, password) => {
-    const response = await api.post('/auth/login', { email, password });
+  // Connexion (space: 'member' | 'executive' | 'admin')
+  login: async (email, password, space) => {
+    const payload = space ? { email, password, space } : { email, password };
+    const response = await api.post('/auth/login', payload);
     return response.data;
   },
 

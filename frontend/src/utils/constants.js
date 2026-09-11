@@ -59,6 +59,25 @@ export const MEMBERSHIP_STATUS = {
   REJECTED: 'rejected'
 };
 
+// Route de connexion Superadmin obscurcie (security by obscurity, 1ère couche).
+// Configurable sans toucher au code via VITE_SUPERADMIN_ROUTE.
+// Ex. : VITE_SUPERADMIN_ROUTE=/portal-secure-x9k2/admin-login
+export const SUPERADMIN_LOGIN_PATH =
+  import.meta.env.VITE_SUPERADMIN_ROUTE || '/portal-secure-x9k2/admin-login';
+
+// Anciens chemins prévisibles neutralisés -> honeypots redirigés vers 404.
+// NOTE : '/admin' (dashboard authentifié) est conservé ; seuls les chemins
+// de *connexion* devinables sont piégés.
+export const LEGACY_SUPERADMIN_HONEYPOTS = [
+  '/admin/login',
+  '/superadmin',
+  '/superadmin/login',
+  '/super-admin',
+  '/super-admin/login',
+  '/administrator',
+  '/administrator/login',
+].filter((p) => p !== SUPERADMIN_LOGIN_PATH);
+
 export const ROUTES = {
   HOME: '/',
   ABOUT: '/about',
@@ -68,6 +87,7 @@ export const ROUTES = {
   MEMBERSHIP: '/membership',
   CONTACT: '/contact',
   LOGIN: '/login',
+  ADMIN_LOGIN: SUPERADMIN_LOGIN_PATH,
   REGISTER: '/register',
   MEMBERSHIP_REQUEST: '/membership-request',
   DASHBOARD: '/dashboard',

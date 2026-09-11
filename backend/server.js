@@ -19,6 +19,7 @@ import membershipRequestRoutes from './routes/membership-requests.js';
 import partnerRoutes from './routes/partners.js';
 import statsRoutes from './routes/stats.js';
 import runMigration from './scripts/migrate.js';
+import { seedSuperadmin } from './scripts/seedSuperadmin.js';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler.js';
@@ -143,6 +144,12 @@ const startServer = async () => {
   try {
     // Exécuter les migrations avant de démarrer le serveur
     await runMigration();
+    // Garantie post-sync : (re)crée le Superadmin même si migrate.js est bypassé
+    try {
+      await seedSuperadmin();
+    } catch (seedError) {
+      console.error('❌ Seed Superadmin post-migration échoué:', seedError.message);
+    }
 
     app.listen(PORT, () => {
       console.log(`🚀 Serveur démarré sur le port ${PORT}`);

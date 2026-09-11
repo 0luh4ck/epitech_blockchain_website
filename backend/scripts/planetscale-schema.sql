@@ -220,31 +220,15 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 
 -- Insertion des données initiales
 
--- Utilisateurs administrateurs par défaut
--- Mot de passe par défaut: Admin123! (hash bcrypt)
-INSERT INTO users (email, password, first_name, last_name, role, position, is_active, is_verified) VALUES
-('admin@epitech-blockchain.bj', '$2a$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA', 'Samuel', 'SOGLOHOUN', 'admin', 'Coordinateur du Bureau Exécutif', true, true),
-('president@epitech-blockchain.bj', '$2a$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA', 'Brouhane', 'BONI GOMINA', 'admin', 'Président', true, true);
+-- Utilisateur Superadmin par défaut (seul compte initial d'amorce)
+INSERT INTO users (email, password, first_name, last_name, role, position, is_active, is_verified, must_change_password) VALUES
+('epiblockchain@epitech.eu', '$2a$10$OPOqICdd.GbQ7CGv1No7eOnDpiID5qCiaQDKXVUX0G5z793Fa4C2e', 'Superadmin', 'Club Blockchain', 'admin', 'Superadmin System', true, true, true);
 
 -- Partenaires
 INSERT INTO partners (name, description, website, contact_email, is_active) VALUES
 ('Epitech Bénin', 'École d\'informatique et d\'innovation technologique', 'https://epitech.bj/', 'contact@epitech.bj', true),
 ('Future Studio', 'Studio d\'innovation et de développement technologique', 'https://www.futurestudio.bj/', 'info@futurestudio.bj', true),
 ('Africa Blockchain Institute', 'Institut de formation et de recherche en blockchain', 'https://africablockchain.institute/', 'contact@africablockchain.institute', true);
-
--- Membres du Bureau Exécutif 2025-2026
-INSERT INTO users (email, password, first_name, last_name, role, position, is_active, is_verified) VALUES
-('estelle.gossou@epitech-blockchain.bj', '$2a$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA', 'Estelle', 'GOSSOU', 'executive', 'Secrétaire', true, true),
-('divine.azanmassou@epitech-blockchain.bj', '$2a$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA', 'Divine', 'AZANMASSO', 'executive', 'Trésorière', true, true),
-('patrice.dagbe@epitech-blockchain.bj', '$2a$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA', 'Patrice', 'DAGBE', 'executive', 'Chargé du Pôle Evènements et Partenariats', true, true),
-('jimmy.bachabi@epitech-blockchain.bj', '$2a$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA', 'Jimmy', 'BACHABI', 'executive', 'Adjoint chargé des Evènements et Partenariats', true, true),
-('moktar.vodounnon@epitech-blockchain.bj', '$2a$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA', 'Moktar', 'VODOUNNON', 'executive', 'Lead du Pôle Tech', true, true),
-('imane.philippe@epitech-blockchain.bj', '$2a$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA', 'Imane', 'PHILIPPE', 'executive', 'Lead du Pôle Communication', true, true),
-('morayo.elegbede@epitech-blockchain.bj', '$2a$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA', 'Morayo', 'ELEGBEDE', 'executive', 'Adjoint Chargé Pôle Communication', true, true),
-('christian.abiala@epitech-blockchain.bj', '$2a$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA', 'Christian', 'ABIALA', 'executive', 'Chargé du Pôle Pédago', true, true),
-('eunice.gossou-bah@epitech-blockchain.bj', '$2a$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA', 'Eunice', 'GOSSOU-BAH', 'executive', 'Lead Pôle Ressources Humaines', true, true),
-('ilhaam.mama@epitech-blockchain.bj', '$2a$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA', 'Ilhaam', 'MAMA', 'executive', 'Adjoint Pôle Ressources Humaines', true, true),
-('farid.adoi@epitech-blockchain.bj', '$2a$10$rQZ8K9mN2pL3vX7wE5tYCO8fG1hI2jK4lM6nO9pQ7rS3tU5vW8xY1zA', 'Farid', 'ADOI', 'executive', 'Conseiller Pôle Tech et Pédago', true, true);
 
 -- Annonce de bienvenue
 INSERT INTO announcements (title, content, type, is_public, is_pinned, created_by) VALUES

@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS users (
     reset_password_token VARCHAR(255),
     reset_password_expires DATETIME,
     last_login DATETIME,
+    must_change_password BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -215,10 +216,9 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 
 -- Insertion des données initiales
 
--- Utilisateurs administrateurs par défaut
-INSERT INTO users (email, password, first_name, last_name, role, position, is_active, is_verified) VALUES
-('samuel.soglohoun@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Samuel', 'SOGLOHOUN', 'admin', 'Coordinateur du Bureau Exécutif', true, true),
-('brouhane.boni-gomina@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Brouhane', 'BONI GOMINA', 'admin', 'Président', true, true)
+-- Utilisateur Superadmin par défaut (seul compte initial d'amorce)
+INSERT INTO users (email, password, first_name, last_name, role, position, is_active, is_verified, must_change_password) VALUES
+('epiblockchain@epitech.eu', '$2a$10$OPOqICdd.GbQ7CGv1No7eOnDpiID5qCiaQDKXVUX0G5z793Fa4C2e', 'Superadmin', 'Club Blockchain', 'admin', 'Superadmin System', true, true, true)
 ON DUPLICATE KEY UPDATE password = VALUES(password);
 
 -- Partenaires
@@ -226,21 +226,6 @@ INSERT INTO partners (name, description, website, contact_email, is_active) VALU
 ('Epitech Bénin', 'École d''informatique et d''innovation technologique', 'https://epitech.bj/', 'contact@epitech.bj', true),
 ('Future Studio', 'Studio d''innovation et de développement technologique', 'https://www.futurestudio.bj/', 'info@futurestudio.bj', true),
 ('Africa Blockchain Institute', 'Institut de formation et de recherche en blockchain', 'https://africablockchain.institute/', 'contact@africablockchain.institute', true);
-
--- Membres du Bureau Exécutif 2025-2026
-INSERT INTO users (email, password, first_name, last_name, role, position, is_active, is_verified) VALUES
-('estelle.gossou@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Estelle', 'GOSSOU', 'executive', 'Secrétaire', true, true),
-('divine.azanmasso@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Divine', 'AZANMASSO', 'executive', 'Trésorière', true, true),
-('christopher.guidibi@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Christopher', 'GUIDIBI', 'executive', 'Chargé du Pôle Evènements et Partenariats', true, true),
-('stella.gbaguidi@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Stella', 'GBAGUIDI', 'executive', 'Adjoint chargé des Evènements et Partenariats', true, true),
-('moktar.vodounnon@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Moktar', 'VODOUNNON', 'executive', 'Lead du Pôle Tech', true, true),
-('imane.philippe@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Imane', 'PHILIPPE', 'executive', 'Lead du Pôle Communication', true, true),
-('morayo.elegbede@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Morayo', 'ELEGBEDE', 'executive', 'Adjoint Chargé Pôle Communication', true, true),
-('christian.abiala@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Christian', 'ABIALA', 'executive', 'Chargé du Pôle Pédago', true, true),
-('eunice.gossou-bah@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Eunice', 'GOSSOU BAH', 'executive', 'Lead Pôle Ressources Humaines', true, true),
-('jimmy.bachabi@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Jimmy', 'BACHABI', 'executive', 'Adjoint Pôle Ressources Humaines', true, true),
-('farid.adoi@epitech.eu', '$2a$10$sEespdxYyuLtzcmrxpaJ9OfY2YE7zbhGpfjjIaqOiX5v5vkPV8YKa', 'Farid', 'ADOI', 'executive', 'Conseiller Pôle Tech et Pédago', true, true)
-ON DUPLICATE KEY UPDATE password = VALUES(password);
 
 -- Annonce de bienvenue
 INSERT INTO announcements (title, content, type, is_public, is_pinned, created_by) VALUES

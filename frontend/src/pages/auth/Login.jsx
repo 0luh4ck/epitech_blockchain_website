@@ -1,15 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, Users, Briefcase } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { ROUTES } from '../../utils/constants';
 import ParticleGrid from '../../components/ParticleGrid';
 import BlockchainButton from '../../components/BlockchainButton';
 
+// Espaces publics UNIQUEMENT : pas d'option ni de lien d'administration ici.
+// La connexion d'administration vit sur une route confidentielle non divulguée.
+const SPACES = [
+  { id: 'member', label: 'Membre', icon: Users },
+  { id: 'executive', label: 'Membre du Bureau', icon: Briefcase },
+];
+
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [space, setSpace] = useState('member');
   const { login, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,7 +37,9 @@ const Login = () => {
 
   const onSubmit = async (data) => {
     try {
-      await login(data.email, data.password);
+      // Le backend vérifie que `space` correspond au rôle réel en BDD
+      // et rejette les admins sur cette page publique (403).
+      await login(data.email, data.password, space);
       const from = location.state?.from?.pathname || ROUTES.DASHBOARD;
       navigate(from, { replace: true });
     } catch (err) {
@@ -47,6 +57,8 @@ const Login = () => {
     );
   }
 
+  const activeSpace = SPACES.find((s) => s.id === space);
+
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-slate-50/50 py-12 px-4">
       <ParticleGrid />
@@ -60,7 +72,7 @@ const Login = () => {
         <div
           className="rounded-[40px] p-8 md:p-12 bg-white border border-slate-100 shadow-2xl shadow-slate-200/50"
         >
-          <div className="text-center mb-10">
+          <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
               <div className="relative group p-1 bg-gradient-to-tr from-blue-600 to-green-500 rounded-3xl shrink-0">
                 <img
@@ -72,11 +84,32 @@ const Login = () => {
             </div>
 
             <h1 className="text-3xl font-black text-slate-900 mb-2 tracking-tight">
-              Espace <span className="text-blue-600">Membre</span>
+              Espace <span className="text-blue-600">{activeSpace.label}</span>
             </h1>
             <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">
               Connexion sécurisée
             </p>
+          </div>
+
+          {/* Sélecteur d'espace : Membre / Membre du Bureau */}
+          <div className="grid grid-cols-2 gap-2 p-1.5 mb-8 bg-slate-100 rounded-2xl" role="tablist" aria-label="Choisir votre espace">
+            {SPACES.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={space === id}
+                onClick={() => setSpace(id)}
+                className={`flex items-center justify-center gap-2 py-3 px-2 rounded-xl text-sm font-black transition-all ${
+                  space === id
+                    ? 'bg-white text-blue-600 shadow-md'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+              </button>
+            ))}
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -150,7 +183,7 @@ const Login = () => {
               disabled={isSubmitting}
               className="w-full py-4.5 mt-2 shadow-lg shadow-blue-500/20"
             >
-              {isSubmitting ? 'Connexion...' : 'Se connecter'}
+              {isSubmitting ? 'Connexion...' : `Se connecter — ${activeSpace.label}`}
             </BlockchainButton>
           </form>
 

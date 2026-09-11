@@ -22,6 +22,10 @@ export const validateLogin = [
   body('password')
     .isLength({ min: 6 })
     .withMessage('Le mot de passe doit contenir au moins 6 caractères'),
+  body('space')
+    .optional()
+    .isIn(['member', 'executive', 'admin'])
+    .withMessage('Espace de connexion invalide (member, executive, admin)'),
   handleValidationErrors
 ];
 

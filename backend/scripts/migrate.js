@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { query, testConnection, default as pool } from '../config/database.js';
+import { seedSuperadmin } from './seedSuperadmin.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -67,6 +68,9 @@ async function runMigration() {
         }
       }
     }
+
+    // Seed / réinitialisation du compte Superadmin (post-sync)
+    await seedSuperadmin();
 
     console.log('🎉 Migration terminée avec succès !');
     console.log('📊 Base de données prête pour le Club Blockchain Epitech');

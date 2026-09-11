@@ -8,11 +8,11 @@ import { handleValidationErrors, validateRegister, validateLogin } from '../midd
 const router = express.Router();
 
 // @route   POST /api/auth/register
-// @desc    Enregistrer un nouvel utilisateur
+// @desc    Enregistrer une demande d'adhésion (Workflow strict d'approbation)
 // @access  Public
 router.post('/register', validateRegister, async (req, res) => {
   try {
-    const { email, password, firstName, lastName, phone, studentId } = req.body;
+    const { email, firstName, lastName, phone, studentId, motivation } = req.body;
 
     // Vérifier si l'utilisateur existe déjà
     const existingUser = await query(
@@ -23,50 +23,39 @@ router.post('/register', validateRegister, async (req, res) => {
     if (existingUser.length > 0) {
       return res.status(400).json({
         success: false,
-        message: 'Un utilisateur avec cet email existe déjà'
+        message: 'Un compte avec cet email existe déjà'
       });
     }
 
-    // Hacher le mot de passe
-    const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    // Créer l'utilisateur
-    const result = await query(
-      'INSERT INTO users (email, password, first_name, last_name, phone, student_id, role) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [email, hashedPassword, firstName, lastName, phone || null, studentId || null, 'member']
+    // Vérifier si une demande d'adhésion est déjà en attente
+    const existingRequest = await query(
+      'SELECT id FROM membership_requests WHERE email = ? AND status = "pending"',
+      [email]
     );
 
-    // Générer le token JWT
-    const token = jwt.sign(
-      { userId: result.insertId, email },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+    if (existingRequest.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Une demande d\'adhésion avec cet email est déjà en attente d\'approbation'
+      });
+    }
+
+    // Créer la demande d'adhésion (Statut Pending Obligatoire)
+    await query(
+      'INSERT INTO membership_requests (email, first_name, last_name, phone, student_id, motivation, status) VALUES (?, ?, ?, ?, ?, ?, "pending")',
+      [email, firstName, lastName, phone || null, studentId || null, motivation || 'Demande d\'inscription depuis la plateforme']
     );
 
     res.status(201).json({
       success: true,
-      message: 'Utilisateur créé avec succès',
-      data: {
-        token,
-        user: {
-          id: result.insertId,
-          email,
-          firstName,
-          lastName,
-          role: 'member'
-        }
-      }
+      pendingApproval: true,
+      message: 'Demande d\'adhésion soumise avec succès. Votre dossier est en cours d\'examen par le Bureau Exécutif. Un email contenant vos accès vous sera envoyé après validation.'
     });
   } catch (error) {
-    console.error('❌ Erreur dans POST /api/auth/register:', {
-      message: error.message,
-      code: error.code,
-      stack: error.stack
-    });
+    console.error('❌ Erreur dans POST /api/auth/register:', error);
     res.status(500).json({
       success: false,
-      message: 'Erreur lors de la création du compte'
+      message: 'Erreur lors de la soumission de la demande d\'adhésion'
     });
   }
 });
@@ -76,12 +65,12 @@ router.post('/register', validateRegister, async (req, res) => {
 // @access  Public
 router.post('/login', validateLogin, async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, space } = req.body;
 
     // Trouver l'utilisateur
-    console.log('🔑 Tentative de connexion pour:', email);
+    console.log('🔑 Tentative de connexion pour:', email, '| espace demandé:', space || '(défaut)');
     const users = await query(
-      'SELECT id, email, password, first_name, last_name, role, is_active, is_verified FROM users WHERE email = ?',
+      'SELECT id, email, password, first_name, last_name, role, is_active, is_verified, must_change_password FROM users WHERE email = ?',
       [email]
     );
 
@@ -94,7 +83,50 @@ router.post('/login', validateLogin, async (req, res) => {
     }
 
     const user = users[0];
+    const realRole = String(user.role || '').toLowerCase();
     console.log('👤 Utilisateur trouvé:', { email: user.email, role: user.role, isActive: user.is_active });
+
+    // --- Contrôle d'accès par espace (Tabs public vs /admin/login) ---
+    // Espace public : 'member' (Membre) | 'executive' (Membre du Bureau)
+    // Espace isolé  : 'admin' (Superadmin, route /admin/login uniquement)
+    const isAdminRole = realRole === 'admin' || realRole === 'superadmin';
+
+    if (space === 'admin') {
+      // Route /admin/login : seuls les admins passent
+      if (!isAdminRole) {
+        console.log('⛔ Accès admin refusé (rôle réel):', realRole);
+        return res.status(403).json({
+          success: false,
+          message: "Ce compte n'a pas accès à l'espace d'administration."
+        });
+      }
+    } else if (space === 'member' || space === 'executive') {
+      // Connexion publique : le rôle choisi doit correspondre au rôle BDD
+      if (isAdminRole) {
+        console.log('⛔ Compte admin sur espace public:', email);
+        return res.status(403).json({
+          success: false,
+          message: "Ce compte administrateur doit se connecter via /admin/login."
+        });
+      }
+      if (realRole !== space) {
+        console.log(`⛔ Rôle incohérent: demandé=${space}, réel=${realRole}`);
+        return res.status(403).json({
+          success: false,
+          message: `Ce compte est enregistré comme « ${realRole === 'executive' ? 'Membre du Bureau' : 'Membre'} ». Veuillez sélectionner le bon espace.`
+        });
+      }
+    } else {
+      // Rétro-compatibilité (anciens clients sans champ space) :
+      // on bloque les admins sur la page publique pour masquer le Superadmin.
+      if (isAdminRole) {
+        console.log('⛔ Compte admin sans espace admin:', email);
+        return res.status(403).json({
+          success: false,
+          message: "Ce compte administrateur doit se connecter via /admin/login."
+        });
+      }
+    }
 
     // Vérifier si le compte est actif
     if (!user.is_active) {
@@ -140,16 +172,13 @@ router.post('/login', validateLogin, async (req, res) => {
           firstName: user.first_name,
           lastName: user.last_name,
           role: user.role,
-          isVerified: user.is_verified
+          isVerified: user.is_verified,
+          mustChangePassword: !!user.must_change_password
         }
       }
     });
   } catch (error) {
-    console.error('❌ Erreur dans POST /api/auth/login:', {
-      message: error.message,
-      code: error.code,
-      stack: error.stack
-    });
+    console.error('❌ Erreur dans POST /api/auth/login:', error);
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la connexion'
@@ -163,7 +192,7 @@ router.post('/login', validateLogin, async (req, res) => {
 router.get('/me', authenticateToken, async (req, res) => {
   try {
     const user = await query(
-      'SELECT id, email, first_name, last_name, phone, student_id, role, position, bio, avatar, is_active, is_verified, last_login, created_at FROM users WHERE id = ?',
+      'SELECT id, email, first_name, last_name, phone, student_id, role, position, bio, avatar, is_active, is_verified, must_change_password, last_login, created_at FROM users WHERE id = ?',
       [req.user.id]
     );
 
@@ -190,6 +219,7 @@ router.get('/me', authenticateToken, async (req, res) => {
           avatar: user[0].avatar,
           isActive: user[0].is_active,
           isVerified: user[0].is_verified,
+          mustChangePassword: !!user[0].must_change_password,
           lastLogin: user[0].last_login,
           createdAt: user[0].created_at
         }
@@ -220,7 +250,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
 
     // Récupérer les données mises à jour
     const updatedUser = await query(
-      'SELECT id, email, first_name, last_name, phone, student_id, role, position, bio, avatar, is_active, is_verified, last_login, created_at FROM users WHERE id = ?',
+      'SELECT id, email, first_name, last_name, phone, student_id, role, position, bio, avatar, is_active, is_verified, must_change_password, last_login, created_at FROM users WHERE id = ?',
       [userId]
     );
 
@@ -241,6 +271,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
           avatar: updatedUser[0].avatar,
           isActive: updatedUser[0].is_active,
           isVerified: updatedUser[0].is_verified,
+          mustChangePassword: !!updatedUser[0].must_change_password,
           lastLogin: updatedUser[0].last_login,
           createdAt: updatedUser[0].created_at
         }
@@ -256,7 +287,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
 });
 
 // @route   POST /api/auth/change-password
-// @desc    Changer le mot de passe
+// @desc    Changer le mot de passe (Réinitialise must_change_password à false)
 // @access  Private
 router.post('/change-password', authenticateToken, async (req, res) => {
   try {
@@ -303,9 +334,9 @@ router.post('/change-password', authenticateToken, async (req, res) => {
     const saltRounds = 12;
     const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
 
-    // Mettre à jour le mot de passe
+    // Mettre à jour le mot de passe et libérer la modale (must_change_password = false)
     await query(
-      'UPDATE users SET password = ?, updated_at = NOW() WHERE id = ?',
+      'UPDATE users SET password = ?, must_change_password = false, updated_at = NOW() WHERE id = ?',
       [hashedNewPassword, userId]
     );
 

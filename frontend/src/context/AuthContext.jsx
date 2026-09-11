@@ -123,12 +123,12 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-  // Fonction de connexion
-  const login = async (email, password) => {
+  // Fonction de connexion (space: 'member' | 'executive' | 'admin')
+  const login = async (email, password, space) => {
     dispatch({ type: AUTH_ACTIONS.LOGIN_START });
 
     try {
-      const response = await authService.login(email, password);
+      const response = await authService.login(email, password, space);
 
       // Sauvegarder dans le localStorage
       localStorage.setItem('token', response.data.token);
@@ -214,39 +214,42 @@ export const AuthProvider = ({ children }) => {
   // Fonction de changement de mot de passe
   const changePassword = async (currentPassword, newPassword) => {
     try {
-      await authService.changePassword(currentPassword, newPassword);
+      const response = await authService.changePassword(currentPassword, newPassword);
+      
+      // Réinitialiser mustChangePassword localement si actif
+      if (state.user && state.user.mustChangePassword) {
+        const updatedUser = { ...state.user, mustChangePassword: false };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        dispatch({
+          type: AUTH_ACTIONS.UPDATE_USER,
+          payload: { mustChangePassword: false }
+        });
+      }
+
       toast.success('Mot de passe modifié avec succès !');
+      return { success: true, data: response?.data };
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Erreur lors du changement de mot de passe';
       toast.error(errorMessage);
-      throw error;
+      return { success: false, message: errorMessage };
     }
   };
 
-  // Fonction pour effacer les erreurs
-  const clearError = () => {
-    dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
+  const setUser = (updater) => {
+    const updatedUser = typeof updater === 'function' ? updater(state.user) : updater;
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    dispatch({
+      type: AUTH_ACTIONS.UPDATE_USER,
+      payload: updatedUser
+    });
   };
 
-  // Vérifier si l'utilisateur a un rôle spécifique
-  const hasRole = (role) => {
-    return state.user?.role === role;
-  };
-
-  // Vérifier si l'utilisateur a l'un des rôles spécifiés
-  const hasAnyRole = (roles) => {
-    return roles.includes(state.user?.role);
-  };
-
-  // Vérifier si l'utilisateur est admin
-  const isAdmin = () => {
-    return state.user?.role === 'admin';
-  };
-
-  // Vérifier si l'utilisateur est membre du bureau exécutif
-  const isExecutive = () => {
-    return ['admin', 'executive'].includes(state.user?.role);
-  };
+  const clearError = () => dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
+  const hasRole = (role) => state.user?.role === role;
+  const hasAnyRole = (roles = []) => (roles || []).includes(state.user?.role);
+  // Fonctions (et non booléens) : Header/BlockchainNav/Admin/Dashboard les appellent comme isAdmin()
+  const isAdmin = () => state.user?.role === 'admin' || state.user?.role === 'superadmin';
+  const isExecutive = () => state.user?.role === 'executive' || isAdmin();
 
   const value = {
     ...state,
@@ -255,6 +258,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     updateProfile,
     changePassword,
+    setUser,
     clearError,
     hasRole,
     hasAnyRole,
